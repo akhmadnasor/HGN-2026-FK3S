@@ -181,17 +181,40 @@ export interface ActivityLog {
   description: string;
 }
 
+export interface SchoolItem {
+  school_id: string;
+  npsn: string;
+  school_name: string;
+  status: 'NEGERI' | 'SWASTA';
+  village: string;
+  district: string;
+  regency: string;
+  province: string;
+  active: boolean;
+}
+
+export interface PublicParticipantItem {
+  participant_id: string;
+  school: string;
+  full_name: string;
+  innovation_title: string;
+}
+
 export interface PublicDataPayload {
   settings: Record<string, string>;
   juknis: JuknisSection[];
   jadwal: JadwalItem[];
   hadiah: HadiahItem[];
+  sekolah: SchoolItem[];
+  public_participants: PublicParticipantItem[];
   pengumuman: AnnouncementItem[];
   top5: Array<FinalistWinnerRecord & { full_name: string; school: string; innovation_title: string }>;
   winners: Array<FinalistWinnerRecord & { full_name: string; school: string; innovation_title: string }>;
   stats: {
     total_participants: number;
     total_schools: number;
+    total_registered_schools?: number;
   };
   last_sync: string;
 }
+

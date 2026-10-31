@@ -15,6 +15,7 @@ var TABLES = {
   JUKNIS: ['id', 'section_code', 'title', 'content', 'sort_order', 'active', 'updated_at'],
   JADWAL: ['id', 'activity', 'start_datetime', 'end_datetime', 'location', 'display_order', 'active'],
   HADIAH: ['id', 'rank', 'prize_amount', 'description', 'display_order', 'active'],
+  SEKOLAH: ['school_id', 'npsn', 'school_name', 'status', 'village', 'district', 'regency', 'province', 'active'],
   PESERTA: [
     'participant_id', 'submitted_at', 'full_name', 'school', 'innovation_title',
     'drive_folder_url', 'video_url', 'lesson_module_url', 'learning_media_url',
@@ -189,6 +190,42 @@ function setupDatabase() {
     hadiahSheet.getRange(2, 1, initialHadiah.length, 6).setValues(initialHadiah);
   }
 
+  // Seed SEKOLAH (Sekolah Dasar Se-Kecamatan Beji, Kabupaten Pasuruan, Provinsi Jawa Timur) if empty
+  var sekolahSheet = ss.getSheetByName('SEKOLAH');
+  if (sekolahSheet.getLastRow() <= 1) {
+    var initialSekolah = [
+      ['SCH-01', '20519441', 'SDN Baujeng I Beji', 'NEGERI', 'Desa Baujeng', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-02', '20519442', 'SDN Baujeng II Beji', 'NEGERI', 'Desa Baujeng', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-03', '20519446', 'SDN Beji I Beji', 'NEGERI', 'Desa Beji', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-04', '20519447', 'SDN Beji II Beji', 'NEGERI', 'Desa Beji', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-05', '20519449', 'SDN Beji IV Beji', 'NEGERI', 'Desa Beji', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-06', '20519421', 'SDN Cangkringmalang I Beji', 'NEGERI', 'Desa Cangkringmalang', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-07', '20519422', 'SDN Cangkringmalang II Beji', 'NEGERI', 'Desa Cangkringmalang', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-08', '20519423', 'SDN Cangkringmalang III Beji', 'NEGERI', 'Desa Cangkringmalang', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-09', '20519312', 'SDN Gajahbendo Beji', 'NEGERI', 'Kel. Gajahbendo', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-10', '20519318', 'SDN Glanggang I Beji', 'NEGERI', 'Desa Glanggang', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-11', '20519319', 'SDN Glanggang II Beji', 'NEGERI', 'Desa Glanggang', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-12', '20519335', 'SDN Gununggangsir I Beji', 'NEGERI', 'Desa Gununggangsir', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-13', '20519336', 'SDN Gununggangsir II Beji', 'NEGERI', 'Desa Gununggangsir', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-14', '20519337', 'SDN Gununggangsir III Beji', 'NEGERI', 'Desa Gununggangsir', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-15', '20519340', 'SDN Gunungsari I Beji', 'NEGERI', 'Desa Gunungsari', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-16', '20519341', 'SDN Gunungsari II Beji', 'NEGERI', 'Desa Gunungsari', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-17', '20519763', 'SDN Kedungboto Beji', 'NEGERI', 'Desa Kedungboto', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-18', '20519756', 'SDN Kedungringin I Beji', 'NEGERI', 'Desa Kedungringin', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-19', '20519757', 'SDN Kedungringin II Beji', 'NEGERI', 'Desa Kedungringin', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-20', '20519758', 'SDN Kedungringin III Beji', 'NEGERI', 'Desa Kedungringin', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-21', '20519759', 'SDN Kedungringin IV Beji', 'NEGERI', 'Desa Kedungringin', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-22', '20519741', 'SDN Kenep Beji', 'NEGERI', 'Desa Kenep', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-23', '20519182', 'SDN Ngembe Beji', 'NEGERI', 'Desa Ngembe', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-24', '20519155', 'SDN Pagak Beji', 'NEGERI', 'Desa Pagak', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-25', '20518981', 'SDN Sidowayah Beji', 'NEGERI', 'Desa Sidowayah', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-26', '20519011', 'SDN Sumbersari I Beji', 'NEGERI', 'Desa Gununggangsir', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-27', '20519012', 'SDN Sumbersari II Beji', 'NEGERI', 'Desa Gununggangsir', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true'],
+      ['SCH-28', '69947120', 'SD Islam Ar-Roudhoh Beji', 'SWASTA', 'Desa Wonokoyo', 'Kec. Beji', 'Kab. Pasuruan', 'Jawa Timur', 'true']
+    ];
+    sekolahSheet.getRange(2, 1, initialSekolah.length, 9).setValues(initialSekolah);
+  }
+
   // Seed KRITERIA_PENILAIAN if empty
   var kriteriaSheet = ss.getSheetByName('KRITERIA_PENILAIAN');
   if (kriteriaSheet.getLastRow() <= 1) {
@@ -328,6 +365,10 @@ function doPost(e) {
         return jsonResponse(true, getJuknis(), 'OK');
       case 'saveJuknis':
         return jsonResponse(true, saveJuknis(payload), 'Juknis berhasil disimpan');
+      case 'getSchools':
+        return jsonResponse(true, getSchools(), 'OK');
+      case 'saveSchools':
+        return jsonResponse(true, saveSchools(payload), 'Data sekolah berhasil disimpan');
       case 'getParticipants':
         return jsonResponse(true, getParticipants(), 'OK');
       case 'addParticipant':
@@ -402,6 +443,17 @@ function saveJuknis(payload) {
     replaceSheetObjects('JUKNIS', payload.juknis);
   }
   return getJuknis();
+}
+
+function getSchools() {
+  return sheetToObjects('SEKOLAH');
+}
+
+function saveSchools(payload) {
+  if (Array.isArray(payload.schools)) {
+    replaceSheetObjects('SEKOLAH', payload.schools);
+  }
+  return getSchools();
 }
 
 function getParticipants() {
@@ -593,11 +645,21 @@ function recordActivity(logEntry) {
 }
 
 function getPublicData() {
+  var publicParticipants = getParticipants().map(function(p) {
+    return {
+      participant_id: p.participant_id,
+      school: p.school,
+      full_name: p.full_name,
+      innovation_title: p.innovation_title
+    };
+  });
   return {
     settings: getSettings(),
     juknis: getJuknis().filter(function(j) { return String(j.active) === 'true'; }),
     jadwal: sheetToObjects('JADWAL').filter(function(j) { return String(j.active) === 'true'; }),
     hadiah: sheetToObjects('HADIAH').filter(function(h) { return String(h.active) === 'true'; }),
+    sekolah: getSchools().filter(function(s) { return String(s.active) === 'true'; }),
+    public_participants: publicParticipants,
     pengumuman: sheetToObjects('PENGUMUMAN').filter(function(a) { return String(a.published) === 'true'; }),
     finalis_pemenang: sheetToObjects('FINALIS_PEMENANG').filter(function(f) { return String(f.published) === 'true'; })
   };

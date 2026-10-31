@@ -1,0 +1,786 @@
+{
+  "PENGATURAN": [
+    {
+      "key": "site_title",
+      "value": "LOMBA GURU INSPIRATIF 2026",
+      "description": "Judul utama website",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "tagline",
+      "value": "GURU HEBAT, INDONESIA KUAT",
+      "description": "Tagline utama HGN 2026",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "hashtag",
+      "value": "#BejolanAji",
+      "description": "Hashtag resmi",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "organizer",
+      "value": "FK3S KEC. BEJI",
+      "description": "Penyelenggara kegiatan",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "main_logo_url",
+      "value": "https://lh3.googleusercontent.com/d/1_q1kZ4MJoP6VQR7qs61HId_k_HHXB4oe",
+      "description": "Logo utama beranda (Page 1)",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "app_icon_url",
+      "value": "https://lh3.googleusercontent.com/d/13M5y3gnxVP6cUPGKRXqdYqmHxFjPAvpD",
+      "description": "Logo FK3S Kec. Beji (Header & Page 2)",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "hero_background_url",
+      "value": "",
+      "description": "Gambar latar hero opsional",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "banner_url",
+      "value": "",
+      "description": "Gambar banner tambahan",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "primary_color",
+      "value": "#0284c7",
+      "description": "Warna utama (Biru Institusi FK3S)",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "secondary_color",
+      "value": "#d97706",
+      "description": "Warna sekunder (Emas Inspiratif)",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "contact_whatsapp",
+      "value": "Sekretariat FK3S KEC. BEJI — Kabupaten Pasuruan",
+      "description": "Informasi kontak di footer",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "footer_text",
+      "value": "FK3S KEC. BEJI — Memperingati Hari Guru Nasional 2026",
+      "description": "Teks footer",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "submission_deadline",
+      "value": "2026-11-21T23:59:00+07:00",
+      "description": "Batas waktu pengumpulan karya (Asia/Jakarta)",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "submission_enabled",
+      "value": "true",
+      "description": "Status buka/tutup pengumpulan karya",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "submission_mode",
+      "value": "INTERNAL",
+      "description": "Mode pengumpulan: INTERNAL atau GOOGLE_FORM",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "external_form_url",
+      "value": "",
+      "description": "URL Google Form eksternal jika mode GOOGLE_FORM",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "active_judging_stage",
+      "value": "PENYISIHAN",
+      "description": "Tahap penjurian aktif (PENYISIHAN / FINAL)",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "jury_portal_enabled",
+      "value": "true",
+      "description": "Status portal login juri",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "preliminary_results_published",
+      "value": "false",
+      "description": "Publikasi pengumuman Top 5",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "final_results_published",
+      "value": "false",
+      "description": "Publikasi pemenang utama",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "stage_combination_mode",
+      "value": "SEPARATE",
+      "description": "Perhitungan nilai babak final: SEPARATE atau COMBINED",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "preliminary_stage_weight",
+      "value": "40",
+      "description": "Bobot nilai penyisihan (%) bila digabung",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "final_stage_weight",
+      "value": "60",
+      "description": "Bobot nilai final (%) bila digabung",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "apps_script_url",
+      "value": "https://script.google.com/macros/s/AKfycbxabVviG8sAE_4HpVUJ_x_y9Q7Wgl25NaW7qgtntD94d3isATm_1wyoUNJM-gU84q9RfQ/exec",
+      "description": "URL Web App Google Apps Script (HGN 2026 Kec. Beji)",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "last_updated",
+      "value": "2026-11-01T00:54:06+07:00",
+      "description": "Waktu pembaruan terakhir",
+      "updated_at": "2026-11-01T00:54:06+07:00"
+    }
+  ],
+  "JUKNIS": [
+    {
+      "id": "JUK-A",
+      "section_code": "A",
+      "title": "LATAR BELAKANG DAN TUJUAN",
+      "content": "Dalam rangka memperingati Hari Guru Nasional Tahun 2026, FKKKS Kecamatan Beji menyelenggarakan Lomba Video Guru Inspiratif untuk menggali, mengapresiasi, dan mendiseminasikan praktik baik serta inovasi pembelajaran guru.",
+      "sort_order": 1,
+      "active": true,
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "id": "JUK-B",
+      "section_code": "B",
+      "title": "KETENTUAN PESERTA",
+      "content": "1. Peserta merupakan guru aktif di sekolah dasar se-Kecamatan Beji.\n2. Kepesertaan bersifat wajib bagi setiap lembaga.\n3. Setiap sekolah mengirimkan minimal satu guru sebagai perwakilan.",
+      "sort_order": 2,
+      "active": true,
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "id": "JUK-C",
+      "section_code": "C",
+      "title": "KETENTUAN KARYA",
+      "content": "Tema bebas, dengan fokus inovasi pembelajaran.\nMateri dapat berupa: Metode pembelajaran, Media pembelajaran, Alat peraga, Program inovatif kelas, atau Strategi pembelajaran lainnya.\n\nWajib menerapkan prinsip Pembelajaran Mendalam:\n- Joyful Learning\n- Meaningful Learning\n- Mindful Learning\n\nVideo harus mengikuti alur STAR (Situasi, Tantangan, Aksi, Refleksi/Hasil).\nDurasi video minimal 5 menit dan maksimal 7 menit.\nVideo wajib memiliki bukti praktik nyata dan testimoni dari pihak yang relevan (siswa, guru sejawat, atau kepala sekolah).\n\nDokumen wajib:\n1. Video praktik baik\n2. Modul Ajar\n3. Dokumentasi Media Pembelajaran\n\nKarya wajib orisinal, belum pernah diikutkan lomba sejenis, dan sudah dipraktikkan di sekolah asal.",
+      "sort_order": 3,
+      "active": true,
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "id": "JUK-D",
+      "section_code": "D",
+      "title": "MEKANISME PENJURIAN",
+      "content": "Tahap 1 — Seleksi Video: Dewan juri melakukan penilaian terhadap seluruh karya untuk menentukan Top 5.\nTahap 2 — Final: Lima finalis melakukan paparan luring dan mempertanggungjawabkan inovasi pembelajaran.\n\nDewan juri terdiri dari unsur Korwilcam, Pengawas, dan Praktisi.\nKeputusan dewan juri bersifat mutlak dan tidak dapat diganggu gugat.",
+      "sort_order": 4,
+      "active": true,
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "id": "JUK-E",
+      "section_code": "E",
+      "title": "WAKTU PELAKSANAAN",
+      "content": "Deadline pengumpulan: 21 November 2026, 23.59 WIB.\nPenyisihan: 23–25 November 2026.\nFinal: 26–27 November 2026.\nPengumuman pemenang: 28 November 2026.",
+      "sort_order": 5,
+      "active": true,
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "id": "JUK-F",
+      "section_code": "F",
+      "title": "TATA CARA PENGUMPULAN",
+      "content": "Peserta menyiapkan Google Drive folder berisi: Video, Modul Ajar, dan Media Pembelajaran.\nFolder harus diatur agar dapat dilihat oleh siapa saja yang memiliki tautan (Anyone with the link can view).\nPeserta tidak diwajibkan mengunggah video ke YouTube pribadi.\nPanitia dapat mengunggah ulang karya ke kanal YouTube K3S sebagai arsip dan referensi pendidikan.\nPeserta mengirimkan identitas dan tautan karya melalui formulir pengumpulan resmi.",
+      "sort_order": 6,
+      "active": true,
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "id": "JUK-G",
+      "section_code": "G",
+      "title": "KRITERIA PENILAIAN",
+      "content": "Pedagogik dan Inovasi: 40%.\nDampak / Hasil Nyata: 35%.\nKualitas Teknis Video: 25%.",
+      "sort_order": 7,
+      "active": true,
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "id": "JUK-H",
+      "section_code": "H",
+      "title": "APRESIASI",
+      "content": "Juara I: Rp1.000.000 + Piagam Penghargaan.\nJuara II: Rp750.000 + Piagam Penghargaan.\nJuara III: Rp500.000 + Piagam Penghargaan.\nJuara Harapan I: Rp300.000 + Piagam Penghargaan.\nJuara Harapan II: Rp200.000 + Piagam Penghargaan.",
+      "sort_order": 8,
+      "active": true,
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    }
+  ],
+  "JADWAL": [
+    {
+      "id": "JDW-1",
+      "activity": "Deadline Pengumpulan Karya",
+      "start_datetime": "2026-11-21 23:59 WIB",
+      "end_datetime": "2026-11-21 23:59 WIB",
+      "location": "Portal Digital HGN Beji 2026",
+      "display_order": 1,
+      "active": true
+    },
+    {
+      "id": "JDW-2",
+      "activity": "Penjurian Tahap Penyisihan",
+      "start_datetime": "2026-11-22T17:00:00.000Z",
+      "end_datetime": "2026-11-24T17:00:00.000Z",
+      "location": "Portal Penjurian Digital",
+      "display_order": 2,
+      "active": true
+    },
+    {
+      "id": "JDW-3",
+      "activity": "Babak Final Top 5 (Paparan Luring)",
+      "start_datetime": "2026-11-25T17:00:00.000Z",
+      "end_datetime": "2026-11-26T17:00:00.000Z",
+      "location": "Aula Korwilcam Pendidikan Kec. Beji",
+      "display_order": 3,
+      "active": true
+    },
+    {
+      "id": "JDW-4",
+      "activity": "Pengumuman Pemenang & Puncak HGN",
+      "start_datetime": "2026-11-27T17:00:00.000Z",
+      "end_datetime": "2026-11-27T17:00:00.000Z",
+      "location": "Kecamatan Beji",
+      "display_order": 4,
+      "active": true
+    }
+  ],
+  "HADIAH": [
+    {
+      "id": "HAD-1",
+      "rank": "Juara I",
+      "prize_amount": 1000000,
+      "description": "Uang Pembinaan Rp1.000.000 + Piagam Penghargaan Resmi FKKKS Kec. Beji",
+      "display_order": 1,
+      "active": true
+    },
+    {
+      "id": "HAD-2",
+      "rank": "Juara II",
+      "prize_amount": 750000,
+      "description": "Uang Pembinaan Rp750.000 + Piagam Penghargaan Resmi FKKKS Kec. Beji",
+      "display_order": 2,
+      "active": true
+    },
+    {
+      "id": "HAD-3",
+      "rank": "Juara III",
+      "prize_amount": 500000,
+      "description": "Uang Pembinaan Rp500.000 + Piagam Penghargaan Resmi FKKKS Kec. Beji",
+      "display_order": 3,
+      "active": true
+    },
+    {
+      "id": "HAD-4",
+      "rank": "Juara Harapan I",
+      "prize_amount": 300000,
+      "description": "Uang Pembinaan Rp300.000 + Piagam Penghargaan Resmi FKKKS Kec. Beji",
+      "display_order": 4,
+      "active": true
+    },
+    {
+      "id": "HAD-5",
+      "rank": "Juara Harapan II",
+      "prize_amount": 200000,
+      "description": "Uang Pembinaan Rp200.000 + Piagam Penghargaan Resmi FKKKS Kec. Beji",
+      "display_order": 5,
+      "active": true
+    }
+  ],
+  "SEKOLAH": [
+    {
+      "school_id": "SCH-01",
+      "npsn": "20519441",
+      "school_name": "SDN Baujeng I Beji",
+      "status": "NEGERI",
+      "village": "Desa Baujeng",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-02",
+      "npsn": "20519442",
+      "school_name": "SDN Baujeng II Beji",
+      "status": "NEGERI",
+      "village": "Desa Baujeng",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-03",
+      "npsn": "20519446",
+      "school_name": "SDN Beji I Beji",
+      "status": "NEGERI",
+      "village": "Desa Beji",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-04",
+      "npsn": "20519447",
+      "school_name": "SDN Beji II Beji",
+      "status": "NEGERI",
+      "village": "Desa Beji",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-05",
+      "npsn": "20519449",
+      "school_name": "SDN Beji IV Beji",
+      "status": "NEGERI",
+      "village": "Desa Beji",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-06",
+      "npsn": "20519421",
+      "school_name": "SDN Cangkringmalang I Beji",
+      "status": "NEGERI",
+      "village": "Desa Cangkringmalang",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-07",
+      "npsn": "20519422",
+      "school_name": "SDN Cangkringmalang II Beji",
+      "status": "NEGERI",
+      "village": "Desa Cangkringmalang",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-08",
+      "npsn": "20519423",
+      "school_name": "SDN Cangkringmalang III Beji",
+      "status": "NEGERI",
+      "village": "Desa Cangkringmalang",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-09",
+      "npsn": "20519312",
+      "school_name": "SDN Gajahbendo Beji",
+      "status": "NEGERI",
+      "village": "Kel. Gajahbendo",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-10",
+      "npsn": "20519318",
+      "school_name": "SDN Glanggang I Beji",
+      "status": "NEGERI",
+      "village": "Desa Glanggang",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-11",
+      "npsn": "20519319",
+      "school_name": "SDN Glanggang II Beji",
+      "status": "NEGERI",
+      "village": "Desa Glanggang",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-12",
+      "npsn": "20519335",
+      "school_name": "SDN Gununggangsir I Beji",
+      "status": "NEGERI",
+      "village": "Desa Gununggangsir",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-13",
+      "npsn": "20519336",
+      "school_name": "SDN Gununggangsir II Beji",
+      "status": "NEGERI",
+      "village": "Desa Gununggangsir",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-14",
+      "npsn": "20519337",
+      "school_name": "SDN Gununggangsir III Beji",
+      "status": "NEGERI",
+      "village": "Desa Gununggangsir",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-15",
+      "npsn": "20519340",
+      "school_name": "SDN Gunungsari I Beji",
+      "status": "NEGERI",
+      "village": "Desa Gunungsari",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-16",
+      "npsn": "20519341",
+      "school_name": "SDN Gunungsari II Beji",
+      "status": "NEGERI",
+      "village": "Desa Gunungsari",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-17",
+      "npsn": "20519763",
+      "school_name": "SDN Kedungboto Beji",
+      "status": "NEGERI",
+      "village": "Desa Kedungboto",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-18",
+      "npsn": "20519756",
+      "school_name": "SDN Kedungringin I Beji",
+      "status": "NEGERI",
+      "village": "Desa Kedungringin",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-19",
+      "npsn": "20519757",
+      "school_name": "SDN Kedungringin II Beji",
+      "status": "NEGERI",
+      "village": "Desa Kedungringin",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-20",
+      "npsn": "20519758",
+      "school_name": "SDN Kedungringin III Beji",
+      "status": "NEGERI",
+      "village": "Desa Kedungringin",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-21",
+      "npsn": "20519759",
+      "school_name": "SDN Kedungringin IV Beji",
+      "status": "NEGERI",
+      "village": "Desa Kedungringin",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-22",
+      "npsn": "20519741",
+      "school_name": "SDN Kenep Beji",
+      "status": "NEGERI",
+      "village": "Desa Kenep",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-23",
+      "npsn": "20519182",
+      "school_name": "SDN Ngembe Beji",
+      "status": "NEGERI",
+      "village": "Desa Ngembe",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-24",
+      "npsn": "20519155",
+      "school_name": "SDN Pagak Beji",
+      "status": "NEGERI",
+      "village": "Desa Pagak",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-25",
+      "npsn": "20518981",
+      "school_name": "SDN Sidowayah Beji",
+      "status": "NEGERI",
+      "village": "Desa Sidowayah",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-26",
+      "npsn": "20519011",
+      "school_name": "SDN Sumbersari I Beji",
+      "status": "NEGERI",
+      "village": "Desa Gununggangsir",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-27",
+      "npsn": "20519012",
+      "school_name": "SDN Sumbersari II Beji",
+      "status": "NEGERI",
+      "village": "Desa Gununggangsir",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    },
+    {
+      "school_id": "SCH-28",
+      "npsn": "69947120",
+      "school_name": "SD Islam Ar-Roudhoh Beji",
+      "status": "SWASTA",
+      "village": "Desa Wonokoyo",
+      "district": "Kec. Beji",
+      "regency": "Kab. Pasuruan",
+      "province": "Jawa Timur",
+      "active": true
+    }
+  ],
+  "PESERTA": [],
+  "JURI": [
+    {
+      "jury_id": "JURI-01-424",
+      "full_name": "MILA AULIA, S.PD",
+      "identity_number": 1985,
+      "jury_category": "Pengawas",
+      "institution": "Korwilcam",
+      "whatsapp": "",
+      "username": "juri-001",
+      "password_verifier": "4a4cdddf2e2e4e2a199a92c1ef533c8cc1ba59921f79c817acad4cfce4b5c4b9832b12abb295d8a5144d9a33bbee859983543c66877e190c1b3e71bddf9fbba0",
+      "password_salt": "ff66186ed9a879254ab3024071ea720c",
+      "must_change_password": false,
+      "account_status": "AKTIF",
+      "assigned_stages": "PENYISIHAN",
+      "admin_notes": "",
+      "created_at": "2026-11-01T00:35:37+07:00",
+      "updated_at": "2026-11-01T00:35:37+07:00"
+    },
+    {
+      "jury_id": "JURI-01-934",
+      "full_name": "MILA AULIA, S.PD",
+      "identity_number": 1985,
+      "jury_category": "Pengawas",
+      "institution": "Korwilcam",
+      "whatsapp": "",
+      "username": "juri-001",
+      "password_verifier": "3ed288655660de1fab1f532a70d3e8f1701e79c4b4abc098d8146e690052d766d972b86b82e3c433f939a62d24e4f9e313e7f68b2e0afd69bc82ff4f3982c83d",
+      "password_salt": "cabd0f3850b35580d4115b6eb62d3971",
+      "must_change_password": false,
+      "account_status": "AKTIF",
+      "assigned_stages": "PENYISIHAN",
+      "admin_notes": "",
+      "created_at": "2026-11-01T00:35:39+07:00",
+      "updated_at": "2026-11-01T00:35:39+07:00"
+    }
+  ],
+  "KRITERIA_PENILAIAN": [
+    {
+      "criterion_id": "KRIT-PENY-1",
+      "stage": "PENYISIHAN",
+      "rubric_version": 1,
+      "criterion_name": "Pedagogik & Inovasi",
+      "description": "Penilaian kedalaman pedagogik, orisinalitas inovasi, penerapan Deep Learning (Joyful, Meaningful, Mindful), serta kesesuaian Modul Ajar.",
+      "indicators_json": "[\"Relevansi inovasi pembelajaran dengan kebutuhan belajar siswa\",\"Orisinalitas dan kreativitas metode atau media pembelajaran\",\"Penerapan prinsip Joyful Learning (pembelajaran menyenangkan)\",\"Penerapan prinsip Meaningful Learning (pembelajaran bermakna)\",\"Penerapan prinsip Mindful Learning (pembelajaran berkesadaran)\",\"Kelengkapan dan keterpaduan Modul Ajar\",\"Kesesuaian antara perencanaan Modul Ajar dan pelaksanaan nyata di kelas\"]",
+      "weight_percentage": 40,
+      "minimum_score": 0,
+      "maximum_score": 100,
+      "display_order": 1,
+      "active": true,
+      "created_at": "2026-10-31T19:45:05+07:00",
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "criterion_id": "KRIT-PENY-2",
+      "stage": "PENYISIHAN",
+      "rubric_version": 1,
+      "criterion_name": "Dampak / Hasil Nyata",
+      "description": "Penilaian implementasi alur STAR (Situasi, Tantangan, Aksi, Refleksi), bukti nyata di kelas, testimoni, serta dampak bagi siswa.",
+      "indicators_json": "[\"Kejelasan identifikasi masalah awal pembelajaran (Situasi)\",\"Relevansi tantangan yang dihadapi guru di kelas (Tantangan)\",\"Ketepatan langkah nyata dalam kerangka alur STAR (Aksi)\",\"Bukti autentik aktivitas pembelajaran nyata bersama siswa\",\"Dampak positif yang terukur terhadap hasil atau motivasi belajar siswa\",\"Kualitas dan relevansi testimoni (siswa, rekan sejawat, atau kepala sekolah)\",\"Kualitas refleksi hasil pembelajaran dan rencana tindak lanjut (Refleksi)\"]",
+      "weight_percentage": 35,
+      "minimum_score": 0,
+      "maximum_score": 100,
+      "display_order": 2,
+      "active": true,
+      "created_at": "2026-10-31T19:45:05+07:00",
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "criterion_id": "KRIT-PENY-3",
+      "stage": "PENYISIHAN",
+      "rubric_version": 1,
+      "criterion_name": "Kualitas Teknis Video",
+      "description": "Penilaian ketepatan durasi 5–7 menit, kejelasan visual & audio, penyuntingan, serta kelengkapan bukti dokumentasi.",
+      "indicators_json": "[\"Kesesuaian durasi video (minimal 5 menit dan maksimal 7 menit)\",\"Kejernihan kualitas visual dan pencahayaan video\",\"Kejernihan kualitas audio, suara guru, dan musik latar yang proporsional\",\"Struktur alur penyajian video yang runtut dan komunikatif\",\"Kreativitas penyuntingan (editing) dan estetika grafis pendukung\",\"Kejelasan artikulasi dan narasi penjelasan guru\",\"Kelengkapan dan keterbacaan bukti visual serta dokumentasi media pembelajaran\"]",
+      "weight_percentage": 25,
+      "minimum_score": 0,
+      "maximum_score": 100,
+      "display_order": 3,
+      "active": true,
+      "created_at": "2026-10-31T19:45:05+07:00",
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "criterion_id": "KRIT-FIN-1",
+      "stage": "FINAL",
+      "rubric_version": 1,
+      "criterion_name": "Pedagogik & Inovasi (Final)",
+      "description": "Kedalaman konsep inovasi pembelajaran, penguasaan materi Modul Ajar, serta ketajaman strategi Deep Learning saat paparan.",
+      "indicators_json": "[\"Relevansi inovasi pembelajaran dengan kebutuhan belajar siswa\",\"Orisinalitas dan kreativitas metode atau media pembelajaran\",\"Penerapan prinsip Joyful Learning (pembelajaran menyenangkan)\",\"Penerapan prinsip Meaningful Learning (pembelajaran bermakna)\",\"Penerapan prinsip Mindful Learning (pembelajaran berkesadaran)\",\"Kelengkapan dan keterpaduan Modul Ajar\",\"Kesesuaian antara perencanaan Modul Ajar dan pelaksanaan nyata di kelas\"]",
+      "weight_percentage": 40,
+      "minimum_score": 0,
+      "maximum_score": 100,
+      "display_order": 1,
+      "active": true,
+      "created_at": "2026-10-31T19:45:05+07:00",
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "criterion_id": "KRIT-FIN-2",
+      "stage": "FINAL",
+      "rubric_version": 1,
+      "criterion_name": "Dampak & Pertanggungjawaban Karya",
+      "description": "Bukti dampak nyata inovasi, konsistensi alur STAR, serta kemampuan mempertanggungjawabkan karya di hadapan dewan juri.",
+      "indicators_json": "[\"Kejelasan identifikasi masalah awal pembelajaran (Situasi)\",\"Relevansi tantangan yang dihadapi guru di kelas (Tantangan)\",\"Ketepatan langkah nyata dalam kerangka alur STAR (Aksi)\",\"Bukti autentik aktivitas pembelajaran nyata bersama siswa\",\"Dampak positif yang terukur terhadap hasil atau motivasi belajar siswa\",\"Kualitas dan relevansi testimoni (siswa, rekan sejawat, atau kepala sekolah)\",\"Kualitas refleksi hasil pembelajaran dan rencana tindak lanjut (Refleksi)\"]",
+      "weight_percentage": 35,
+      "minimum_score": 0,
+      "maximum_score": 100,
+      "display_order": 2,
+      "active": true,
+      "created_at": "2026-10-31T19:45:05+07:00",
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "criterion_id": "KRIT-FIN-3",
+      "stage": "FINAL",
+      "rubric_version": 1,
+      "criterion_name": "Kualitas Penyajian & Media",
+      "description": "Kualitas media pembelajaran, kejelasan komunikasi paparan luring, serta kelengkapan demonstrasi praktik baik.",
+      "indicators_json": "[\"Kesesuaian durasi video (minimal 5 menit dan maksimal 7 menit)\",\"Kejernihan kualitas visual dan pencahayaan video\",\"Kejernihan kualitas audio, suara guru, dan musik latar yang proporsional\",\"Struktur alur penyajian video yang runtut dan komunikatif\",\"Kreativitas penyuntingan (editing) dan estetika grafis pendukung\",\"Kejelasan artikulasi dan narasi penjelasan guru\",\"Kelengkapan dan keterbacaan bukti visual serta dokumentasi media pembelajaran\"]",
+      "weight_percentage": 25,
+      "minimum_score": 0,
+      "maximum_score": 100,
+      "display_order": 3,
+      "active": true,
+      "created_at": "2026-10-31T19:45:05+07:00",
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    }
+  ],
+  "PENUGASAN_JURI": [],
+  "PENILAIAN": [],
+  "DETAIL_NILAI": [],
+  "REKAP_PENILAIAN": [],
+  "FINALIS_PEMENANG": [],
+  "PENGUMUMAN": [
+    {
+      "announcement_id": "ANN-1",
+      "title": "Pembukaan Pendaftaran & Pengumpulan Karya Lomba Video Guru Inspiratif 2026",
+      "content": "Seluruh Sekolah Dasar se-Kecamatan Beji wajib mengirimkan minimal 1 (satu) guru perwakilan. Pengumpulan karya dibuka hingga 21 November 2026 pukul 23.59 WIB melalui portal ini.",
+      "category": "Informasi Lomba",
+      "publication_date": "2026-10-30T17:00:00.000Z",
+      "published": true,
+      "display_order": 1,
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    },
+    {
+      "announcement_id": "ANN-2",
+      "title": "Ketentuan Tautan Folder Google Drive Peserta",
+      "content": "Pastikan folder Google Drive yang dikirimkan memuat 3 dokumen utama (Video Praktik Baik 5-7 menit, Modul Ajar, dan Dokumentasi Media Pembelajaran) dengan akses \"Siapa saja yang memiliki link dapat melihat\".",
+      "category": "Pengumpulan Karya",
+      "publication_date": "2026-10-30T17:00:00.000Z",
+      "published": true,
+      "display_order": 2,
+      "updated_at": "2026-10-31T19:45:05+07:00"
+    }
+  ],
+  "LOG_AKTIVITAS": [
+    {
+      "log_id": "LOG-INIT",
+      "timestamp": "2026-11-01T00:54:06+07:00",
+      "actor_id": "SYSTEM",
+      "actor_role": "ADMIN",
+      "action": "SETUP_DATABASE",
+      "target_type": "DATABASE",
+      "target_id": "HGN 2026 Kec. Beji",
+      "description": "Inisialisasi struktur 14 tabel database HGN 2026 Kec. Beji berhasil dijalankan."
+    }
+  ]
+}

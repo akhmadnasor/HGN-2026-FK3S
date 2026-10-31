@@ -23,10 +23,12 @@ const DEFAULT_PUBLIC_DATA: PublicDataPayload = {
   juknis: [],
   jadwal: [],
   hadiah: [],
+  sekolah: [],
+  public_participants: [],
   pengumuman: [],
   top5: [],
   winners: [],
-  stats: { total_participants: 0, total_schools: 0 },
+  stats: { total_participants: 0, total_schools: 0, total_registered_schools: 28 },
   last_sync: ''
 };
 

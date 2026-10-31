@@ -13,6 +13,7 @@ import {
   JuknisSection,
   JadwalItem,
   HadiahItem,
+  SchoolItem,
   JudgingStage
 } from '../types';
 import { Icon3D } from './Icons3D';
@@ -101,7 +102,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const [announcements, setAnnouncements] = useState<AnnouncementItem[]>([]);
   const [logs, setLogs] = useState<ActivityLog[]>([]);
 
-  // Sub-states for Peserta (Menu 5)
+  // Sub-states for Peserta & Sekolah (Menu 5)
+  const [schoolsList, setSchoolsList] = useState<SchoolItem[]>([]);
+  const [newSchoolModal, setNewSchoolModal] = useState<{
+    school_name: string;
+    npsn: string;
+    village: string;
+    status: 'NEGERI' | 'SWASTA';
+  } | null>(null);
   const [participantSearch, setParticipantSearch] = useState('');
   const [editingParticipant, setEditingParticipant] = useState<Partial<Participant> | null>(null);
 
@@ -180,6 +188,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       if (res.ok && json.success) {
         const d = json.data;
         setSummaryData(d);
+        setSchoolsList(d.sekolah || []);
         setParticipants(d.participants || []);
         setJuryList(d.jury || []);
         setAssignments(d.assignments || []);
@@ -653,19 +662,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
     URL.revokeObjectURL(url);
   };
 
-  const menuItems: Array<{ id: AdminMenuId; label: string; icon: any }> = [
-    { id: 'DASHBOARD', label: '1. Dashboard', icon: LayoutDashboard },
-    { id: 'TAMPILAN', label: '2. Pengaturan Tampilan', icon: Palette },
-    { id: 'JUKNIS', label: '3. Pengelolaan Juknis', icon: BookOpen },
-    { id: 'JADWAL_HADIAH', label: '4. Jadwal & Hadiah', icon: Calendar },
-    { id: 'PESERTA', label: '5. Data Peserta', icon: Users },
-    { id: 'JURI', label: '6. Manajemen Juri', icon: UserCheck },
-    { id: 'KRITERIA', label: '7. Kriteria Penilaian', icon: Sliders },
-    { id: 'MONITORING', label: '8. Monitoring Penjurian', icon: Activity },
-    { id: 'REKAP', label: '9. Rekap Nilai & Peringkat', icon: BarChart3 },
-    { id: 'FINALIS_PEMENANG', label: '10. Finalis & Pemenang', icon: Trophy },
-    { id: 'PENGUMUMAN', label: '11. Pengumuman', icon: Megaphone },
-    { id: 'SISTEM', label: '12. Pengaturan Sistem', icon: Settings }
+  const menuItems: Array<{ id: AdminMenuId; label: string; shortLabel: string; icon: any }> = [
+    { id: 'DASHBOARD', label: '1. Dashboard', shortLabel: '1. Dash', icon: LayoutDashboard },
+    { id: 'TAMPILAN', label: '2. Pengaturan Tampilan', shortLabel: '2. Tema', icon: Palette },
+    { id: 'JUKNIS', label: '3. Pengelolaan Juknis', shortLabel: '3. Juknis', icon: BookOpen },
+    { id: 'JADWAL_HADIAH', label: '4. Jadwal & Hadiah', shortLabel: '4. Jadwal', icon: Calendar },
+    { id: 'PESERTA', label: '5. Data Peserta', shortLabel: '5. Peserta', icon: Users },
+    { id: 'JURI', label: '6. Manajemen Juri', shortLabel: '6. Juri', icon: UserCheck },
+    { id: 'KRITERIA', label: '7. Kriteria Penilaian', shortLabel: '7. Kriteria', icon: Sliders },
+    { id: 'MONITORING', label: '8. Monitoring Penjurian', shortLabel: '8. Monitor', icon: Activity },
+    { id: 'REKAP', label: '9. Rekap Nilai & Peringkat', shortLabel: '9. Rekap', icon: BarChart3 },
+    { id: 'FINALIS_PEMENANG', label: '10. Finalis & Pemenang', shortLabel: '10. Juara', icon: Trophy },
+    { id: 'PENGUMUMAN', label: '11. Pengumuman', shortLabel: '11. Info', icon: Megaphone },
+    { id: 'SISTEM', label: '12. Pengaturan Sistem', shortLabel: '12. Sistem', icon: Settings }
   ];
 
   if (loading) {
@@ -690,9 +699,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const schoolBreakdown = Object.entries(schoolCountsMap).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className={`min-h-screen bg-white dark:bg-[#070b14] text-slate-950 dark:text-slate-100 flex flex-col lg:flex-row pb-24 lg:pb-0 transition-colors duration-150 ${theme === 'light' ? 'admin-light-mode' : 'admin-dark-mode'}`}>
+    <div className={`h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-white dark:bg-[#070b14] text-slate-950 dark:text-slate-100 flex flex-col lg:flex-row relative transition-colors duration-150 ${theme === 'light' ? 'admin-light-mode' : 'admin-dark-mode'}`}>
       {/* Sidebar Navigation — 12 Required Menus */}
-      <aside className="no-print w-full lg:w-72 bg-[#F8FAFC] dark:bg-[#0a1122] border-b-2 lg:border-b-0 lg:border-r-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-4 sm:p-5 flex flex-col justify-between shrink-0">
+      <aside className="no-print w-full lg:w-72 bg-[#F8FAFC] dark:bg-[#0a1122] border-b-2 lg:border-b-0 lg:border-r-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-3 sm:p-5 flex flex-col justify-between shrink-0 lg:overflow-y-auto">
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -783,9 +792,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
         {/* Top Bar */}
-        <header className="no-print sticky top-0 z-20 bg-white/95 dark:bg-[#0a1122]/95 backdrop-blur-md border-b-2 border-[#004AAD]/20 dark:border-[#FFB800]/30 px-4 sm:px-6 py-3.5 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+        <header className="no-print shrink-0 z-20 bg-white/95 dark:bg-[#0a1122]/95 backdrop-blur-md border-b-2 border-[#004AAD]/20 dark:border-[#FFB800]/30 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4 shadow-xs">
           <div>
             <div className="text-xs font-extrabold text-slate-600 dark:text-slate-300">
               Database Utama: <span className="font-mono font-black text-[#EA580C] dark:text-[#FFB800]">HGN 2026 Kec. Beji</span>
@@ -833,7 +842,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
         {/* Toast Notification */}
         {toast && (
-          <div className="no-print mx-6 mt-4">
+          <div className="no-print mx-6 mt-4 shrink-0">
             <div
               className={`rounded-2xl px-4 py-3 border-2 flex items-center justify-between gap-3 text-xs sm:text-sm font-extrabold ${
                 toast.type === 'success'
@@ -860,7 +869,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         )}
 
-        <main className="admin-workspace p-4 sm:p-6 lg:p-8 space-y-8 max-w-7xl w-full mx-auto">
+        <main className="admin-workspace flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 pb-40 lg:pb-8 space-y-8 max-w-7xl w-full mx-auto">
           {/* =================================================================
            * MENU 1 — DASHBOARD & ANALYTICS (Section 6.A & Section 23)
            * ================================================================= */}
@@ -1447,7 +1456,22 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     className="w-full rounded-xl bg-slate-900 border border-slate-800 pl-10 pr-4 py-2.5 text-xs text-white"
                   />
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-3">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setNewSchoolModal({
+                        school_name: '',
+                        npsn: '',
+                        village: 'Desa Beji',
+                        status: 'NEGERI'
+                      })
+                    }
+                    className="px-4 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-[#004AAD] text-xs font-bold text-amber-300 inline-flex items-center gap-1.5 cursor-pointer"
+                  >
+                    <Plus className="w-4 h-4" />
+                    <span>Tambah Sekolah (Sheet SEKOLAH)</span>
+                  </button>
                   <button
                     type="button"
                     onClick={exportParticipantsCsv}
@@ -1480,6 +1504,85 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
               </div>
 
+              {/* Add New School to Sheet SEKOLAH Modal */}
+              {newSchoolModal && (
+                <div className="rounded-2xl bg-slate-900 border-2 border-[#004AAD] p-5 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-display font-bold text-sm text-white">
+                      Tambah Sekolah Baru ke Sheet SEKOLAH (Kec. Beji, Kab. Pasuruan, Prov. Jawa Timur)
+                    </h3>
+                    <button
+                      type="button"
+                      onClick={() => setNewSchoolModal(null)}
+                      className="text-xs text-slate-400 hover:text-white"
+                    >
+                      Tutup
+                    </button>
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                    <div className="md:col-span-2">
+                      <label className="block text-xs text-slate-300 mb-1">Nama Satuan Pendidikan *</label>
+                      <input
+                        type="text"
+                        placeholder="Contoh: UPT Satuan Pendidikan SDN Beji I Beji"
+                        value={newSchoolModal.school_name}
+                        onChange={(e) => setNewSchoolModal({ ...newSchoolModal, school_name: e.target.value })}
+                        className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-300 mb-1">Desa / Kelurahan di Kec. Beji</label>
+                      <input
+                        type="text"
+                        placeholder="Contoh: Desa Beji"
+                        value={newSchoolModal.village}
+                        onChange={(e) => setNewSchoolModal({ ...newSchoolModal, village: e.target.value })}
+                        className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-slate-300 mb-1">Status Sekolah</label>
+                      <select
+                        value={newSchoolModal.status}
+                        onChange={(e) =>
+                          setNewSchoolModal({
+                            ...newSchoolModal,
+                            status: e.target.value as 'NEGERI' | 'SWASTA'
+                          })
+                        }
+                        className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white"
+                      >
+                        <option value="NEGERI">NEGERI</option>
+                        <option value="SWASTA">SWASTA</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex justify-end gap-2">
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        if (!newSchoolModal.school_name.trim()) return;
+                        const res = await fetch('/api/admin/schools', {
+                          method: 'POST',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({ school: newSchoolModal })
+                        });
+                        const json = await res.json();
+                        if (json.success) {
+                          showNotice('success', 'Sekolah berhasil ditambahkan ke Sheet SEKOLAH.');
+                          setNewSchoolModal(null);
+                          fetchAdminSummary(false);
+                          onRefreshPublic();
+                        }
+                      }}
+                      className="px-4 py-2 rounded-xl bg-amber-400 text-slate-950 text-xs font-bold"
+                    >
+                      Simpan ke Sheet SEKOLAH
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* Add / Edit Participant Modal */}
               {editingParticipant && (
                 <div className="rounded-2xl bg-slate-900 border border-amber-500/40 p-6 space-y-4">
@@ -1502,16 +1605,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       />
                     </div>
                     <div>
-                      <label className="block text-xs text-slate-300 mb-1">Asal Sekolah *</label>
-                      <input
-                        type="text"
+                      <label className="block text-xs text-slate-300 mb-1">
+                        Pilih Asal Sekolah (Sheet SEKOLAH DB) *
+                      </label>
+                      <select
                         required
                         value={editingParticipant.school || ''}
                         onChange={(e) =>
                           setEditingParticipant({ ...editingParticipant, school: e.target.value })
                         }
                         className="w-full rounded-xl bg-slate-950 border border-slate-800 px-3.5 py-2 text-xs text-white"
-                      />
+                      >
+                        <option value="">-- Pilih Sekolah dari Sheet SEKOLAH --</option>
+                        {[...schoolsList]
+                          .sort((a, b) => a.school_name.localeCompare(b.school_name, 'id'))
+                          .map((sch) => (
+                            <option key={sch.school_id} value={sch.school_name}>
+                              {sch.school_name}
+                            </option>
+                          ))}
+                      </select>
                     </div>
                     <div className="md:col-span-2">
                       <label className="block text-xs text-slate-300 mb-1">Judul Inovasi *</label>
@@ -2696,13 +2809,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                         </option>
                       ))}
                     </select>
-                    <input
-                      type="text"
+                    <select
                       value={monitorSchoolFilter}
                       onChange={(e) => setMonitorSchoolFilter(e.target.value)}
-                      placeholder="Filter sekolah/peserta..."
                       className="rounded-xl bg-slate-950 border border-slate-800 px-3 py-2 text-xs text-white"
-                    />
+                    >
+                      <option value="">Semua Sekolah (Sheet SEKOLAH DB)</option>
+                      {[...schoolsList]
+                        .sort((a, b) => a.school_name.localeCompare(b.school_name, 'id'))
+                        .map((sch) => (
+                          <option key={sch.school_id} value={sch.school_name}>
+                            {sch.school_name}
+                          </option>
+                        ))}
+                    </select>
                   </div>
                 </div>
 
@@ -2854,13 +2974,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 </div>
 
                 <div className="flex flex-wrap items-center gap-2.5">
-                  <input
-                    type="text"
+                  <select
                     value={recapSchoolFilter}
                     onChange={(e) => setRecapSchoolFilter(e.target.value)}
-                    placeholder="Filter sekolah..."
                     className="rounded-xl bg-slate-900 border border-slate-800 px-3.5 py-2 text-xs text-white"
-                  />
+                  >
+                    <option value="">Semua Sekolah (Sheet SEKOLAH DB)</option>
+                    {[...schoolsList]
+                      .sort((a, b) => a.school_name.localeCompare(b.school_name, 'id'))
+                      .map((sch) => (
+                        <option key={sch.school_id} value={sch.school_name}>
+                          {sch.school_name}
+                        </option>
+                      ))}
+                  </select>
                   <button
                     type="button"
                     onClick={() => exportRecapCsv(recapStage)}
@@ -3798,9 +3925,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
 
       {/* =====================================================================
        * RESPONSIVE FLOATING BOTTOM NAVIGATION BAR FOR ADMIN (Mobile & Tablet)
+       * Locked in place (tetap melayang & tidak ikut tergeser!)
        * ===================================================================== */}
-      <div className="no-print fixed bottom-3 left-3 right-3 z-50 lg:hidden">
-        <div className="max-w-xl mx-auto rounded-2xl bg-white/95 dark:bg-[#0a1122]/95 backdrop-blur-md border-2 border-[#004AAD]/40 dark:border-[#FFB800]/50 shadow-[0_12px_32px_rgba(0,74,173,0.28)] p-1.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+      <div className="no-print fixed bottom-2.5 inset-x-0 z-50 lg:hidden px-2.5 pointer-events-none select-none">
+        <div className="pointer-events-auto max-w-xl w-full mx-auto rounded-2xl bg-white/98 dark:bg-[#0a1122]/98 backdrop-blur-xl border-2 border-[#004AAD] dark:border-[#FFB800] shadow-[0_14px_36px_rgba(0,74,173,0.35)] p-1.5 grid grid-cols-4 gap-1 overflow-hidden">
           {menuItems.map((item) => {
             const Icon = item.icon;
             const active = activeMenu === item.id;
@@ -3810,16 +3938,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                 type="button"
                 onClick={() => {
                   setActiveMenu(item.id);
-                  window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className={`py-2 px-3 rounded-xl flex items-center gap-1.5 transition-all cursor-pointer whitespace-nowrap shrink-0 ${
+                className={`py-1.5 px-1.5 rounded-xl flex items-center justify-center gap-1 transition-colors cursor-pointer truncate ${
                   active
                     ? 'bg-[#004AAD] text-white dark:bg-[#FFB800] dark:text-slate-950 shadow-xs'
                     : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900'
                 }`}
               >
-                <Icon className="w-4 h-4 shrink-0" />
-                <span className="text-[11px] font-black">{item.label}</span>
+                <Icon className="w-3.5 h-3.5 shrink-0" />
+                <span className="text-[10px] font-black truncate">{item.shortLabel}</span>
               </button>
             );
           })}

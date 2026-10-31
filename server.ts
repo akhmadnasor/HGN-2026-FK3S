@@ -219,6 +219,17 @@ interface DatabaseSchema {
   JUKNIS: Array<{ id: string; section_code: string; title: string; content: string; sort_order: number; active: boolean; updated_at: string }>;
   JADWAL: Array<{ id: string; activity: string; start_datetime: string; end_datetime: string; location: string; display_order: number; active: boolean }>;
   HADIAH: Array<{ id: string; rank: string; prize_amount: number; description: string; display_order: number; active: boolean }>;
+  SEKOLAH: Array<{
+    school_id: string;
+    npsn: string;
+    school_name: string;
+    status: 'NEGERI' | 'SWASTA';
+    village: string;
+    district: string;
+    regency: string;
+    province: string;
+    active: boolean;
+  }>;
   PESERTA: Array<{
     participant_id: string;
     submitted_at: string;
@@ -544,6 +555,36 @@ function getInitialDatabase(): DatabaseSchema {
       { id: 'HAD-4', rank: 'Juara Harapan I', prize_amount: 300000, description: 'Rp300.000 + Piagam', display_order: 4, active: true },
       { id: 'HAD-5', rank: 'Juara Harapan II', prize_amount: 200000, description: 'Rp200.000 + Piagam', display_order: 5, active: true }
     ],
+    SEKOLAH: [
+      { school_id: 'SCH-01', npsn: '20519441', school_name: 'SDN Baujeng I Beji', status: 'NEGERI', village: 'Desa Baujeng', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-02', npsn: '20519442', school_name: 'SDN Baujeng II Beji', status: 'NEGERI', village: 'Desa Baujeng', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-03', npsn: '20519446', school_name: 'SDN Beji I Beji', status: 'NEGERI', village: 'Desa Beji', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-04', npsn: '20519447', school_name: 'SDN Beji II Beji', status: 'NEGERI', village: 'Desa Beji', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-05', npsn: '20519449', school_name: 'SDN Beji IV Beji', status: 'NEGERI', village: 'Desa Beji', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-06', npsn: '20519421', school_name: 'SDN Cangkringmalang I Beji', status: 'NEGERI', village: 'Desa Cangkringmalang', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-07', npsn: '20519422', school_name: 'SDN Cangkringmalang II Beji', status: 'NEGERI', village: 'Desa Cangkringmalang', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-08', npsn: '20519423', school_name: 'SDN Cangkringmalang III Beji', status: 'NEGERI', village: 'Desa Cangkringmalang', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-09', npsn: '20519312', school_name: 'SDN Gajahbendo Beji', status: 'NEGERI', village: 'Kel. Gajahbendo', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-10', npsn: '20519318', school_name: 'SDN Glanggang I Beji', status: 'NEGERI', village: 'Desa Glanggang', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-11', npsn: '20519319', school_name: 'SDN Glanggang II Beji', status: 'NEGERI', village: 'Desa Glanggang', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-12', npsn: '20519335', school_name: 'SDN Gununggangsir I Beji', status: 'NEGERI', village: 'Desa Gununggangsir', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-13', npsn: '20519336', school_name: 'SDN Gununggangsir II Beji', status: 'NEGERI', village: 'Desa Gununggangsir', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-14', npsn: '20519337', school_name: 'SDN Gununggangsir III Beji', status: 'NEGERI', village: 'Desa Gununggangsir', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-15', npsn: '20519340', school_name: 'SDN Gunungsari I Beji', status: 'NEGERI', village: 'Desa Gunungsari', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-16', npsn: '20519341', school_name: 'SDN Gunungsari II Beji', status: 'NEGERI', village: 'Desa Gunungsari', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-17', npsn: '20519763', school_name: 'SDN Kedungboto Beji', status: 'NEGERI', village: 'Desa Kedungboto', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-18', npsn: '20519756', school_name: 'SDN Kedungringin I Beji', status: 'NEGERI', village: 'Desa Kedungringin', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-19', npsn: '20519757', school_name: 'SDN Kedungringin II Beji', status: 'NEGERI', village: 'Desa Kedungringin', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-20', npsn: '20519758', school_name: 'SDN Kedungringin III Beji', status: 'NEGERI', village: 'Desa Kedungringin', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-21', npsn: '20519759', school_name: 'SDN Kedungringin IV Beji', status: 'NEGERI', village: 'Desa Kedungringin', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-22', npsn: '20519741', school_name: 'SDN Kenep Beji', status: 'NEGERI', village: 'Desa Kenep', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-23', npsn: '20519182', school_name: 'SDN Ngembe Beji', status: 'NEGERI', village: 'Desa Ngembe', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-24', npsn: '20519155', school_name: 'SDN Pagak Beji', status: 'NEGERI', village: 'Desa Pagak', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-25', npsn: '20518981', school_name: 'SDN Sidowayah Beji', status: 'NEGERI', village: 'Desa Sidowayah', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-26', npsn: '20519011', school_name: 'SDN Sumbersari I Beji', status: 'NEGERI', village: 'Desa Gununggangsir', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-27', npsn: '20519012', school_name: 'SDN Sumbersari II Beji', status: 'NEGERI', village: 'Desa Gununggangsir', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true },
+      { school_id: 'SCH-28', npsn: '69947120', school_name: 'SD Islam Ar-Roudhoh Beji', status: 'SWASTA', village: 'Desa Wonokoyo', district: 'Kec. Beji', regency: 'Kab. Pasuruan', province: 'Jawa Timur', active: true }
+    ],
     PESERTA: [],
     JURI: [], // Initial Jury Accounts: EMPTY — CREATED BY ADMIN
     KRITERIA_PENILAIAN: [
@@ -682,8 +723,64 @@ function getInitialDatabase(): DatabaseSchema {
   };
 }
 
+function normalizeSchoolRecords(rawSchools: any[]): DatabaseSchema['SEKOLAH'] {
+  if (!Array.isArray(rawSchools)) return [];
+  return rawSchools
+    .map((item, idx) => {
+      const rawName =
+        item?.school_name ??
+        item?.nama_sekolah ??
+        item?.['Nama Sekolah'] ??
+        item?.['NAMA SEKOLAH'] ??
+        item?.sekolah ??
+        '';
+      const cleanName = String(rawName).trim();
+      if (!cleanName) return null;
+      const statusStr = String(item?.status ?? item?.Status ?? 'NEGERI').trim().toUpperCase();
+      return {
+        school_id: String(item?.school_id || `SCH-${String(idx + 1).padStart(2, '0')}`),
+        npsn: String(item?.npsn ?? ''),
+        school_name: cleanName,
+        status: (statusStr === 'SWASTA' ? 'SWASTA' : 'NEGERI') as 'NEGERI' | 'SWASTA',
+        village: String(item?.village ?? item?.desa ?? item?.['Desa/Kelurahan'] ?? 'Kec. Beji').trim(),
+        district: String(item?.district ?? item?.kecamatan ?? 'Kec. Beji').trim(),
+        regency: String(item?.regency ?? item?.kabupaten ?? 'Kab. Pasuruan').trim(),
+        province: String(item?.province ?? item?.provinsi ?? 'Jawa Timur').trim(),
+        active: item?.active !== false && String(item?.active).toLowerCase() !== 'false'
+      };
+    })
+    .filter((x): x is DatabaseSchema['SEKOLAH'][0] => Boolean(x));
+}
+
+function applyRemoteDatabaseSnapshot(remoteData: any) {
+  if (!remoteData || typeof remoteData !== 'object') return;
+  if (Array.isArray(remoteData.SEKOLAH) && remoteData.SEKOLAH.length > 0) {
+    const normalized = normalizeSchoolRecords(remoteData.SEKOLAH);
+    if (normalized.length > 0) {
+      db.SEKOLAH = normalized;
+    }
+  }
+  if (Array.isArray(remoteData.PESERTA)) db.PESERTA = remoteData.PESERTA;
+  if (Array.isArray(remoteData.JURI) && remoteData.JURI.length > 0) db.JURI = remoteData.JURI;
+  if (Array.isArray(remoteData.JUKNIS) && remoteData.JUKNIS.length > 0) db.JUKNIS = remoteData.JUKNIS;
+  if (Array.isArray(remoteData.JADWAL) && remoteData.JADWAL.length > 0) db.JADWAL = remoteData.JADWAL;
+  if (Array.isArray(remoteData.HADIAH) && remoteData.HADIAH.length > 0) db.HADIAH = remoteData.HADIAH;
+  if (Array.isArray(remoteData.KRITERIA_PENILAIAN) && remoteData.KRITERIA_PENILAIAN.length > 0) {
+    db.KRITERIA_PENILAIAN = remoteData.KRITERIA_PENILAIAN;
+  }
+  if (Array.isArray(remoteData.PENUGASAN_JURI)) db.PENUGASAN_JURI = remoteData.PENUGASAN_JURI;
+  if (Array.isArray(remoteData.PENILAIAN)) db.PENILAIAN = remoteData.PENILAIAN;
+  if (Array.isArray(remoteData.DETAIL_NILAI)) db.DETAIL_NILAI = remoteData.DETAIL_NILAI;
+  if (Array.isArray(remoteData.REKAP_PENILAIAN)) db.REKAP_PENILAIAN = remoteData.REKAP_PENILAIAN;
+  if (Array.isArray(remoteData.FINALIS_PEMENANG)) db.FINALIS_PEMENANG = remoteData.FINALIS_PEMENANG;
+  if (Array.isArray(remoteData.PENGUMUMAN) && remoteData.PENGUMUMAN.length > 0) {
+    db.PENGUMUMAN = remoteData.PENGUMUMAN;
+  }
+}
+
 let db: DatabaseSchema = loadDatabase();
 let remoteColdStartHydrated = false;
+let lastRemoteHydrateAt = 0;
 
 function safeWriteDbFile(data: DatabaseSchema) {
   try {
@@ -712,6 +809,11 @@ function loadDatabase(): DatabaseSchema {
         const parsed = JSON.parse(raw);
         const initial = getInitialDatabase();
         const merged: DatabaseSchema = { ...initial, ...parsed };
+        if (!Array.isArray(merged.SEKOLAH) || merged.SEKOLAH.length === 0) {
+          merged.SEKOLAH = initial.SEKOLAH;
+        } else {
+          merged.SEKOLAH = normalizeSchoolRecords(merged.SEKOLAH);
+        }
         if (Array.isArray(merged.PENGATURAN)) {
           merged.PENGATURAN.forEach((s) => {
             if (s.key === 'site_title' && s.value === 'LOMBA VIDEO GURU INSPIRATIF 2026') {
@@ -738,10 +840,18 @@ function loadDatabase(): DatabaseSchema {
   return fresh;
 }
 
-// Auto-hydrate from Google Apps Script on serverless cold start if APPS_SCRIPT_WEB_APP_URL is configured
-app.use('/api', async (_req: Request, _res: Response, next: NextFunction) => {
-  if (!remoteColdStartHydrated && IS_SERVERLESS && dynamicAppsScriptUrl && dynamicAppsScriptUrl.startsWith('https://script.google.com/')) {
+// Auto-hydrate from Google Apps Script on startup and periodic GET requests (every 20s)
+app.use('/api', async (req: Request, _res: Response, next: NextFunction) => {
+  const nowMs = Date.now();
+  const isReadEndpoint = req.method === 'GET' && (req.path === '/public' || req.path === '/admin/summary');
+  const shouldHydrate =
+    dynamicAppsScriptUrl &&
+    dynamicAppsScriptUrl.startsWith('https://script.google.com/') &&
+    (!remoteColdStartHydrated || (isReadEndpoint && nowMs - lastRemoteHydrateAt > 20_000));
+
+  if (shouldHydrate) {
     remoteColdStartHydrated = true;
+    lastRemoteHydrateAt = nowMs;
     try {
       const response = await fetch(dynamicAppsScriptUrl, {
         method: 'POST',
@@ -754,8 +864,14 @@ app.use('/api', async (_req: Request, _res: Response, next: NextFunction) => {
       if (response.ok) {
         const result = await response.json().catch(() => null);
         if (result?.success && result?.data) {
-          db = { ...db, ...result.data };
+          applyRemoteDatabaseSnapshot(result.data);
           safeWriteDbFile(db);
+          lastGoogleSheetsSyncStatus = {
+            connected: true,
+            mode: 'GOOGLE_SHEETS_ACTIVE',
+            lastSync: nowJakarta(),
+            message: 'Tersinkronisasi langsung dengan Google Sheets (HGN 2026 Kec. Beji)'
+          };
         }
       }
     } catch {
@@ -1003,6 +1119,15 @@ app.get('/api/public', (_req: Request, res: Response) => {
     : [];
 
   const uniqueSchools = new Set(db.PESERTA.map((p) => p.school.trim().toUpperCase()).filter(Boolean));
+  const activeSchools = (db.SEKOLAH || []).filter((s) => Boolean(s.active) && String(s.active) !== 'false');
+
+  // Strictly expose ONLY school, full_name, and innovation_title to public endpoint
+  const publicParticipants = (db.PESERTA || []).map((p) => ({
+    participant_id: p.participant_id,
+    school: p.school,
+    full_name: p.full_name,
+    innovation_title: p.innovation_title
+  }));
 
   res.json({
     success: true,
@@ -1011,12 +1136,15 @@ app.get('/api/public', (_req: Request, res: Response) => {
       juknis,
       jadwal,
       hadiah,
+      sekolah: activeSchools,
+      public_participants: publicParticipants,
       pengumuman,
       top5,
       winners,
       stats: {
         total_participants: db.PESERTA.length,
-        total_schools: uniqueSchools.size
+        total_schools: uniqueSchools.size,
+        total_registered_schools: activeSchools.length
       },
       last_sync: lastGoogleSheetsSyncStatus.lastSync
     }
@@ -1244,6 +1372,7 @@ app.get('/api/admin/summary', requireAdmin, (_req: Request, res: Response) => {
       juknis: db.JUKNIS,
       jadwal: db.JADWAL,
       hadiah: db.HADIAH,
+      sekolah: db.SEKOLAH || [],
       participants: db.PESERTA,
       jury: db.JURI.map(({ password_verifier, password_salt, ...rest }) => rest),
       criteria: db.KRITERIA_PENILAIAN,
@@ -1255,6 +1384,56 @@ app.get('/api/admin/summary', requireAdmin, (_req: Request, res: Response) => {
       announcements: db.PENGUMUMAN,
       logs: db.LOG_AKTIVITAS.slice(0, 100)
     }
+  });
+});
+
+// Schools Management (Sheet SEKOLAH — Kec. Beji, Kab. Pasuruan, Jawa Timur)
+app.get('/api/admin/schools', requireAdmin, (_req: Request, res: Response) => {
+  res.json({ success: true, data: db.SEKOLAH || [] });
+});
+
+app.post('/api/admin/schools', requireAdmin, async (req: Request, res: Response) => {
+  const { action, school, schools } = req.body || {};
+  if (Array.isArray(schools)) {
+    db.SEKOLAH = schools.map((s, idx) => ({
+      school_id: s.school_id || `SCH-${String(idx + 1).padStart(2, '0')}`,
+      npsn: String(s.npsn || '').trim(),
+      school_name: String(s.school_name || '').trim(),
+      status: s.status === 'SWASTA' ? 'SWASTA' : 'NEGERI',
+      village: String(s.village || 'Kec. Beji').trim(),
+      district: String(s.district || 'Kec. Beji').trim(),
+      regency: String(s.regency || 'Kab. Pasuruan').trim(),
+      province: String(s.province || 'Jawa Timur').trim(),
+      active: Boolean(s.active !== false)
+    }));
+  } else if (action === 'DELETE' && school?.school_id) {
+    db.SEKOLAH = (db.SEKOLAH || []).filter((s) => s.school_id !== school.school_id);
+  } else if (school && school.school_name) {
+    const cleanName = String(school.school_name).trim();
+    const existingIdx = (db.SEKOLAH || []).findIndex((s) => s.school_id === school.school_id);
+    const entry = {
+      school_id: school.school_id || `SCH-${String((db.SEKOLAH?.length || 0) + 1).padStart(2, '0')}`,
+      npsn: String(school.npsn || '-').trim(),
+      school_name: cleanName,
+      status: (school.status === 'SWASTA' ? 'SWASTA' : 'NEGERI') as 'NEGERI' | 'SWASTA',
+      village: String(school.village || 'Kec. Beji').trim(),
+      district: String(school.district || 'Kec. Beji').trim(),
+      regency: String(school.regency || 'Kab. Pasuruan').trim(),
+      province: String(school.province || 'Jawa Timur').trim(),
+      active: Boolean(school.active !== false)
+    };
+    if (existingIdx >= 0) {
+      db.SEKOLAH[existingIdx] = entry;
+    } else {
+      db.SEKOLAH.push(entry);
+    }
+  }
+  recordActivity('ADMIN-01', 'ADMIN', 'UPDATE_SCHOOLS', 'SEKOLAH', 'ALL', 'Administrator memperbarui data sekolah se-Kecamatan Beji.');
+  await persistDatabase('saveSchools', { schools: db.SEKOLAH });
+  res.json({
+    success: true,
+    data: db.SEKOLAH,
+    message: 'Data Sekolah se-Kecamatan Beji berhasil disimpan ke database.'
   });
 });
 

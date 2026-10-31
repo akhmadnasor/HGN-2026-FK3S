@@ -1287,9 +1287,9 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
   ];
 
   return (
-    <div className="min-h-screen bg-white dark:bg-[#070b14] text-slate-950 dark:text-white flex flex-col lg:flex-row pb-24 lg:pb-0 transition-colors duration-150">
+    <div className="h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-white dark:bg-[#070b14] text-slate-950 dark:text-white flex flex-col lg:flex-row relative transition-colors duration-150">
       {/* Desktop Sidebar Navigation */}
-      <aside className="w-full lg:w-68 bg-[#F8FAFC] dark:bg-[#0a1122] border-b-2 lg:border-b-0 lg:border-r-2 border-[#004AAD]/20 dark:border-[#FFB800]/30 p-4 lg:p-5 flex flex-col justify-between shrink-0">
+      <aside className="w-full lg:w-68 bg-[#F8FAFC] dark:bg-[#0a1122] border-b-2 lg:border-b-0 lg:border-r-2 border-[#004AAD]/20 dark:border-[#FFB800]/30 p-3 sm:p-4 lg:p-5 flex flex-col justify-between shrink-0 lg:overflow-y-auto">
         <div className="space-y-5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -1392,8 +1392,8 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
         </div>
       </aside>
 
-      {/* Main Content Area */}
-      <div className="flex-1 p-4 sm:p-6 lg:p-8 max-w-6xl mx-auto w-full space-y-6">
+      {/* Main Content Area (Internal scroll so Floating Nav never shifts) */}
+      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 pb-32 lg:pb-8 max-w-6xl mx-auto w-full space-y-6">
         {/* Dashboard Header */}
         <div className="rounded-3xl bg-gradient-to-r from-[#004AAD] to-[#1D4ED8] text-white border-2 border-[#003380] p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-md">
           <div className="space-y-1">
@@ -1739,9 +1739,10 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
 
       {/* =====================================================================
        * RESPONSIVE FLOATING BOTTOM NAVIGATION BAR FOR JURY (Mobile & Tablet)
+       * Locked in place (tetap melayang & tidak ikut tergeser!)
        * ===================================================================== */}
-      <div className="fixed bottom-3 left-3 right-3 z-50 lg:hidden">
-        <div className="max-w-xl mx-auto rounded-2xl bg-white/95 dark:bg-[#0a1122]/95 backdrop-blur-md border-2 border-[#004AAD]/40 dark:border-[#FFB800]/50 shadow-[0_12px_32px_rgba(0,74,173,0.28)] p-1.5 grid grid-cols-5 gap-1">
+      <div className="fixed bottom-2.5 inset-x-0 z-50 lg:hidden px-2.5 pointer-events-none select-none">
+        <div className="pointer-events-auto max-w-xl w-full mx-auto rounded-2xl bg-white/98 dark:bg-[#0a1122]/98 backdrop-blur-xl border-2 border-[#004AAD] dark:border-[#FFB800] shadow-[0_14px_36px_rgba(0,74,173,0.35)] p-1.5 grid grid-cols-5 gap-1 overflow-hidden">
           {juryMenus.map((m) => {
             const Icon = m.icon;
             const active = activeNav === m.id;
@@ -1750,14 +1751,14 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
                 key={m.id}
                 type="button"
                 onClick={() => setActiveNav(m.id)}
-                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all cursor-pointer ${
+                className={`py-2 px-1 rounded-xl flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer truncate ${
                   active
                     ? 'bg-[#004AAD] text-white dark:bg-[#FFB800] dark:text-slate-950 shadow-xs'
                     : 'text-slate-800 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-900'
                 }`}
               >
-                <Icon className="w-4 h-4" />
-                <span className="text-[10px] font-black leading-tight">{m.shortLabel}</span>
+                <Icon className="w-4 h-4 shrink-0" />
+                <span className="text-[10px] font-black leading-tight truncate">{m.shortLabel}</span>
               </button>
             );
           })}

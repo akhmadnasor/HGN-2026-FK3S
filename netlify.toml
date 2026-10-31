@@ -8,6 +8,7 @@
 
 [functions]
   node_bundler = "esbuild"
+  external_node_modules = ["vite", "esbuild", "lightningcss", "@tailwindcss/vite", "@vitejs/plugin-react"]
   included_files = ["data/**", "google-apps-script/**"]
 
 [[redirects]]

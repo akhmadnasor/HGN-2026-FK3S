@@ -17,6 +17,17 @@ const IS_SERVERLESS = Boolean(
 
 app.use(express.json({ limit: '5mb' }));
 
+// Normalize request URL when invoked via Netlify Functions (/.netlify/functions/api/*)
+app.use((req: Request, _res: Response, next: NextFunction) => {
+  if (req.url.startsWith('/.netlify/functions/api')) {
+    const stripped = req.url.replace(/^\/\.netlify\/functions\/api/, '');
+    req.url = stripped.startsWith('/api') ? stripped : `/api${stripped.startsWith('/') ? '' : '/'}${stripped}`;
+  } else if (IS_SERVERLESS && !req.url.startsWith('/api')) {
+    req.url = `/api${req.url.startsWith('/') ? '' : '/'}${req.url}`;
+  }
+  next();
+});
+
 // ============================================================================
 // ENVIRONMENT & CONFIGURATION
 // ============================================================================
@@ -2505,7 +2516,8 @@ export { app };
 
 async function startServer() {
   if (process.env.NODE_ENV !== 'production') {
-    const { createServer: createViteServer } = await import('vite');
+    const vitePkgName = ['vi', 'te'].join('');
+    const { createServer: createViteServer } = await import(/* @vite-ignore */ vitePkgName);
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa'

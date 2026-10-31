@@ -1,0 +1,2143 @@
+# MASTER PROMPT — HGN BEJI 2026
+## PREMIUM LANDING PAGE + ADMIN MANAGEMENT + DIGITAL JURY SCORING SYSTEM + GOOGLE SHEETS DATABASE
+
+### YOUR ROLE
+
+Act as a Senior Full-Stack Developer, UI/UX Designer, Google Apps Script Engineer, Google Sheets Database Architect, and Educational Competition Management System Specialist.
+
+Build a fully functional, elegant, responsive web application for:
+
+**LOMBA VIDEO GURU INSPIRATIF — HARI GURU NASIONAL 2026**
+
+Organizer: **FKKKS KECAMATAN BEJI**
+
+Main tagline: **GURU HEBAT, INDONESIA KUAT**
+
+Branding hashtag: **#BejolanAji**
+
+The application must use Bahasa Indonesia throughout the interface.
+
+IMPORTANT:
+
+Build a REAL WORKING APPLICATION, not just a visual prototype.
+
+All important information must be connected to Google Sheets.
+
+The application must support three roles:
+
+1. PUBLIC — visitors and participants.
+2. ADMIN — application and competition management.
+3. JURI — judging and assessment.
+
+Keep the application simple for nontechnical users, but reliable and secure enough for actual use.
+
+---
+
+# 1. TECHNOLOGY & ARCHITECTURE
+
+Use:
+
+Frontend:
+- React + TypeScript
+- Tailwind CSS
+- Lucide React
+- Framer Motion
+- Responsive CSS
+
+Backend:
+- Lightweight Node.js / Express
+- Server-side authentication
+- REST API
+- Google Apps Script integration
+
+Database:
+- Google Sheets only.
+
+Do not use:
+- Firebase
+- Supabase
+- MySQL
+- PostgreSQL
+- A separate cloud database
+- Complicated authentication frameworks
+
+Primary Google Sheets database name:
+
+`HGN 2026 Kec. Beji`
+
+Use the user's existing spreadsheet as the database.
+
+When the source is an XLSX file, it must first be converted into native Google Sheets.
+
+Use a container-bound Google Apps Script.
+
+The architecture must be:
+
+React Frontend
+→ Node.js Backend
+→ Google Apps Script
+→ Google Sheets.
+
+The browser must not access private spreadsheet operations directly.
+
+Store sensitive configuration as server-side environment variables.
+
+Implement automatic spreadsheet synchronization with lightweight polling approximately every 30 seconds and immediate refresh after successful writes.
+
+All public and private information must be persisted in Google Sheets.
+
+No fake data, placeholder success messages, or in-memory-only submissions.
+
+---
+
+# 2. APPLICATION BRANDING & DESIGN
+
+## Primary Images
+
+Application icon:
+
+https://lh3.googleusercontent.com/d/13M5y3gnxVP6cUPGKRXqdYqmHxFjPAvpD
+
+Main homepage logo:
+
+https://lh3.googleusercontent.com/d/1_q1kZ4MJoP6VQR7qs61HId_k_HHXB4oe
+
+Preserve the supplied original images.
+
+Do not distort or replace the original logo.
+
+Determine a coordinated primary color palette from the homepage logo.
+
+Use that palette consistently for:
+
+- Background
+- Navigation
+- Buttons
+- Cards
+- 3D icons
+- Borders
+- Gradients
+- Admin dashboard
+- Jury dashboard
+- Charts
+- Forms
+
+## Visual Style
+
+Create a PREMIUM educational competition website.
+
+Characteristics:
+
+- Elegant institutional appearance.
+- Modern glassmorphism.
+- Sophisticated 3D educational icons.
+- Subtle metallic effects.
+- Soft background glow.
+- Beautiful typography.
+- Premium shadows.
+- Refined gradient buttons.
+- Smooth hover transitions.
+- Minimal visual clutter.
+- Excellent readability.
+
+Use three-dimensional icon designs for:
+
+- Trophy
+- Teacher
+- Book
+- Video camera
+- Medal
+- Calendar
+- Google Drive
+- Judging
+- Documents
+- Analytics
+- Results
+- Security
+
+Icons must coordinate with the main logo's color palette.
+
+Avoid excessive animation and unnecessary 3D rendering libraries.
+
+Ensure mobile responsiveness.
+
+---
+
+# 3. PUBLIC WEBSITE — ONLY TWO PAGES
+
+The PUBLIC LANDING PAGE must have exactly TWO pages.
+
+**PAGE 1: BERANDA**
+
+**PAGE 2: JUKNIS & PENGUMPULAN**
+
+Do not create additional public content pages.
+
+The Admin Dashboard and Jury Dashboard are separate protected application areas and do not count as public pages.
+
+## PAGE 1 — BERANDA
+
+Create the following sections:
+
+### A. NAVIGATION
+
+Display:
+
+- Main logo
+- HGN BEJI 2026
+- Beranda
+- Juknis & Pengumpulan
+
+Do not show any Admin Login button.
+
+Keep navigation clean, responsive, and sticky.
+
+### B. HERO SECTION
+
+Show the supplied main logo prominently.
+
+Main heading:
+
+LOMBA VIDEO GURU INSPIRATIF 2026
+
+Supporting heading:
+
+DALAM RANGKA MEMPERINGATI HARI GURU NASIONAL 2026
+
+Organizer:
+
+FKKKS KECAMATAN BEJI
+
+Tagline:
+
+GURU HEBAT, INDONESIA KUAT
+
+Hashtag:
+
+#BejolanAji
+
+Provide two call-to-action buttons:
+
+- LIHAT JUKNIS
+- KUMPULKAN KARYA
+
+Buttons must work.
+
+Use premium 3D graphics, elegant typography, and subtle animation.
+
+### C. COUNTDOWN
+
+Display an interactive countdown to:
+
+21 November 2026, 23:59 WIB
+
+Use timezone Asia/Jakarta.
+
+Countdown fields:
+
+- Hari
+- Jam
+- Menit
+- Detik
+
+When the submission period has ended, display:
+
+"Pendaftaran dan Pengumpulan Karya Telah Ditutup."
+
+The deadline must be configurable by admin.
+
+### D. COMPETITION HIGHLIGHTS
+
+Create four premium cards:
+
+1. Video Guru Inspiratif.
+2. Pembelajaran Mendalam.
+3. Alur STAR.
+4. Apresiasi Guru Berprestasi.
+
+Use concise Indonesian descriptions.
+
+### E. COMPETITION TIMELINE
+
+Default schedule:
+
+- 21 November 2026, 23.59 WIB — Deadline Pengumpulan.
+- 23–25 November 2026 — Penjurian Penyisihan.
+- 26–27 November 2026 — Final Top 5.
+- 28 November 2026 — Pengumuman Pemenang.
+
+All timeline data must come from Google Sheets.
+
+### F. PRIZES
+
+Display five elegant 3D award cards.
+
+Juara I: Rp1.000.000 + Piagam.
+
+Juara II: Rp750.000 + Piagam.
+
+Juara III: Rp500.000 + Piagam.
+
+Juara Harapan I: Rp300.000 + Piagam.
+
+Juara Harapan II: Rp200.000 + Piagam.
+
+All prize amounts must be editable by admin.
+
+### G. ANNOUNCEMENTS
+
+Display active announcements from Google Sheets.
+
+Examples:
+
+- Informasi Lomba.
+- Pengumpulan Karya.
+- Pengumuman Top 5.
+- Jadwal Final.
+- Pengumuman Pemenang.
+
+Only display announcements that have been published by admin.
+
+Do not invent finalist names or winners.
+
+### H. FOOTER
+
+FKKKS KECAMATAN BEJI
+
+Guru Hebat, Indonesia Kuat
+
+#BejolanAji
+
+Include configurable contact information.
+
+Provide a discreet **Portal Juri** link opening the dedicated jury login route `/juri/login`.
+
+Do not place any visible Admin Login link.
+
+---
+
+# 4. PAGE 2 — JUKNIS & PENGUMPULAN
+
+Build a complete technical guide with professional visual presentation.
+
+Use accordions, numbered sections, attractive icons, and highlighted key information.
+
+## A. LATAR BELAKANG DAN TUJUAN
+
+Dalam rangka memperingati Hari Guru Nasional Tahun 2026, FKKKS Kecamatan Beji menyelenggarakan Lomba Video Guru Inspiratif untuk menggali, mengapresiasi, dan mendiseminasikan praktik baik serta inovasi pembelajaran guru.
+
+## B. KETENTUAN PESERTA
+
+1. Peserta merupakan guru aktif di sekolah dasar se-Kecamatan Beji.
+2. Kepesertaan bersifat wajib bagi setiap lembaga.
+3. Setiap sekolah mengirimkan minimal satu guru sebagai perwakilan.
+
+## C. KETENTUAN KARYA
+
+Tema bebas, dengan fokus inovasi pembelajaran.
+
+Materi dapat berupa:
+
+- Metode pembelajaran.
+- Media pembelajaran.
+- Alat peraga.
+- Program inovatif kelas.
+- Strategi pembelajaran lainnya.
+
+Wajib menerapkan prinsip Pembelajaran Mendalam:
+
+- Joyful Learning.
+- Meaningful Learning.
+- Mindful Learning.
+
+Video harus mengikuti STAR:
+
+S — Situasi.
+
+T — Tantangan.
+
+A — Aksi.
+
+R — Refleksi/Hasil.
+
+Durasi video minimal 5 menit dan maksimal 7 menit.
+
+Video wajib memiliki bukti praktik nyata dan testimoni dari pihak yang relevan, yaitu siswa, guru sejawat, atau kepala sekolah.
+
+Dokumen wajib:
+
+1. Video praktik baik.
+2. Modul Ajar.
+3. Dokumentasi Media Pembelajaran.
+
+Karya wajib orisinal, belum pernah diikutkan lomba sejenis, dan sudah dipraktikkan di sekolah asal.
+
+## D. MEKANISME PENJURIAN
+
+Tahap 1 — Seleksi Video:
+
+Dewan juri melakukan penilaian terhadap seluruh karya untuk menentukan Top 5.
+
+Tahap 2 — Final:
+
+Lima finalis melakukan paparan luring dan mempertanggungjawabkan inovasi pembelajaran.
+
+Dewan juri terdiri dari unsur Korwilcam, Pengawas, dan Praktisi.
+
+Keputusan dewan juri bersifat mutlak dan tidak dapat diganggu gugat.
+
+## E. WAKTU PELAKSANAAN
+
+Deadline pengumpulan:
+
+21 November 2026, 23.59 WIB.
+
+Penyisihan:
+
+23–25 November 2026.
+
+Final:
+
+26–27 November 2026.
+
+Pengumuman pemenang:
+
+28 November 2026.
+
+## F. TATA CARA PENGUMPULAN
+
+Peserta menyiapkan Google Drive folder berisi:
+
+- Video.
+- Modul Ajar.
+- Media Pembelajaran.
+
+Folder harus dapat dilihat oleh pihak yang memiliki tautan.
+
+Peserta tidak diwajibkan mengunggah video ke YouTube pribadi.
+
+Panitia dapat mengunggah ulang karya ke kanal YouTube K3S sebagai arsip dan referensi pendidikan.
+
+Peserta mengirimkan identitas dan tautan karya melalui formulir pengumpulan.
+
+## G. KRITERIA PENILAIAN
+
+Pedagogik dan Inovasi: 40%.
+
+Dampak / Hasil Nyata: 35%.
+
+Kualitas Teknis Video: 25%.
+
+Display a professional chart explaining the criteria.
+
+## H. APRESIASI
+
+Display the five prize categories dynamically from Google Sheets.
+
+## I. PENGUMPULAN KARYA
+
+Support two modes configurable by admin:
+
+**Mode 1: Google Form**
+
+Admin enters an external Google Form URL.
+
+The public submission button opens the form.
+
+**Mode 2: Internal Submission**
+
+Create an integrated submission form containing:
+
+- Nama Lengkap.
+- Asal Sekolah.
+- Judul Inovasi.
+- Link Folder Google Drive.
+- Link Video (optional).
+- Link Modul Ajar (optional).
+- Link Media Pembelajaran (optional).
+- Nomor WhatsApp (optional).
+- Checkbox persetujuan aturan lomba dan pengolahan data.
+
+Store submissions in the PESERTA sheet.
+
+Validate required data.
+
+Prevent accidental duplicate folder submissions.
+
+Do not display the participant contact list publicly.
+
+---
+
+# 5. ADMIN LOGIN — HIDDEN DOUBLE-CLICK
+
+Admin access must remain hidden.
+
+When an administrator double-clicks the main homepage logo, display a premium login modal.
+
+For mobile devices, allow two quick taps.
+
+Default admin credentials:
+
+Username: `admin`
+
+Password: `@1`
+
+Use the credentials as the initial values.
+
+Store admin credentials in backend environment variables.
+
+Do not expose the password in public JavaScript.
+
+Use lightweight server-side authentication.
+
+Use a secure HttpOnly session cookie.
+
+Do not use complicated authentication frameworks.
+
+Apply basic rate limiting and session expiry.
+
+After login, open the private Admin Dashboard.
+
+Admin and Jury accounts must use separate roles and access permissions.
+
+---
+
+# 6. ADMIN DASHBOARD
+
+The Admin Dashboard must have the following menus:
+
+1. Dashboard.
+2. Pengaturan Tampilan.
+3. Pengelolaan Juknis.
+4. Jadwal & Hadiah.
+5. Data Peserta.
+6. Manajemen Juri.
+7. Kriteria Penilaian.
+8. Monitoring Penjurian.
+9. Rekap Nilai & Peringkat.
+10. Finalis & Pemenang.
+11. Pengumuman.
+12. Pengaturan Sistem.
+
+Build a clean, professional dashboard with a responsive sidebar and top navigation.
+
+Use clear menus rather than complicated technical interfaces.
+
+## A. DASHBOARD
+
+Show real data from Google Sheets:
+
+- Total peserta.
+- Total sekolah.
+- Total juri aktif.
+- Total karya dinilai.
+- Total karya belum dinilai.
+- Persentase penyelesaian penjurian.
+- Jumlah finalis.
+- Status pengumpulan.
+- Status koneksi database.
+- Waktu sinkronisasi terakhir.
+
+## B. PENGATURAN GAMBAR & TAMPILAN
+
+Admin can edit:
+
+- Main logo URL.
+- App icon URL.
+- Hero image.
+- Banner image.
+- Background image.
+- Additional decorative images.
+- Website title.
+- Tagline.
+- Primary color.
+- Secondary color.
+- Footer text.
+- Contact information.
+
+Provide live image previews.
+
+Allow image replacement using direct URLs.
+
+Optionally provide Google Drive image upload when the upload folder and permissions are configured.
+
+Save all settings to Google Sheets.
+
+After saving, automatically refresh the public landing page.
+
+## C. PENGELOLAAN JUKNIS
+
+Admin can edit all sections A–H.
+
+Provide save, preview, and cancel buttons.
+
+The initial official rules must be seeded into the database.
+
+## D. JADWAL & HADIAH
+
+Admin can edit dates, times, locations, prize amounts, and visible status.
+
+Use Indonesian date and currency formatting.
+
+## E. DATA PESERTA
+
+Display participants in a searchable table.
+
+Columns:
+
+- Nomor.
+- ID Peserta.
+- Nama Guru.
+- Asal Sekolah.
+- Judul Inovasi.
+- Tanggal Pengumpulan.
+- Link Karya.
+- Status Verifikasi.
+- Status Penjurian.
+- Aksi.
+
+Allow admin to:
+
+- Add participants.
+- Edit participant details.
+- Validate documents.
+- Open Google Drive folders.
+- Update video, module, and media URLs.
+- Mark submissions as verified.
+- Export participant data.
+- Assign or exclude submissions from judging with a recorded reason.
+- Delete erroneous participant records with confirmation, subject to audit and referential-integrity checks.
+
+Only verified entries should become eligible for jury assignments by default.
+
+---
+
+# 7. NEW FEATURE — MANAJEMEN JURI
+
+**CRITICAL FEATURE**
+
+Build a dedicated Jury Management module.
+
+Admin must be able to create and manage jury accounts.
+
+## ADD JURY FORM
+
+Create a professional form with:
+
+1. Nama Lengkap Juri.
+2. NIP / Identitas (optional).
+3. Unsur Juri:
+   - Korwilcam.
+   - Pengawas.
+   - Praktisi.
+   - Lainnya.
+4. Instansi / Asal Lembaga.
+5. Nomor WhatsApp (optional).
+6. Username Login.
+7. Password Awal.
+8. Status Akun:
+   - Aktif.
+   - Nonaktif.
+9. Penugasan Tahap:
+   - Penyisihan.
+   - Final.
+   - Keduanya.
+10. Catatan Admin (optional).
+
+Admin actions:
+
+- Tambah Juri.
+- Edit Data.
+- Nonaktifkan Juri.
+- Reset Password.
+- Atur Penugasan.
+- Lihat Progres.
+- Lihat Status Penilaian.
+
+## ACCOUNT RULES
+
+Each jury member must have a unique username and ID.
+
+Admin can reset jury passwords but cannot read existing passwords.
+
+Use a simple password hashing implementation with Node.js built-in crypto.scrypt and a unique random salt per account.
+
+Do not add a complicated authentication library.
+
+Store the password verifier in Google Sheets, not the plaintext password.
+
+Generate a strong temporary password by default, or allow admin to define one.
+
+Force a password change on first login for newly created jury accounts.
+
+Use role-based access checks on every protected request.
+
+Jury accounts must never access Admin Dashboard.
+
+One jury account must not be able to edit another juror's scores.
+
+All account changes must be written to the database.
+
+---
+
+# 8. DEDICATED JURY LOGIN PAGE
+
+Create a private jury login route:
+
+`/juri/login`
+
+The jury login page is separate from the two-page public landing page.
+
+Use the same premium design system, colors, and 3D icons.
+
+Display:
+
+Logo HGN BEJI 2026
+
+**PORTAL PENJURIAN DIGITAL**
+
+Subtitle:
+
+Lomba Video Guru Inspiratif
+
+FKKKS Kecamatan Beji
+
+Login form:
+
+- Username.
+- Password.
+- Tampilkan / Sembunyikan Password.
+- Login.
+
+After successful authentication, redirect to:
+
+`/juri/dashboard`
+
+Do not require Google authentication.
+
+Use the account credentials created by admin.
+
+If the account is inactive, deny access and display an appropriate error.
+
+A logged-in juror must never have access to admin-only endpoints.
+
+---
+
+# 9. JURY DASHBOARD
+
+Design an elegant, focused judging environment.
+
+Create jury navigation:
+
+1. Dashboard.
+2. Daftar Karya.
+3. Penilaian Saya.
+4. Rekap Pribadi.
+5. Profil.
+6. Logout.
+
+## DASHBOARD HEADER
+
+Display:
+
+"Selamat Datang, [Nama Juri]"
+
+Subtitle:
+
+"Portal Penjurian Lomba Guru Inspiratif HGN 2026"
+
+Show:
+
+- Total karya ditugaskan.
+- Belum dinilai.
+- Draft penilaian.
+- Sudah difinalisasi.
+- Tahapan aktif.
+
+Use real data.
+
+## ASSIGNED WORKS
+
+Display each assigned participant as a premium card or table row.
+
+Information:
+
+- ID Peserta.
+- Nama Guru.
+- Asal Sekolah.
+- Judul Inovasi.
+- Tahap Penjurian.
+- Status Penilaian.
+
+Statuses:
+
+- Belum Dinilai.
+- Draft.
+- Final.
+
+Provide a large button:
+
+**MULAI PENILAIAN**
+
+For draft scores, display:
+
+**LANJUTKAN PENILAIAN**
+
+For finalized scores:
+
+**LIHAT HASIL PENILAIAN**
+
+Jurors may only evaluate works assigned to them by the administrator.
+
+Do not expose the scores or identities of other jurors during judging.
+
+---
+
+# 10. JURY REVIEW WORKSPACE — IFRAME DOCUMENT & VIDEO REVIEW
+
+**VERY IMPORTANT FEATURE**
+
+When a jury member clicks "Mulai Penilaian", open a dedicated evaluation workspace.
+
+Layout:
+
+Desktop:
+- Left area: Document & Video Review.
+- Right area: Judging Form.
+
+Mobile:
+- Tab 1: Review Karya.
+- Tab 2: Form Penilaian.
+
+Use a responsive split-screen layout.
+
+## PARTICIPANT INFORMATION
+
+Show:
+
+- Nama Peserta.
+- Asal Sekolah.
+- Judul Inovasi.
+- Nomor Peserta.
+- Tahap Penjurian.
+
+## DOCUMENT REVIEW TABS
+
+Create the following tabs:
+
+1. VIDEO.
+2. MODUL AJAR.
+3. MEDIA PEMBELAJARAN.
+4. FOLDER GOOGLE DRIVE.
+
+### VIDEO TAB
+
+Display a video preview using a secure iframe when supported.
+
+For Google Drive video file links, transform validated file links into supported Drive preview URLs.
+
+For supported YouTube URLs, use the YouTube embed player.
+
+Provide:
+
+- Preview Video.
+- Buka Video.
+- Buka di Tab Baru.
+- Refresh Preview.
+
+If embedding is restricted by the source provider, show a friendly message and provide the original clickable link.
+
+Do not pretend that Google Drive folders contain a directly playable video unless the actual video URL is known.
+
+### MODUL AJAR TAB
+
+Display document preview where supported.
+
+Support:
+
+- Google Docs.
+- Google Drive PDF.
+- Other supported Google document previews.
+
+Provide:
+
+- Preview Modul Ajar.
+- Buka Dokumen.
+- Lihat di Tab Baru.
+
+### MEDIA PEMBELAJARAN TAB
+
+Display the media preview when supported.
+
+Provide a direct open button.
+
+### GOOGLE DRIVE FOLDER TAB
+
+Display the original submitted folder link.
+
+When supported, display a folder preview.
+
+Always provide:
+
+**BUKA FOLDER GOOGLE DRIVE**
+
+If individual video and document URLs have not been supplied, allow the jury to review them using the original Drive folder.
+
+The administrator must be able to configure individual URLs for each participant.
+
+## SECURITY RULES FOR EMBEDS
+
+Validate external URLs.
+
+Restrict embedded content to appropriate trusted providers.
+
+Avoid unrestricted arbitrary iframe embedding.
+
+Do not expose backend credentials in iframe URLs.
+
+Use sandbox and iframe permissions appropriate to each trusted provider.
+
+Always provide direct-open fallback buttons.
+
+Preview failure must not prevent scoring.
+
+Do not add unnecessary Google Drive API dependencies.
+
+---
+
+# 11. DIGITAL JUDGING FORM — SCORES 0 TO 100
+
+**CORE APPLICATION FEATURE**
+
+Create a professional scoring form.
+
+Each criterion must accept a numerical value from:
+
+**0 TO 100**
+
+Allow integers and optionally two decimal places.
+
+Provide both:
+
+- Numeric input.
+- Slider input.
+
+Both controls must stay synchronized.
+
+A value of 0 is valid, but an empty field means not yet scored.
+
+Do not automatically interpret blank fields as 0.
+
+Display explanatory assessment indicators for each criterion.
+
+## OFFICIAL PRELIMINARY RUBRIC
+
+### CRITERION 1 — PEDAGOGIK & INOVASI
+
+Weight: **40%**
+
+Indicators:
+
+1. Relevance of learning innovation to student needs.
+2. Originality and creativity of methods or teaching media.
+3. Application of Joyful Learning.
+4. Application of Meaningful Learning.
+5. Application of Mindful Learning.
+6. Completeness and relevance of Modul Ajar.
+7. Suitability between lesson planning and actual classroom implementation.
+
+Input:
+
+Nilai Pedagogik & Inovasi: 0–100.
+
+Text area:
+
+Catatan Pedagogik dan Inovasi.
+
+### CRITERION 2 — DAMPAK / HASIL NYATA
+
+Weight: **35%**
+
+Indicators:
+
+1. Clarity of the initial learning problem.
+2. Relevance of the challenges.
+3. Logical implementation of the STAR framework.
+4. Evidence of actual learning activities.
+5. Demonstrable positive learning impact.
+6. Quality and relevance of testimonials.
+7. Reflection on results and opportunities for improvement.
+
+Input:
+
+Nilai Dampak / Hasil Nyata: 0–100.
+
+Text area:
+
+Catatan Dampak dan Hasil.
+
+### CRITERION 3 — KUALITAS TEKNIS VIDEO
+
+Weight: **25%**
+
+Indicators:
+
+1. Compliance with 5–7-minute duration.
+2. Visual clarity.
+3. Audio clarity.
+4. Video structure and presentation quality.
+5. Editing creativity.
+6. Clarity of narration.
+7. Completeness and relevance of supporting visual evidence.
+
+Input:
+
+Nilai Kualitas Teknis Video: 0–100.
+
+Text area:
+
+Catatan Kualitas Video.
+
+## OVERALL JURY NOTES
+
+Create fields:
+
+- Kelebihan Karya.
+- Hal yang Perlu Ditingkatkan.
+- Rekomendasi / Catatan Akhir.
+
+These fields should support professional jury feedback.
+
+## CALCULATE THE WEIGHTED SCORE AUTOMATICALLY
+
+Formula:
+
+Final Score =
+(Pedagogik Score × 0.40)
++
+(Dampak Score × 0.35)
++
+(Video Score × 0.25)
+
+Example:
+
+Pedagogik = 85.
+
+Dampak = 90.
+
+Video = 80.
+
+Final Score = 85.50.
+
+The total possible score is 100.
+
+Display the weighted score prominently and update it immediately when inputs change.
+
+Use decimal precision internally and display two decimal places.
+
+## FORM ACTION BUTTONS
+
+Provide:
+
+1. SIMPAN DRAFT.
+2. RESET PERUBAHAN BELUM TERSIMPAN.
+3. FINALISASI PENILAIAN.
+4. KEMBALI KE DAFTAR.
+
+"Simpan Draft" must write the incomplete or complete score data to Google Sheets.
+
+"Finalisasi Penilaian" must:
+
+- Validate all required scores.
+- Validate score ranges.
+- Show a confirmation dialog.
+- Save the complete evaluation.
+- Record the finalization timestamp.
+- Lock the evaluation from further jury edits.
+
+The administrator may reopen a finalized evaluation with an explicit reason and audit log.
+
+## STATUS MANAGEMENT
+
+Use these states:
+
+BELUM_DINILAI
+
+DRAFT
+
+FINAL
+
+Only FINAL scores contribute to the official ranking.
+
+Draft scores must never be counted as final assessment results.
+
+---
+
+# 12. TWO-STAGE DIGITAL JUDGING
+
+Support two independent stages.
+
+## STAGE 1 — PENYISIHAN
+
+All eligible verified participants may be assigned to one or more jurors.
+
+Use the official rubric:
+
+Pedagogik & Inovasi: 40%.
+
+Dampak / Hasil: 35%.
+
+Kualitas Teknis Video: 25%.
+
+Each juror scores each assigned work independently.
+
+After the required scores have been finalized, calculate the average final score per participant.
+
+Show a preliminary leaderboard in the Admin Dashboard.
+
+The organizer can confirm the five best eligible participants as Top 5.
+
+Do not automatically publish Top 5 without admin confirmation.
+
+## STAGE 2 — FINAL TOP 5
+
+Only the confirmed finalists should be eligible for final judging assignments.
+
+Create a separate final-stage judging workspace.
+
+Show:
+
+- Original video.
+- Modul Ajar.
+- Media Pembelajaran.
+- Preliminary result for admin only.
+- Final presentation information.
+- Final-stage judging form.
+
+The jury can score the finalist after the offline presentation.
+
+The final-stage rubric must be configurable by admin.
+
+By default, offer a draft rubric using the original 40% / 35% / 25% weights until the committee confirms a different final-stage rubric.
+
+Do not claim a new final-stage weighting is an official rule without administrator approval.
+
+Provide an additional unweighted observation field:
+
+**Catatan Paparan dan Kemampuan Mempertanggungjawabkan Inovasi.**
+
+Store preliminary scores and final scores separately.
+
+Do not automatically combine the two stages.
+
+If the organizer chooses a combined score, require an explicit admin-defined stage-weight configuration whose total is 100%.
+
+If no combination rule has been approved, calculate final-stage rankings separately.
+
+Only admin can confirm and publish final winners.
+
+---
+
+# 13. ADMIN — KRITERIA PENILAIAN
+
+Create a dedicated admin menu:
+
+**KRITERIA PENILAIAN**
+
+Display all scoring criteria in an editable table.
+
+Fields:
+
+- ID Kriteria.
+- Tahap Penjurian.
+- Nama Kriteria.
+- Deskripsi.
+- Indikator Penilaian.
+- Bobot (%).
+- Nilai Minimum.
+- Nilai Maksimum.
+- Urutan Tampilan.
+- Status Aktif.
+- Versi Rubrik.
+
+Admin can:
+
+- Add criteria.
+- Edit criteria.
+- Change percentages.
+- Update indicator descriptions.
+- Activate or deactivate criteria.
+- Preview the jury scoring form.
+- Save the rubric.
+
+Rules:
+
+1. All active scoring weights for a stage must sum to 100%.
+2. Scores must stay in the range 0–100.
+3. Do not allow invalid negative or above-100 scores.
+4. Rubric changes must be saved to Google Sheets.
+5. Jury forms must load active criteria dynamically from Google Sheets.
+6. Do not modify a rubric version already used by finalized evaluations.
+7. When scoring has started, create a new rubric version for approved changes.
+8. Existing finalized scores must remain linked to their original rubric version.
+
+The judging form must not rely on permanently hardcoded criteria.
+
+---
+
+# 14. ADMIN — JURY ASSIGNMENTS
+
+Build a dedicated judge-assignment interface.
+
+Admin can choose:
+
+- Jury member.
+- Competition stage.
+- Assigned participants.
+- Assignment status.
+
+Provide:
+
+- Assign all eligible participants.
+- Assign selected participants.
+- Assign individual participants.
+- Remove assignments that have no finalized scores.
+- View workload distribution.
+
+Prevent duplicate active assignments for the same jury, participant, and stage.
+
+Do not silently delete assignments that already have finalized scores.
+
+Provide conflict-of-interest management.
+
+A juror may flag an assigned participant as a potential conflict.
+
+The administrator can remove or reassign the work with an audit record.
+
+---
+
+# 15. ADMIN — MONITORING PENJURIAN
+
+Create a professional monitoring dashboard.
+
+Show all jury progress.
+
+Recommended table:
+
+Juri | Tahap | Ditugaskan | Belum Dinilai | Draft | Final | Progres
+
+For each participant, display:
+
+- Number of required jurors.
+- Number of finalized juror evaluations.
+- Score completeness.
+- Evaluation status.
+
+Statuses:
+
+- Belum Dinilai.
+- Proses.
+- Lengkap.
+- Memerlukan Tinjauan.
+
+Provide filters:
+
+- Jury name.
+- Participant.
+- School.
+- Competition stage.
+- Evaluation status.
+
+Use progress bars and clear status labels.
+
+Admin must be able to identify judges who have not completed their assignments.
+
+Do not disclose one judge's scores to another judge.
+
+---
+
+# 16. ADMIN — SCORE RECAP & AUTOMATIC RANKING
+
+**CRITICAL FEATURE**
+
+Create a score recap dashboard based on real Google Sheets evaluation records.
+
+For each participant, show:
+
+1. Participant ID.
+2. Teacher name.
+3. School.
+4. Innovation title.
+5. Competition stage.
+6. Number of required jurors.
+7. Number of finalized jury scores.
+8. Individual jury score details — admin only.
+9. Average final score.
+10. Rank.
+11. Evaluation completeness.
+
+## WEIGHTED SCORE PER JUROR
+
+For each juror:
+
+Weighted Score =
+SUM(Criterion Score × Criterion Weight / 100)
+
+## OVERALL PARTICIPANT SCORE
+
+When the same participant is evaluated by multiple jurors:
+
+Participant Average =
+SUM(Finalized Weighted Jury Scores) / Number of Finalized Jury Scores.
+
+Only count finalized scores.
+
+Do not treat missing evaluations as zero.
+
+If required evaluations are incomplete, flag the participant as INCOMPLETE.
+
+Exclude incomplete evaluations from official final ranking until judging requirements are met or admin formally approves an exception.
+
+Calculate rankings from the same stage and rubric rules.
+
+Sort complete scores from highest to lowest.
+
+Do not round scores before ranking; round only for presentation.
+
+When participants have equal scores, display a tied-score indicator and require the committee's documented tie-break decision.
+
+Do not invent an automatic tie-breaking rule.
+
+## SCORE RECAP TABLE
+
+Generate:
+
+Rank | Nama Guru | Sekolah | Juri 1 | Juri 2 | Juri 3 | Rata-rata | Status
+
+The number of jury columns must adapt dynamically to the actual number of jurors.
+
+Allow drill-down details of each criterion.
+
+Provide:
+
+- Export CSV.
+- Print view.
+- Export PDF via browser print layout.
+- Filter by stage.
+- Filter by school.
+- View individual jury evaluations.
+
+Do not expose private jury notes to the public landing page.
+
+## TOP 5 SELECTION
+
+Provide:
+
+**TETAPKAN TOP 5**
+
+Display the five highest-ranked eligible participants.
+
+Require admin confirmation before recording Top 5.
+
+Store the confirmation in Google Sheets.
+
+Do not automatically publish the Top 5 announcement.
+
+Admin controls public announcement publication separately.
+
+## WINNER DETERMINATION
+
+After final judging is complete, admin can assign:
+
+- Juara I.
+- Juara II.
+- Juara III.
+- Harapan I.
+- Harapan II.
+
+Use the approved final ranking or documented organizer decision.
+
+Record:
+
+- Rank.
+- Participant ID.
+- Approved stage.
+- Final score.
+- Decision date.
+- Admin confirmation.
+- Decision notes.
+
+Do not invent winners.
+
+Allow publication only after admin confirmation.
+
+---
+
+# 17. GOOGLE SHEETS DATABASE — COMPLETE STRUCTURE
+
+Use the existing spreadsheet:
+
+`HGN 2026 Kec. Beji`
+
+Create `setupDatabase()` in Google Apps Script.
+
+Create missing worksheets without deleting existing user data.
+
+Do not overwrite populated rows.
+
+Preserve the original Sheet1 if it exists.
+
+Initialize these tables.
+
+## TABLE 1 — PENGATURAN
+
+Columns:
+
+key | value | description | updated_at
+
+Include:
+
+site_title
+tagline
+hashtag
+main_logo_url
+app_icon_url
+hero_background_url
+banner_url
+primary_color
+secondary_color
+contact_whatsapp
+footer_text
+submission_deadline
+submission_enabled
+submission_mode
+external_form_url
+active_judging_stage
+jury_portal_enabled
+preliminary_results_published
+final_results_published
+last_updated
+
+## TABLE 2 — JUKNIS
+
+Columns:
+
+id | section_code | title | content | sort_order | active | updated_at
+
+Initialize sections A–H.
+
+## TABLE 3 — JADWAL
+
+Columns:
+
+id | activity | start_datetime | end_datetime | location | display_order | active
+
+## TABLE 4 — HADIAH
+
+Columns:
+
+id | rank | prize_amount | description | display_order | active
+
+## TABLE 5 — PESERTA
+
+Columns:
+
+participant_id
+submitted_at
+full_name
+school
+innovation_title
+drive_folder_url
+video_url
+lesson_module_url
+learning_media_url
+whatsapp
+verification_status
+admin_notes
+consent
+
+## TABLE 6 — JURI
+
+Columns:
+
+jury_id
+full_name
+identity_number
+jury_category
+institution
+whatsapp
+username
+password_verifier
+password_salt
+must_change_password
+account_status
+assigned_stages
+created_at
+updated_at
+
+Store password verifiers, not plaintext jury passwords.
+
+## TABLE 7 — KRITERIA_PENILAIAN
+
+Columns:
+
+criterion_id
+stage
+rubric_version
+criterion_name
+description
+indicators_json
+weight_percentage
+minimum_score
+maximum_score
+display_order
+active
+created_at
+updated_at
+
+Initialize preliminary-stage criteria:
+
+PEDAGOGIK — 40%
+
+DAMPAK — 35%
+
+TEKNIS_VIDEO — 25%
+
+Create a separate configurable final-stage rubric.
+
+## TABLE 8 — PENUGASAN_JURI
+
+Columns:
+
+assignment_id
+jury_id
+participant_id
+stage
+assignment_status
+assigned_at
+assigned_by
+conflict_flag
+conflict_notes
+
+## TABLE 9 — PENILAIAN
+
+Columns:
+
+evaluation_id
+jury_id
+participant_id
+assignment_id
+stage
+rubric_version
+weighted_total
+strengths
+improvements
+recommendations
+presentation_notes
+evaluation_status
+saved_at
+finalized_at
+reopened_at
+reopened_by
+reopen_reason
+
+Create a unique evaluation for every combination of:
+
+jury_id + participant_id + stage.
+
+Do not create duplicate evaluations when a draft is saved repeatedly.
+
+## TABLE 10 — DETAIL_NILAI
+
+Columns:
+
+detail_id
+evaluation_id
+criterion_id
+criterion_name_snapshot
+weight_snapshot
+score
+weighted_score
+criterion_notes
+updated_at
+
+Store every criterion score separately.
+
+Do not store only the total score.
+
+This is essential for detailed recap, transparency, and audits.
+
+## TABLE 11 — REKAP_PENILAIAN
+
+Columns:
+
+participant_id
+stage
+required_jurors
+finalized_jurors
+average_score
+evaluation_complete
+rank
+last_calculated
+
+Treat this as a derived summary table.
+
+The source of truth remains PENILAIAN and DETAIL_NILAI.
+
+Refresh this summary when finalized evaluations or assignments change.
+
+## TABLE 12 — FINALIS_PEMENANG
+
+Columns:
+
+record_id
+participant_id
+stage
+selection_type
+award_rank
+approved_score
+decision_notes
+approved_by
+approved_at
+published
+
+Use this table for Top 5 selection and approved winners.
+
+## TABLE 13 — PENGUMUMAN
+
+Columns:
+
+announcement_id
+title
+content
+category
+publication_date
+published
+display_order
+updated_at
+
+## TABLE 14 — LOG_AKTIVITAS
+
+Columns:
+
+log_id
+timestamp
+actor_id
+actor_role
+action
+target_type
+target_id
+description
+
+Record important actions:
+
+- Admin creates jury.
+- Admin updates rubric.
+- Admin assigns jury.
+- Jury saves draft.
+- Jury finalizes evaluation.
+- Admin reopens evaluation.
+- Admin confirms Top 5.
+- Admin confirms winners.
+
+Do not log plaintext passwords, session tokens, or API secrets.
+
+---
+
+# 18. GOOGLE APPS SCRIPT — BACKEND DATABASE
+
+Generate complete `Code.gs`.
+
+Required functions:
+
+- setupDatabase()
+- doGet(e)
+- doPost(e)
+- getPublicData()
+- getSettings()
+- saveSettings()
+- getJuknis()
+- saveJuknis()
+- getParticipants()
+- addParticipant()
+- updateParticipant()
+- getJuryAccounts()
+- createJuryAccount()
+- updateJuryAccount()
+- getJuryAssignments()
+- saveJuryAssignment()
+- getScoringCriteria()
+- saveScoringCriteria()
+- getJuryEvaluation()
+- saveJuryEvaluation()
+- finalizeJuryEvaluation()
+- reopenJuryEvaluation()
+- calculateWeightedScore()
+- calculateParticipantAverage()
+- calculateStageRankings()
+- refreshScoreRecap()
+- confirmTopFive()
+- confirmWinners()
+- saveAnnouncement()
+- getAdminDashboardSummary()
+- recordActivity()
+
+Use a compact request dispatcher.
+
+Do not expose private data using public GET endpoints.
+
+Use Apps Script PropertiesService for a shared backend API secret.
+
+Use JSON request validation.
+
+Use LockService for concurrent writes.
+
+Return consistent JSON responses.
+
+Suggested structure:
+
+success
+data
+message
+error_code
+
+Handle errors without revealing sensitive configuration.
+
+Use batch spreadsheet operations wherever practical for performance.
+
+Protect against spreadsheet formula injection.
+
+Ensure new records have stable, unique IDs.
+
+Use Asia/Jakarta timezone for event timestamps.
+
+---
+
+# 19. API & AUTHENTICATION
+
+Use the Node.js backend as the only frontend API gateway.
+
+Public endpoints:
+
+GET /api/public
+
+POST /api/submissions
+
+Admin endpoints:
+
+POST /api/admin/login
+
+POST /api/admin/logout
+
+GET /api/admin/session
+
+GET /api/admin/summary
+
+GET /api/admin/participants
+
+POST /api/admin/participants
+
+GET /api/admin/jury
+
+POST /api/admin/jury
+
+POST /api/admin/jury-assignments
+
+GET /api/admin/criteria
+
+POST /api/admin/criteria
+
+GET /api/admin/evaluations
+
+GET /api/admin/rankings
+
+POST /api/admin/results/confirm
+
+POST /api/admin/announcements
+
+Jury endpoints:
+
+POST /api/jury/login
+
+POST /api/jury/logout
+
+GET /api/jury/session
+
+POST /api/jury/change-password
+
+GET /api/jury/dashboard
+
+GET /api/jury/assignments
+
+GET /api/jury/evaluation/:assignmentId
+
+POST /api/jury/evaluation/draft
+
+POST /api/jury/evaluation/finalize
+
+GET /api/jury/my-results
+
+## SECURITY REQUIREMENTS
+
+Admin-only endpoints require ADMIN role.
+
+Jury-only endpoints require authenticated JURY role.
+
+Jurors must not access other jurors' evaluations.
+
+Jurors must not evaluate unassigned participants.
+
+Jurors must not edit finalized evaluations.
+
+Reject invalid scores.
+
+Reject inactive jury accounts.
+
+Use safe, server-managed sessions with HttpOnly cookies.
+
+Protect state-changing routes against cross-site request forgery.
+
+Add lightweight login rate limiting.
+
+Use server-side environment variables for secrets.
+
+Suggested variables:
+
+ADMIN_USERNAME
+
+ADMIN_PASSWORD
+
+SESSION_SECRET
+
+APPS_SCRIPT_WEB_APP_URL
+
+API_SHARED_SECRET
+
+Never put these secrets into public source code.
+
+The initial admin password remains `@1` for setup.
+
+Keep the authentication implementation lightweight, but do not use plaintext jury passwords.
+
+---
+
+# 20. AUTOMATIC SYNCHRONIZATION
+
+**MUST WORK RELIABLY**
+
+Whenever admin:
+
+- Adds a jury account.
+- Edits participant information.
+- Changes scoring criteria.
+- Assigns jury members.
+- Publishes announcements.
+- Changes website images.
+- Updates schedule.
+- Changes prizes.
+
+Save changes to Google Sheets.
+
+Whenever jury:
+
+- Saves a draft.
+- Changes an incomplete evaluation.
+- Finalizes an evaluation.
+
+Save changes to Google Sheets.
+
+After successful saving:
+
+1. Update the current user interface.
+2. Invalidate stale data.
+3. Fetch the latest affected records.
+4. Refresh the relevant dashboard.
+5. Recalculate derived results where necessary.
+
+Other active sessions should detect changes within approximately 30 seconds.
+
+Do not fake real-time synchronization.
+
+Use periodic refresh rather than WebSockets if no real-time infrastructure is needed.
+
+Never show "Berhasil Disimpan" until the backend confirms successful persistence.
+
+Prevent duplicate submissions during rapid repeated clicks.
+
+---
+
+# 21. SPECIAL DATA INTEGRITY RULES
+
+Apply these rules throughout the application:
+
+1. Never delete existing spreadsheet data during setup.
+2. Never duplicate jury evaluations for the same jury-participant-stage combination.
+3. Never overwrite another juror's score.
+4. Never silently modify finalized scores.
+5. Never count draft scores as official scores.
+6. Never include incomplete judging results in the final ranking without an authorized exception.
+7. Never silently change scoring weights after finalization.
+8. Never publish Top 5 or winners without admin approval.
+9. Keep preliminary and final judging records separate.
+10. Always preserve criterion-level scoring details.
+11. Maintain audit logs for important administrative decisions.
+12. Use a consistent participant ID across all tables.
+13. Show clear failure messages when spreadsheet writes fail.
+14. Do not create fake judging data or winners.
+
+---
+
+# 22. RESPONSIVE JURY EXPERIENCE
+
+The judging interface must work on desktop, tablets, and mobile devices.
+
+Desktop layout:
+
+- 60% document/video review area.
+- 40% scoring form area.
+
+Allow the user to resize or collapse the preview panel if practical.
+
+Mobile layout:
+
+- Tabs for Preview and Scoring.
+- Sticky score summary.
+- Large, accessible numeric controls.
+- Easy switching between documents.
+- No horizontal overflow.
+
+Ensure scrolling the iframe does not accidentally change the score sliders.
+
+Make the Save Draft and Finalize buttons easy to access.
+
+Provide clear loading states.
+
+Respect reduced-motion settings.
+
+---
+
+# 23. DATA VISUALIZATION
+
+Create elegant analytics components for Admin.
+
+Recommended visualizations:
+
+1. Total participants by school.
+2. Jury evaluation progress.
+3. Completed versus incomplete evaluations.
+4. Average scores by scoring criterion.
+5. Score distribution.
+6. Preliminary ranking.
+7. Final ranking.
+
+Do not display public rankings before publication approval.
+
+Use actual spreadsheet values.
+
+Keep charts readable and lightweight.
+
+---
+
+# 24. INITIAL APPLICATION CONFIGURATION
+
+Project:
+
+HGN BEJI 2026
+
+Competition:
+
+LOMBA VIDEO GURU INSPIRATIF
+
+Organizer:
+
+FKKKS KECAMATAN BEJI
+
+Tagline:
+
+GURU HEBAT, INDONESIA KUAT
+
+Hashtag:
+
+#BejolanAji
+
+Database:
+
+HGN 2026 Kec. Beji
+
+Public pages:
+
+1. Beranda.
+2. Juknis & Pengumpulan.
+
+Admin access:
+
+Double-click homepage logo.
+
+Admin username:
+
+admin
+
+Admin password:
+
+@1
+
+Jury login:
+
+/juri/login
+
+Jury dashboard:
+
+/juri/dashboard
+
+Initial Jury Accounts:
+
+EMPTY — CREATED BY ADMIN.
+
+Scoring:
+
+0–100 per criterion.
+
+Preliminary weights:
+
+40%, 35%, 25%.
+
+Stage 1:
+
+Penyisihan.
+
+Stage 2:
+
+Final Top 5.
+
+Submission deadline:
+
+21 November 2026, 23:59 WIB.
+
+Public winner announcement:
+
+28 November 2026, after administrator approval.
+
+---
+
+# 25. REQUIRED TESTING
+
+Before presenting the application as complete, verify:
+
+### Public Website Tests
+
+- Only two public pages exist.
+- Main logo and app icon load correctly.
+- Mobile layout works.
+- Countdown uses Asia/Jakarta.
+- Juknis is complete.
+- Prizes load from Google Sheets.
+- Submission form saves correctly.
+
+### Admin Tests
+
+- Double-click logo opens login.
+- Incorrect credentials are rejected.
+- Admin can change image URLs.
+- Admin can add a jury account.
+- Admin can edit jury data.
+- Admin can assign participants.
+- Admin can edit scoring criteria.
+- Weight validation rejects totals other than 100%.
+- Admin can view jury progress.
+- Admin can export scoring recaps.
+
+### Jury Tests
+
+- Jury can log in.
+- Jury sees only assigned works.
+- Jury can open video links.
+- Jury can preview supported documents using iframe.
+- Direct-open buttons work.
+- Sliders accept 0–100.
+- Numeric inputs accept 0–100.
+- Weighted score calculation is correct.
+- Draft scores save to Google Sheets.
+- Jury can resume drafts.
+- Finalized scores cannot be modified by the juror.
+- Jury cannot see other jury scores.
+
+### Ranking Tests
+
+- Incomplete evaluations are identified.
+- Draft scores are excluded.
+- Final score averaging is correct.
+- Ranking order is correct.
+- Ties are identified.
+- Top 5 requires admin confirmation.
+- Winners require admin approval.
+- Preliminary and final records remain separate.
+
+### Database Tests
+
+- Every scoring criterion is stored.
+- Every criterion score is stored.
+- Weighted scores persist.
+- Jury assignments persist.
+- Audit records persist.
+- Reloading the page does not erase submitted data.
+- Spreadsheet changes synchronize correctly.
+
+---
+
+# 26. REQUIRED DELIVERABLES
+
+Generate the complete application and provide:
+
+1. Working React frontend.
+2. Working Node.js backend.
+3. Working public landing page.
+4. Hidden Admin Dashboard.
+5. Separate Jury Login.
+6. Complete Jury Dashboard.
+7. Video and document iframe previews.
+8. Scoring forms with sliders and numeric inputs.
+9. Automatic weighted scoring.
+10. Jury assignment management.
+11. Automated score recaps.
+12. Top 5 and winner management.
+13. Google Apps Script `Code.gs`.
+14. Google Sheets initialization and synchronization.
+15. Responsive layouts.
+16. Indonesian installation instructions.
+
+Provide easy step-by-step setup instructions:
+
+1. Open or convert the existing spreadsheet to Google Sheets.
+2. Open Extensions → Apps Script.
+3. Paste Code.gs.
+4. Run setupDatabase().
+5. Configure API_SHARED_SECRET.
+6. Deploy the Apps Script Web App.
+7. Copy the Web App URL.
+8. Configure AI Studio backend environment variables.
+9. Test admin login.
+10. Create a jury account.
+11. Assign one sample participant.
+12. Test an evaluation and its database storage.
+13. Verify score calculations and admin recap.
+14. Publish the application.
+
+**FINAL MANDATORY INSTRUCTION**
+
+Do not stop at a static UI mockup.
+
+Do not leave nonfunctional buttons.
+
+Do not replace Google Sheets with localStorage.
+
+Do not expose passwords to browser code.
+
+Do not give jurors admin privileges.
+
+Do not allow jurors to see each other's scores.
+
+Do not invent participant scores or winners.
+
+Prioritize a simple administration workflow, reliable persistence, and an elegant premium design.
+
+Deliver a fully integrated HGN BEJI 2026 Digital Competition Management & Jury Scoring System ready for real use.

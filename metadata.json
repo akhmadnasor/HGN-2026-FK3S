@@ -1,0 +1,6 @@
+{
+  "name": "HGN BEJI 2026 — Lomba Video Guru Inspiratif",
+  "description": "Portal Resmi, Manajemen Lomba, dan Sistem Penjurian Digital Lomba Video Guru Inspiratif Hari Guru Nasional 2026 FKKKS Kecamatan Beji (#BejolanAji).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

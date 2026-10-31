@@ -1,0 +1,164 @@
+@import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
+
+@layer base {
+  :root {
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-display: 'Outfit', 'Plus Jakarta Sans', sans-serif;
+    --font-mono: 'JetBrains Mono', monospace;
+    --primary-color: #004aad;
+    --secondary-color: #ff9900;
+  }
+
+  body {
+    font-family: var(--font-sans);
+    background-color: #ffffff;
+    color: #0a192f;
+    overflow-x: hidden;
+    font-weight: 500;
+    transition: background-color 150ms ease, color 150ms ease;
+  }
+
+  .dark body {
+    background-color: #070b14;
+    color: #ffffff;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: var(--font-display);
+    letter-spacing: -0.02em;
+  }
+
+  .font-mono, .tabular-nums {
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Hide scrollbars on mobile/tablet horizontal pill/tab strips */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ============================================================================
+ * ADMIN WORKSPACE LIGHT-MODE HARMONIZATION (Matches Landing Page Aesthetic)
+ * ============================================================================ */
+.admin-light-mode .admin-workspace .bg-slate-900\/80,
+.admin-light-mode .admin-workspace .bg-slate-900\/85,
+.admin-light-mode .admin-workspace .bg-slate-900\/90,
+.admin-light-mode .admin-workspace .bg-slate-900\/60,
+.admin-light-mode .admin-workspace .bg-slate-900 {
+  background-color: #f8fafc !important;
+  border-color: #cbd5e1 !important;
+  border-width: 2px !important;
+  color: #0f172a !important;
+  box-shadow: 0 4px 14px -4px rgba(0, 74, 173, 0.06);
+}
+
+.admin-light-mode .admin-workspace .bg-slate-950,
+.admin-light-mode .admin-workspace .bg-slate-950\/70,
+.admin-light-mode .admin-workspace .bg-slate-950\/80,
+.admin-light-mode .admin-workspace .bg-slate-950\/60 {
+  background-color: #ffffff !important;
+  border-color: #94a3b8 !important;
+  border-width: 2px !important;
+  color: #0f172a !important;
+}
+
+.admin-light-mode .admin-workspace input:not([type="checkbox"]):not([type="radio"]):not([type="color"]),
+.admin-light-mode .admin-workspace select,
+.admin-light-mode .admin-workspace textarea {
+  background-color: #ffffff !important;
+  border: 2px solid #cbd5e1 !important;
+  color: #0a192f !important;
+  font-weight: 700 !important;
+}
+
+.admin-light-mode .admin-workspace input:focus,
+.admin-light-mode .admin-workspace select:focus,
+.admin-light-mode .admin-workspace textarea:focus {
+  border-color: #004aad !important;
+}
+
+.admin-light-mode .admin-workspace .text-white {
+  color: #0a192f !important;
+  font-weight: 800;
+}
+
+.admin-light-mode .admin-workspace .bg-\[\#004AAD\] .text-white,
+.admin-light-mode .admin-workspace .from-\[\#004AAD\] .text-white,
+.admin-light-mode .admin-workspace button.text-white {
+  color: #ffffff !important;
+}
+
+.admin-light-mode .admin-workspace .text-slate-100,
+.admin-light-mode .admin-workspace .text-slate-200,
+.admin-light-mode .admin-workspace .text-slate-300 {
+  color: #1e293b !important;
+  font-weight: 600;
+}
+
+.admin-light-mode .admin-workspace .text-slate-400,
+.admin-light-mode .admin-workspace .text-slate-500 {
+  color: #475569 !important;
+  font-weight: 700;
+}
+
+.admin-light-mode .admin-workspace .text-amber-300,
+.admin-light-mode .admin-workspace .text-amber-400 {
+  color: #d97706 !important;
+  font-weight: 800;
+}
+
+.admin-light-mode .admin-workspace .text-sky-300,
+.admin-light-mode .admin-workspace .text-sky-400 {
+  color: #004aad !important;
+  font-weight: 800;
+}
+
+.admin-light-mode .admin-workspace .text-emerald-300,
+.admin-light-mode .admin-workspace .text-emerald-400 {
+  color: #047857 !important;
+  font-weight: 800;
+}
+
+.admin-light-mode .admin-workspace .border-slate-800,
+.admin-light-mode .admin-workspace .border-slate-800\/80,
+.admin-light-mode .admin-workspace .border-slate-700 {
+  border-color: #cbd5e1 !important;
+}
+
+.admin-light-mode .admin-workspace .divide-slate-800\/70 > :not([hidden]) ~ :not([hidden]),
+.admin-light-mode .admin-workspace .divide-slate-800 > :not([hidden]) ~ :not([hidden]) {
+  border-color: #e2e8f0 !important;
+}
+
+.admin-light-mode .admin-workspace thead tr {
+  background-color: #004aad !important;
+  color: #ffffff !important;
+}
+
+.admin-light-mode .admin-workspace thead th {
+  color: #ffffff !important;
+  font-weight: 800 !important;
+}
+
+@media print {
+  .no-print {
+    display: none !important;
+  }
+  body {
+    background: #ffffff !important;
+    color: #0a192f !important;
+  }
+  .print-container {
+    background: #ffffff !important;
+    color: #0a192f !important;
+    border: 1px solid #94a3b8 !important;
+    box-shadow: none !important;
+  }
+}

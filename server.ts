@@ -513,37 +513,37 @@ function getInitialDatabase(): DatabaseSchema {
     JADWAL: [
       {
         id: 'JDW-1',
-        activity: 'Deadline Pengumpulan Karya',
-        start_datetime: '21 November 2026',
-        end_datetime: '23.59 WIB',
-        location: 'Portal Digital HGN Beji 2026',
+        activity: 'Tahap 1: Pendaftaran & Pengumpulan Karya',
+        start_datetime: 's.d. 21 November 2026',
+        end_datetime: 'Batas Akhir: Pukul 23.59 WIB',
+        location: 'Portal Resmi FK3S Kec. Beji',
         display_order: 1,
         active: true
       },
       {
         id: 'JDW-2',
-        activity: 'Penjurian Penyisihan',
-        start_datetime: '23 November 2026',
-        end_datetime: '25 November 2026',
-        location: 'Sistem Penjurian Digital',
+        activity: 'Tahap 2: Kurasi Berkas & Penjurian Penyisihan',
+        start_datetime: '22 – 24 November 2026',
+        end_datetime: 'Durasi: 3 Hari Kalender (Daring)',
+        location: 'Portal Penjurian Digital Juri',
         display_order: 2,
         active: true
       },
       {
         id: 'JDW-3',
-        activity: 'Final Top 5 (Paparan Luring)',
-        start_datetime: '26 November 2026',
-        end_datetime: '27 November 2026',
-        location: 'Kecamatan Beji',
+        activity: 'Tahap 3: Pleno Dewan Juri & Pengumuman 5 Finalis (Top 5)',
+        start_datetime: '25 November 2026',
+        end_datetime: 'Durasi: 1 Hari Kerja (Peringatan HGN)',
+        location: 'Sekretariat FK3S Kec. Beji',
         display_order: 3,
         active: true
       },
       {
         id: 'JDW-4',
-        activity: 'Pengumuman Pemenang',
-        start_datetime: '28 November 2026',
-        end_datetime: 'Puncak HGN 2026',
-        location: 'FKKKS Kecamatan Beji',
+        activity: 'Tahap 4: Presentasi & Wawancara 5 Finalis serta Penetapan Juara',
+        start_datetime: '27 – 28 November 2026',
+        end_datetime: 'Alokasi: 15 Menit/Peserta (Paparan 7 Menit + Tanya Jawab 8 Menit)',
+        location: 'Aula Korwilcam Pendidikan Kec. Beji',
         display_order: 4,
         active: true
       }
@@ -1121,12 +1121,13 @@ app.get('/api/public', (_req: Request, res: Response) => {
   const uniqueSchools = new Set(db.PESERTA.map((p) => p.school.trim().toUpperCase()).filter(Boolean));
   const activeSchools = (db.SEKOLAH || []).filter((s) => Boolean(s.active) && String(s.active) !== 'false');
 
-  // Strictly expose ONLY school, full_name, and innovation_title to public endpoint
+  // Strictly expose ONLY non-sensitive participant registration data (no drive links, wa, or jury notes)
   const publicParticipants = (db.PESERTA || []).map((p) => ({
     participant_id: p.participant_id,
     school: p.school,
     full_name: p.full_name,
-    innovation_title: p.innovation_title
+    innovation_title: p.innovation_title,
+    submitted_at: p.submitted_at
   }));
 
   res.json({

@@ -198,6 +198,7 @@ export interface PublicParticipantItem {
   school: string;
   full_name: string;
   innovation_title: string;
+  submitted_at?: string;
 }
 
 export interface PublicDataPayload {

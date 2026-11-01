@@ -32,7 +32,12 @@ import {
   X,
   Filter,
   Info,
-  ShieldCheck
+  ShieldCheck,
+  Printer,
+  Download,
+  Copy,
+  Clock,
+  QrCode
 } from 'lucide-react';
 
 interface PublicWebsiteProps {
@@ -96,6 +101,17 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
   const [villageFilter, setVillageFilter] = useState<string>('ALL');
   const [statusFilter, setStatusFilter] = useState<'ALL' | 'NEGERI' | 'SWASTA'>('ALL');
   const [selectedSchoolDetail, setSelectedSchoolDetail] = useState<string>('ALL');
+
+  // Pop-up Surat Keterangan Keikutsertaan State (Automatic on register & printable)
+  const [showSuratModal, setShowSuratModal] = useState(false);
+  const [selectedSuratParticipant, setSelectedSuratParticipant] = useState<{
+    participant_id: string;
+    full_name: string;
+    school: string;
+    innovation_title: string;
+    submitted_at?: string;
+  } | null>(null);
+  const [copiedCertId, setCopiedCertId] = useState(false);
 
   const mainScrollRef = useRef<HTMLElement | null>(null);
   const scrollToTop = () => {
@@ -179,6 +195,26 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
     scrollToTop();
   };
 
+  const formatIndonesianDate = (isoString?: string) => {
+    if (!isoString) return '21 November 2026, 23.59 WIB';
+    try {
+      const d = new Date(isoString);
+      if (Number.isNaN(d.getTime())) return isoString;
+      return (
+        d.toLocaleDateString('id-ID', {
+          day: 'numeric',
+          month: 'long',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+          timeZone: 'Asia/Jakarta'
+        }) + ' WIB'
+      );
+    } catch {
+      return isoString;
+    }
+  };
+
   const handleInternalSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
@@ -198,11 +234,24 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
           message: json.message || 'Gagal mengirim karya. Periksa kembali kelengkapan data Anda.'
         });
       } else {
+        const participantData = {
+          participant_id: json.data?.participant_id || `HGN26-${String(publicParticipants.length + 1).padStart(3, '0')}`,
+          full_name: json.data?.full_name || formState.full_name,
+          school: json.data?.school || formState.school,
+          innovation_title: json.data?.innovation_title || formState.innovation_title,
+          submitted_at: json.data?.submitted_at || new Date().toISOString()
+        };
+
         setSubmitResult({
           type: 'success',
-          message: json.message,
-          participantId: json.data?.participant_id
+          message: json.message || 'Pendaftaran karya berhasil disimpan resmi!',
+          participantId: participantData.participant_id
         });
+
+        // Automatically present pop-up Surat Keterangan Keikutsertaan with notice wajib
+        setSelectedSuratParticipant(participantData);
+        setShowSuratModal(true);
+
         setFormState({
           full_name: '',
           school: '',
@@ -597,6 +646,7 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                     <th className="py-2.5 px-3">Asal Sekolah (Kec. Beji)</th>
                     <th className="py-2.5 px-3">Nama Guru Peserta</th>
                     <th className="py-2.5 px-3">Judul Inovasi Pembelajaran</th>
+                    <th className="py-2.5 px-2.5 w-20 text-center">Surat</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y-2 divide-slate-200 dark:divide-slate-800 font-bold">
@@ -616,6 +666,20 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                       </td>
                       <td className="py-2.5 px-3 font-semibold text-slate-800 dark:text-slate-200">
                         {item.innovation_title}
+                      </td>
+                      <td className="py-2.5 px-2.5 text-center">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setSelectedSuratParticipant(item);
+                            setShowSuratModal(true);
+                          }}
+                          title="Cetak Surat Keterangan Keikutsertaan Resmi"
+                          className="px-2 py-1 rounded-lg bg-[#004AAD]/10 hover:bg-[#004AAD] text-[#004AAD] hover:text-white dark:bg-[#FFB800]/15 dark:hover:bg-[#FFB800] dark:text-[#FFB800] dark:hover:text-slate-950 font-black text-[10px] inline-flex items-center gap-1 transition-colors border border-[#004AAD]/30 dark:border-[#FFB800]/40 cursor-pointer"
+                        >
+                          <Printer className="w-3 h-3" />
+                          <span>Cetak</span>
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -1110,33 +1174,81 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-                        {data.jadwal.map((item, idx) => (
-                          <div
-                            key={item.id}
-                            className="rounded-2xl bg-[#F8FAFC] dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 p-4 flex flex-col justify-between"
-                          >
-                            <div>
-                              <div className="flex items-center justify-between gap-2 mb-2">
-                                <span className="px-2.5 py-1 rounded-md bg-[#004AAD] text-white font-mono font-black text-xs">
-                                  TAHAP 0{idx + 1}
-                                </span>
-                                <span className="font-mono font-extrabold text-xs text-[#EA580C] dark:text-[#FFB800]">
-                                  {item.start_datetime}
-                                  {item.end_datetime && item.end_datetime !== item.start_datetime
-                                    ? ` – ${item.end_datetime}`
-                                    : ''}
-                                </span>
+                        {data.jadwal.map((item, idx) => {
+                          // Definisi satuan waktu yang mudah dipahami per tahapan (Tahap 1 - 4)
+                          const stageTimingMeta = [
+                            {
+                              stageLabel: 'TAHAP 01 • REGISTRASI & UPLOAD',
+                              cleanDate: 's.d. 21 November 2026',
+                              durationBadge: 'Batas Akhir: Pukul 23.59 WIB',
+                              durationDesc: 'Pengumpulan berkas portofolio (video 5–7 menit, modul ajar, media) via link Google Drive.',
+                              badgeColor: 'bg-[#004AAD] text-white',
+                              dateColor: 'text-[#004AAD] dark:text-[#FFB800]'
+                            },
+                            {
+                              stageLabel: 'TAHAP 02 • KURASI & PENYISIHAN',
+                              cleanDate: '22 – 24 November 2026',
+                              durationBadge: 'Durasi: 3 Hari Kalender',
+                              durationDesc: 'Penilaian portofolio digital oleh Dewan Juri secara daring (Pedagogik 40%, STAR 35%, Video 25%).',
+                              badgeColor: 'bg-emerald-600 text-white',
+                              dateColor: 'text-emerald-700 dark:text-emerald-400'
+                            },
+                            {
+                              stageLabel: 'TAHAP 03 • PLENO & NOMINASI',
+                              cleanDate: '25 November 2026 (Hari Guru Nasional)',
+                              durationBadge: 'Durasi: 1 Hari Kerja',
+                              durationDesc: 'Rapat pleno pengesahan Berita Acara Dewan Juri dan pengumuman penetapan 5 Finalis Terpilih (Top 5).',
+                              badgeColor: 'bg-amber-600 text-white',
+                              dateColor: 'text-amber-700 dark:text-[#FFB800]'
+                            },
+                            {
+                              stageLabel: 'TAHAP 04 • UJI PETIK & FINAL',
+                              cleanDate: '27 – 28 November 2026',
+                              durationBadge: 'Alokasi: 15 Menit/Peserta (7m Paparan + 8m Tanya Jawab)',
+                              durationDesc: 'Presentasi dan wawancara luring di Aula Korwilcam Beji: 7 menit paparan inovasi + 8 menit tanya jawab Dewan Juri.',
+                              badgeColor: 'bg-purple-700 text-white',
+                              dateColor: 'text-purple-700 dark:text-purple-300'
+                            }
+                          ][idx] || {
+                            stageLabel: `TAHAP 0${idx + 1}`,
+                            cleanDate: item.start_datetime || 'November 2026',
+                            durationBadge: item.end_datetime || 'Sesuai Agenda',
+                            durationDesc: 'Pelaksanaan tahapan lomba sesuai juknis resmi FK3S.',
+                            badgeColor: 'bg-[#004AAD] text-white',
+                            dateColor: 'text-[#004AAD] dark:text-[#FFB800]'
+                          };
+
+                          return (
+                            <div
+                              key={item.id}
+                              className="rounded-2xl bg-[#F8FAFC] dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 p-4 sm:p-5 flex flex-col justify-between shadow-xs"
+                            >
+                              <div>
+                                <div className="flex flex-wrap items-center justify-between gap-2 mb-2.5">
+                                  <span className={`px-2.5 py-1 rounded-md font-mono font-black text-[11px] ${stageTimingMeta.badgeColor}`}>
+                                    {stageTimingMeta.stageLabel}
+                                  </span>
+                                  <span className="px-2.5 py-0.5 rounded-md bg-amber-500/15 text-[#D97706] dark:text-[#FFB800] border border-amber-500/30 font-mono font-extrabold text-[11px]">
+                                    {stageTimingMeta.durationBadge}
+                                  </span>
+                                </div>
+                                <h3 className="font-display font-black text-base sm:text-lg text-slate-950 dark:text-white leading-snug">
+                                  {item.activity}
+                                </h3>
+                                <div className={`font-mono font-black text-xs sm:text-sm mt-1.5 ${stageTimingMeta.dateColor}`}>
+                                  {stageTimingMeta.cleanDate}
+                                </div>
+                                <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-2 leading-relaxed">
+                                  {stageTimingMeta.durationDesc}
+                                </p>
                               </div>
-                              <h3 className="font-display font-black text-base sm:text-lg text-slate-950 dark:text-white">
-                                {item.activity}
-                              </h3>
+                              <div className="mt-3.5 pt-2.5 border-t-2 border-slate-200 dark:border-slate-800 flex items-center gap-2 text-xs font-extrabold text-slate-800 dark:text-slate-200">
+                                <MapPin className="w-4 h-4 text-[#E11D48] dark:text-[#FFB800] shrink-0" />
+                                <span>{item.location}</span>
+                              </div>
                             </div>
-                            <div className="mt-3 pt-2.5 border-t-2 border-slate-200 dark:border-slate-800 flex items-center gap-2 text-xs font-extrabold text-slate-800 dark:text-slate-200">
-                              <MapPin className="w-4 h-4 text-[#E11D48] dark:text-[#FFB800] shrink-0" />
-                              <span>{item.location}</span>
-                            </div>
-                          </div>
-                        ))}
+                          );
+                        })}
                       </div>
                     </div>
                   )}
@@ -1241,6 +1353,64 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
 
                   {berandaTab === 'JUARA' && (
                     <div className="h-full flex flex-col justify-between gap-4">
+                      {/* CARD KETENTUAN FORMAT PRESENTASI & WAWANCARA FINALIS (7 MENIT PAPARAN + 8 MENIT TANYA JAWAB) */}
+                      <div className="rounded-2xl bg-gradient-to-r from-amber-500/10 via-[#004AAD]/10 to-amber-500/10 border-2 border-[#004AAD]/40 dark:border-[#FFB800]/50 p-4 sm:p-5 shadow-xs">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 pb-3 border-b-2 border-slate-200 dark:border-slate-800">
+                          <div className="flex items-center gap-2.5">
+                            <Trophy className="w-5 h-5 text-[#D97706] dark:text-[#FFB800] shrink-0" />
+                            <div>
+                              <span className="text-[11px] font-mono font-black uppercase text-[#004AAD] dark:text-[#FFB800]">
+                                KETENTUAN BABAK FINAL • 5 BESAR (TOP 5)
+                              </span>
+                              <h3 className="font-display font-black text-base sm:text-lg text-slate-950 dark:text-white leading-tight">
+                                Format Presentasi & Wawancara Dewan Juri (Total: 15 Menit)
+                              </h3>
+                            </div>
+                          </div>
+                          <span className="px-3 py-1 rounded-lg bg-[#004AAD] text-[#FFD000] font-mono font-black text-xs shrink-0 self-start sm:self-auto">
+                            ALOKASI 15 MENIT / FINALIS
+                          </span>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 mt-3.5">
+                          {/* Sesi 1: Paparan 7 Menit */}
+                          <div className="rounded-xl bg-white dark:bg-slate-950 border-2 border-amber-500/50 p-3.5 flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-[#FFD000] to-[#FF9000] text-slate-950 font-mono font-black text-base flex items-center justify-center shrink-0 shadow-xs">
+                              7m
+                            </div>
+                            <div>
+                              <div className="text-[11px] font-mono font-black text-[#D97706] dark:text-[#FFB800] uppercase">
+                                SESI 1 • PAPARAN PRESENTASI KARYA
+                              </div>
+                              <div className="font-display font-black text-sm sm:text-base text-slate-950 dark:text-white mt-0.5">
+                                Paparan Inovasi: 7 Menit
+                              </div>
+                              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1 leading-snug">
+                                Finalis memaparkan karya inovasi pembelajaran berbasis alur STAR (Situasi, Tantangan, Aksi, Refleksi) serta mendemonstrasikan media ajar yang digunakan di kelas.
+                              </p>
+                            </div>
+                          </div>
+
+                          {/* Sesi 2: Tanya Jawab 8 Menit */}
+                          <div className="rounded-xl bg-white dark:bg-slate-950 border-2 border-[#004AAD]/40 dark:border-[#38BDF8]/40 p-3.5 flex items-start gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-[#004AAD] text-white font-mono font-black text-base flex items-center justify-center shrink-0 shadow-xs">
+                              8m
+                            </div>
+                            <div>
+                              <div className="text-[11px] font-mono font-black text-[#004AAD] dark:text-[#38BDF8] uppercase">
+                                SESI 2 • TANYA JAWAB DEWAN JURI
+                              </div>
+                              <div className="font-display font-black text-sm sm:text-base text-slate-950 dark:text-white mt-0.5">
+                                Tanya Jawab Dewan Juri: 8 Menit
+                              </div>
+                              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1 leading-snug">
+                                Pendalaman orisinalitas, validasi modul ajar, dan refleksi pedagogik oleh 3 unsur Dewan Juri (Korwilcam, Pengawas SD, dan Praktisi Pendidikan).
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                       {data.winners.length > 0 || data.top5.length > 0 ? (
                         <div className="space-y-3 flex-1">
                           <div className="flex items-center justify-between">
@@ -1331,21 +1501,21 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                                 TAHAP 1 • PENYISIHAN
                               </div>
                               <div className="font-display font-extrabold text-sm text-slate-950 dark:text-white mt-1">
-                                Seleksi Karya & Dokumen Drive
+                                Seleksi Portofolio Drive
                               </div>
                               <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1">
                                 Menentukan 5 Finalis Terbaik (Top 5) pada 25 Nov 2026.
                               </p>
                             </div>
-                            <div className="rounded-xl bg-white dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-800 p-3.5">
+                            <div className="rounded-xl bg-white dark:bg-slate-950 border-2 border-amber-500/60 dark:border-amber-500/50 p-3.5 bg-amber-50/50 dark:bg-amber-950/20">
                               <div className="text-xs font-black text-[#EA580C] dark:text-[#FFB800]">
-                                TAHAP 2 • BABAK FINAL
+                                TAHAP 2 • UJI PETIK TOP 5
                               </div>
                               <div className="font-display font-extrabold text-sm text-slate-950 dark:text-white mt-1">
-                                Presentasi & Wawancara Luring
+                                Presentasi & Wawancara (15 Menit)
                               </div>
-                              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300 mt-1">
-                                Paparan 10 menit + tanya jawab 15 menit pada 28 Nov 2026.
+                              <p className="text-xs font-semibold text-slate-800 dark:text-slate-200 mt-1">
+                                <strong>Paparan 7 menit</strong> + <strong>tanya jawab 8 menit</strong> di hadapan Dewan Juri pada 27–28 Nov 2026.
                               </p>
                             </div>
                             <div className="rounded-xl bg-white dark:bg-slate-950 border-2 border-slate-300 dark:border-slate-800 p-3.5">
@@ -1658,13 +1828,13 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
 
                       <div className="rounded-2xl bg-gradient-to-r from-[#FFFBEB] to-[#FEF3C7] dark:from-slate-900 dark:to-slate-900 border-2 border-[#F59E0B] p-5 flex-1 flex flex-col justify-center">
                         <span className="text-xs font-mono font-black text-[#D97706] dark:text-[#FFB800] uppercase">
-                          SELEKSI TAHAP 2 • LURING (TATAP MUKA)
+                          SELEKSI TAHAP 2 • LURING (TATAP MUKA DI AULA KORWILCAM BEJI)
                         </span>
                         <h3 className="font-display font-black text-xl text-slate-950 dark:text-white mt-1">
-                          Babak Final — Presentasi 10 Menit & Tanya Jawab 15 Menit
+                          Babak Final — Paparan 7 Menit & Tanya Jawab 8 Menit (Total 15 Menit)
                         </h3>
                         <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 mt-2 leading-relaxed">
-                          5 Finalis terpilih mempresentasikan inovasi pembelajarannya secara langsung di hadapan Dewan Juri untuk menentukan Juara 1, Juara 2, Juara 3, Harapan 1, dan Harapan 2.
+                          5 Finalis terpilih mempresentasikan inovasi pembelajarannya secara langsung di hadapan Dewan Juri dengan alokasi waktu resmi: <strong>7 menit paparan karya</strong> dilanjutkan <strong>8 menit tanya jawab</strong> untuk penetapan Juara 1, Juara 2, Juara 3, Harapan 1, dan Harapan 2.
                         </p>
                       </div>
                     </div>
@@ -1944,7 +2114,7 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                     <form onSubmit={handleInternalSubmit} className="pt-3 flex-1 flex flex-col justify-between gap-3">
                       {submitResult && (
                         <div
-                          className={`rounded-xl px-4 py-2.5 border-2 flex items-center justify-between gap-3 ${
+                          className={`rounded-xl px-4 py-3 border-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 ${
                             submitResult.type === 'success'
                               ? 'bg-emerald-50 dark:bg-emerald-950/70 border-emerald-600 text-emerald-950 dark:text-emerald-100'
                               : 'bg-red-50 dark:bg-red-950/70 border-red-600 text-red-950 dark:text-red-100'
@@ -1959,9 +2129,23 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                             <span>{submitResult.message}</span>
                           </div>
                           {submitResult.participantId && (
-                            <span className="px-3 py-1 rounded-lg bg-emerald-700 text-white font-mono font-black text-xs shrink-0">
-                              ID: {submitResult.participantId}
-                            </span>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span className="px-3 py-1 rounded-lg bg-emerald-700 text-white font-mono font-black text-xs shrink-0">
+                                ID: {submitResult.participantId}
+                              </span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  if (selectedSuratParticipant) {
+                                    setShowSuratModal(true);
+                                  }
+                                }}
+                                className="px-3 py-1.5 rounded-lg bg-[#004AAD] hover:bg-[#003B8E] text-white font-black text-xs inline-flex items-center gap-1.5 shadow-sm cursor-pointer"
+                              >
+                                <Printer className="w-3.5 h-3.5" />
+                                <span>Cetak Surat Keterangan</span>
+                              </button>
+                            </div>
                           )}
                         </div>
                       )}
@@ -2657,6 +2841,7 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                                 <th className="py-2.5 px-3">Asal Sekolah (Kec. Beji)</th>
                                 <th className="py-2.5 px-3">Nama Guru Peserta</th>
                                 <th className="py-2.5 px-3">Judul Inovasi Pembelajaran</th>
+                                <th className="py-2.5 px-2.5 w-20 text-center">Surat</th>
                               </tr>
                             </thead>
                             <tbody className="divide-y-2 divide-slate-200 dark:divide-slate-800 font-bold bg-white dark:bg-slate-950">
@@ -2676,6 +2861,20 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                                   </td>
                                   <td className="py-2.5 px-3 font-semibold text-slate-800 dark:text-slate-200">
                                     {item.innovation_title}
+                                  </td>
+                                  <td className="py-2.5 px-2.5 text-center">
+                                    <button
+                                      type="button"
+                                      onClick={() => {
+                                        setSelectedSuratParticipant(item);
+                                        setShowSuratModal(true);
+                                      }}
+                                      title="Cetak Surat Keterangan Keikutsertaan Resmi"
+                                      className="px-2 py-1 rounded-lg bg-[#004AAD]/10 hover:bg-[#004AAD] text-[#004AAD] hover:text-white dark:bg-[#FFB800]/15 dark:hover:bg-[#FFB800] dark:text-[#FFB800] dark:hover:text-slate-950 font-black text-[10px] inline-flex items-center gap-1 transition-colors border border-[#004AAD]/30 dark:border-[#FFB800]/40 cursor-pointer"
+                                    >
+                                      <Printer className="w-3 h-3" />
+                                      <span>Cetak</span>
+                                    </button>
                                   </td>
                                 </tr>
                               ))}
@@ -2706,6 +2905,299 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                         </span>
                       </div>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* =====================================================================
+       * POP-UP CETAK SURAT KETERANGAN KEIKUTSERTAAN (RESMI & BISA DIDOWNLOAD)
+       * Disertai Notice Wajib Download & Logo dengan Ukuran Proporsional
+       * ===================================================================== */}
+      {showSuratModal && selectedSuratParticipant && (
+        <div
+          className="fixed inset-0 z-[70] bg-slate-950/80 backdrop-blur-md flex items-center justify-center p-2 sm:p-4 lg:p-6 overflow-y-auto"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) setShowSuratModal(false);
+          }}
+        >
+          {/* Printable CSS Override for Clean A4 / PDF generation */}
+          <style>{`
+            @media print {
+              body * {
+                visibility: hidden !important;
+              }
+              #surat-keterangan-print-root,
+              #surat-keterangan-print-root * {
+                visibility: visible !important;
+              }
+              #surat-keterangan-print-root {
+                position: fixed !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100vw !important;
+                min-height: 100vh !important;
+                margin: 0 !important;
+                padding: 15mm 20mm !important;
+                background: white !important;
+                color: #000 !important;
+                box-shadow: none !important;
+                border: none !important;
+                z-index: 999999 !important;
+              }
+              .no-print {
+                display: none !important;
+              }
+            }
+          `}</style>
+
+          <div className="w-full max-w-4xl max-h-[96vh] rounded-3xl bg-white dark:bg-[#0a1122] border-2 border-[#004AAD] dark:border-[#FFB800] shadow-[0_24px_64px_rgba(0,0,0,0.5)] flex flex-col overflow-hidden">
+            {/* Top Modal Controls Bar (Hidden during print) */}
+            <div className="no-print shrink-0 bg-slate-900 text-white px-4 sm:px-6 py-3 border-b-2 border-slate-700 flex flex-wrap items-center justify-between gap-2.5">
+              <div className="flex items-center gap-2">
+                <FileText className="w-4 h-4 text-[#FFD000]" />
+                <span className="font-display font-black text-xs sm:text-sm tracking-wide">
+                  SURAT KETERANGAN KEIKUTSERTAAN RESMI ({organizer})
+                </span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => {
+                    navigator.clipboard.writeText(
+                      `Surat Keterangan Keikutsertaan Lomba Guru Inspiratif 2026 FK3S Kec. Beji\nNo. Registrasi: ${selectedSuratParticipant.participant_id}\nNama: ${selectedSuratParticipant.full_name}\nSekolah: ${selectedSuratParticipant.school}\nJudul: ${selectedSuratParticipant.innovation_title}`
+                    );
+                    setCopiedCertId(true);
+                    setTimeout(() => setCopiedCertId(false), 2500);
+                  }}
+                  className="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 font-extrabold text-xs inline-flex items-center gap-1.5 border border-slate-600 cursor-pointer"
+                >
+                  <Copy className="w-3.5 h-3.5 text-amber-300" />
+                  <span>{copiedCertId ? 'Tersalin!' : 'Salin Data'}</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => window.print()}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FFD000] via-[#FFB800] to-[#FF9000] hover:brightness-105 text-slate-950 font-black text-xs inline-flex items-center gap-1.5 shadow-sm cursor-pointer transition-transform active:scale-95"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>CETAK / UNDUH PDF</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setShowSuratModal(false)}
+                  className="px-3.5 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white font-black text-xs inline-flex items-center gap-1 shadow-sm cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                  <span>TUTUP</span>
+                </button>
+              </div>
+            </div>
+
+            {/* Modal Scrollable Body */}
+            <div className="flex-1 overflow-y-auto p-3 sm:p-6 space-y-4 bg-slate-100 dark:bg-[#070b14]">
+              {/* NOTICE WAJIB UNTUK DIUNDUH / DISIMPAN */}
+              <div className="no-print rounded-2xl bg-gradient-to-r from-amber-600 via-orange-600 to-amber-700 text-white p-4 sm:p-5 shadow-md border-2 border-amber-300 flex items-start gap-3.5">
+                <AlertCircle className="w-6 h-6 shrink-0 mt-0.5 text-amber-200 animate-pulse" />
+                <div className="flex-1">
+                  <div className="flex flex-wrap items-center gap-2 mb-1">
+                    <span className="px-2.5 py-0.5 rounded-md bg-white text-slate-950 font-mono font-black text-[10px] uppercase tracking-wider">
+                      NOTICE WAJIB PESERTA & SATUAN PENDIDIKAN
+                    </span>
+                    <span className="text-xs font-bold text-amber-100">
+                      Peringatan Hari Guru Nasional 2026 FK3S Kec. Beji
+                    </span>
+                  </div>
+                  <h4 className="font-display font-black text-sm sm:text-base leading-tight">
+                    SURAT KETERANGAN KEIKUTSERTAAN INI WAJIB DIUNDUH / DICETAK
+                  </h4>
+                  <p className="text-xs sm:text-sm font-medium text-amber-50 mt-1 leading-relaxed">
+                    Dokumen ini adalah <strong>bukti sah keikutsertaan lomba</strong>, nomor registrasi resmi portofolio karya inovasi pembelajaran, serta bukti administrasi untuk panitia FK3S Kecamatan Beji dan laporan pertanggungjawaban kepada Kepala Sekolah masing-masing. Harap segera klik tombol <strong>&quot;CETAK / UNDUH PDF&quot;</strong> di atas untuk menyimpan file secara permanen.
+                  </p>
+                </div>
+              </div>
+
+              {/* DOKUMEN RESMI (KOP SURAT DENGAN LOGO PROPORSI SEIMBANG) */}
+              <div
+                id="surat-keterangan-print-root"
+                className="mx-auto w-full max-w-[800px] bg-white text-slate-950 p-6 sm:p-10 rounded-2xl shadow-xl border-2 border-slate-300 print:border-none print:shadow-none print:p-0 print:rounded-none"
+              >
+                {/* KOP SURAT RESMI DENGAN LOGO PROPORSI SEIMBANG */}
+                <div className="flex items-center justify-between gap-3 sm:gap-4 pb-3 sm:pb-4 border-b-[3px] border-slate-950">
+                  {/* Logo Kiri: FK3S Kec. Beji (Ukuran Proporsional object-contain) */}
+                  <div className="shrink-0 flex items-center justify-center w-16 sm:w-24">
+                    <img
+                      src={fk3sLogo}
+                      alt="Logo FK3S Kecamatan Beji"
+                      className="max-h-16 sm:max-h-20 w-auto max-w-full object-contain"
+                      onError={(e) => {
+                        const img = e.target as HTMLImageElement;
+                        if (!img.src.includes('/assets/aistudio/logo_fk3s.png')) {
+                          img.src = '/assets/aistudio/logo_fk3s.png';
+                        }
+                      }}
+                    />
+                  </div>
+
+                  {/* Teks KOP Tengah */}
+                  <div className="flex-1 text-center px-1">
+                    <h2 className="font-display font-black text-xs sm:text-lg tracking-wide text-slate-950 leading-tight uppercase">
+                      FORUM KELOMPOK KERJA KEPALA SEKOLAH (FK3S)
+                    </h2>
+                    <h3 className="font-display font-extrabold text-[11px] sm:text-base text-slate-900 leading-tight uppercase">
+                      KORWILCAM BIDANG PENDIDIKAN KECAMATAN BEJI
+                    </h3>
+                    <h4 className="font-display font-black text-[11px] sm:text-sm text-[#004AAD] leading-tight uppercase mt-0.5">
+                      PANITIA PELAKSANA PERINGATAN HARI GURU NASIONAL (HGN) 2026
+                    </h4>
+                    <p className="text-[9px] sm:text-[11px] font-semibold text-slate-600 leading-tight mt-1">
+                      Kecamatan Beji, Kabupaten Pasuruan, Provinsi Jawa Timur 67154 • Portal Resmi Lomba Guru Inspiratif
+                    </p>
+                  </div>
+
+                  {/* Logo Kanan: HGN 2026 (Ukuran Proporsional object-contain) */}
+                  <div className="shrink-0 flex items-center justify-center w-16 sm:w-24">
+                    <img
+                      src={mainHgnLogo}
+                      alt="Logo Resmi HGN 2026"
+                      className="max-h-16 sm:max-h-20 w-auto max-w-full object-contain"
+                      onError={(e) => {
+                        const img = e.target as HTMLImageElement;
+                        if (!img.src.includes('/assets/aistudio/logo_hgn.png')) {
+                          img.src = '/assets/aistudio/logo_hgn.png';
+                        }
+                      }}
+                    />
+                  </div>
+                </div>
+                {/* Garis Pembatas KOP Ganda Khas Surat Dinas */}
+                <div className="w-full h-0.5 bg-slate-950 mt-1 mb-5" />
+
+                {/* JUDUL DOKUMEN & NOMOR REGISTRASI RESMI */}
+                <div className="text-center mb-5 sm:mb-6">
+                  <h1 className="font-display font-black text-base sm:text-xl tracking-wider text-slate-950 underline underline-offset-4 uppercase">
+                    SURAT KETERANGAN KEIKUTSERTAAN LOMBA
+                  </h1>
+                  <p className="font-mono font-bold text-xs sm:text-sm text-slate-700 mt-1">
+                    Nomor: 421.2 / {selectedSuratParticipant.participant_id} / FK3S.BJI / HGN / 2026
+                  </p>
+                </div>
+
+                {/* KALIMAT PEMBUKA */}
+                <div className="text-xs sm:text-sm leading-relaxed text-slate-900 mb-4 text-justify">
+                  Yang bertanda tangan di bawah ini, Panitia Penyelenggara Peringatan Hari Guru Nasional Tahun 2026 Forum Kelompok Kerja Kepala Sekolah (FK3S) Kecamatan Beji, Kabupaten Pasuruan, menerangkan dengan sebenarnya bahwa:
+                </div>
+
+                {/* TABEL DATA RESMI PESERTA */}
+                <div className="rounded-xl border-2 border-slate-300 bg-slate-50/70 p-3 sm:p-4 mb-5 text-xs sm:text-sm">
+                  <table className="w-full text-left border-collapse">
+                    <tbody className="divide-y divide-slate-200">
+                      <tr>
+                        <td className="py-1.5 pr-2 font-bold text-slate-600 w-36 sm:w-48">Nomor Registrasi</td>
+                        <td className="py-1.5 font-mono font-black text-[#004AAD] text-sm">
+                          {selectedSuratParticipant.participant_id}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1.5 pr-2 font-bold text-slate-600">Nama Lengkap Guru</td>
+                        <td className="py-1.5 font-black text-slate-950">
+                          {selectedSuratParticipant.full_name}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1.5 pr-2 font-bold text-slate-600">Asal Satuan Pendidikan</td>
+                        <td className="py-1.5 font-black text-[#EA580C]">
+                          {selectedSuratParticipant.school} (Kecamatan Beji)
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1.5 pr-2 font-bold text-slate-600 align-top">Judul Karya Inovasi</td>
+                        <td className="py-1.5 font-bold text-slate-950 leading-snug">
+                          {selectedSuratParticipant.innovation_title}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1.5 pr-2 font-bold text-slate-600">Waktu Pendaftaran Resmi</td>
+                        <td className="py-1.5 font-mono font-bold text-slate-800">
+                          {formatIndonesianDate(selectedSuratParticipant.submitted_at)}
+                        </td>
+                      </tr>
+                      <tr>
+                        <td className="py-1.5 pr-2 font-bold text-slate-600">Status Kepesertaan</td>
+                        <td className="py-1.5">
+                          <span className="px-2.5 py-0.5 rounded-md bg-emerald-600 text-white font-mono font-black text-[11px] uppercase">
+                            TERDAFTAR RESMI • TAHAP PENYISIHAN
+                          </span>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* KETERANGAN & KETENTUAN TAHAPAN SELEKSI */}
+                <div className="space-y-3 text-xs sm:text-sm text-slate-900 leading-relaxed text-justify mb-5 sm:mb-6">
+                  <p>
+                    Telah secara sah terdaftar dan mengumpulkan berkas portofolio karya inovasi pembelajaran (Video Praktik Baik 5–7 Menit berbasis Alur STAR, Modul Ajar, dan Dokumentasi Media Pembelajaran) pada ajang <strong>Lomba Guru Inspiratif Tahun 2026 FK3S Kecamatan Beji</strong>.
+                  </p>
+                  <div className="rounded-xl border border-slate-300 p-3 bg-white space-y-1.5 text-xs">
+                    <div className="font-black text-slate-950 uppercase text-[11px] tracking-wide text-[#004AAD]">
+                      Tahapan Pelaksanaan & Alokasi Waktu Resmi:
+                    </div>
+                    <ul className="list-disc pl-5 space-y-1 font-medium text-slate-800">
+                      <li>
+                        <strong>Tahap 1 (s.d. 21 November 2026, 23.59 WIB)</strong>: Pengumpulan portofolio karya inovasi pembelajaran melalui portal resmi.
+                      </li>
+                      <li>
+                        <strong>Tahap 2 (22 – 24 November 2026)</strong>: Kurasi berkas dan penilaian penyisihan secara daring (Durasi: 3 Hari Kalender).
+                      </li>
+                      <li>
+                        <strong>Tahap 3 (25 November 2026)</strong>: Rapat pleno Dewan Juri dan pengumuman penetapan 5 Finalis Terpilih (Durasi: 1 Hari Kerja — Hari Guru Nasional).
+                      </li>
+                      <li>
+                        <strong>Tahap 4 (27 – 28 November 2026)</strong>: Babak Final luring di Aula Korwilcam Beji dengan alokasi waktu resmi: <strong>Paparan Presentasi Inovasi 7 Menit</strong> dan <strong>Tanya Jawab Dewan Juri 8 Menit</strong> (Total Alokasi: 15 Menit per Finalis).
+                      </li>
+                    </ul>
+                  </div>
+                  <p>
+                    Demikian Surat Keterangan Keikutsertaan ini dibuat dengan sebenarnya untuk dipergunakan sebagaimana mestinya sebagai bukti resmi pendaftaran dan persyaratan administrasi lomba.
+                  </p>
+                </div>
+
+                {/* TANDA TANGAN & PENGESAHAN DENGAN QR CODE */}
+                <div className="pt-3 border-t-2 border-slate-200 flex items-end justify-between gap-4">
+                  {/* QR Code Autentikasi Dokumen Digital */}
+                  <div className="flex items-center gap-2.5">
+                    <div className="p-2 border-2 border-slate-900 rounded-lg bg-white">
+                      <QrCode className="w-12 h-12 sm:w-14 sm:h-14 text-slate-950" />
+                    </div>
+                    <div className="text-[10px] text-slate-600 leading-tight">
+                      <div className="font-mono font-black text-slate-950 uppercase">VERIFIKASI RESMI DIGITAL</div>
+                      <div>ID: {selectedSuratParticipant.participant_id}</div>
+                      <div>FK3S Kecamatan Beji</div>
+                      <div className="text-emerald-700 font-bold">Valid & Terverifikasi</div>
+                    </div>
+                  </div>
+
+                  {/* Pengesahan Panitia FK3S Kec. Beji */}
+                  <div className="text-center w-52 sm:w-60">
+                    <div className="text-xs text-slate-700">Beji, Pasuruan, Jawa Timur</div>
+                    <div className="text-xs font-bold text-slate-900 mt-0.5">Panitia Pelaksana HGN 2026</div>
+                    <div className="text-xs font-black text-[#004AAD]">FK3S KECAMATAN BEJI</div>
+                    {/* Stempel & Cap Resmi FK3S */}
+                    <div className="my-1.5 py-1 px-2 relative flex items-center justify-center">
+                      <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full border-2 border-dashed border-[#004AAD]/60 flex items-center justify-center rotate-[-8deg] bg-blue-50/50">
+                        <div className="text-[8px] sm:text-[9px] font-black text-[#004AAD] uppercase text-center leading-tight">
+                          PANITIA HGN 2026<br />★ FK3S ★<br />KEC. BEJI
+                        </div>
+                      </div>
+                    </div>
+                    <div className="font-black text-xs sm:text-sm text-slate-950 underline underline-offset-2">
+                      PANITIA PELAKSANA
+                    </div>
+                    <div className="text-[10px] text-slate-600 font-medium">FK3S Kecamatan Beji, Pasuruan</div>
                   </div>
                 </div>
               </div>

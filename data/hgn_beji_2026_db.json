@@ -228,37 +228,37 @@
   "JADWAL": [
     {
       "id": "JDW-1",
-      "activity": "Deadline Pengumpulan Karya",
-      "start_datetime": "2026-11-21 23:59 WIB",
-      "end_datetime": "2026-11-21 23:59 WIB",
-      "location": "Portal Digital HGN Beji 2026",
+      "activity": "Tahap 1: Pendaftaran & Pengumpulan Karya",
+      "start_datetime": "s.d. 21 November 2026",
+      "end_datetime": "Batas Akhir: Pukul 23.59 WIB",
+      "location": "Portal Resmi FK3S Kec. Beji",
       "display_order": 1,
       "active": true
     },
     {
       "id": "JDW-2",
-      "activity": "Penjurian Tahap Penyisihan",
-      "start_datetime": "2026-11-22T17:00:00.000Z",
-      "end_datetime": "2026-11-24T17:00:00.000Z",
-      "location": "Portal Penjurian Digital",
+      "activity": "Tahap 2: Kurasi Berkas & Penjurian Penyisihan",
+      "start_datetime": "22 – 24 November 2026",
+      "end_datetime": "Durasi: 3 Hari Kalender (Daring)",
+      "location": "Portal Penjurian Digital Juri",
       "display_order": 2,
       "active": true
     },
     {
       "id": "JDW-3",
-      "activity": "Babak Final Top 5 (Paparan Luring)",
-      "start_datetime": "2026-11-25T17:00:00.000Z",
-      "end_datetime": "2026-11-26T17:00:00.000Z",
-      "location": "Aula Korwilcam Pendidikan Kec. Beji",
+      "activity": "Tahap 3: Pleno Dewan Juri & Pengumuman 5 Finalis (Top 5)",
+      "start_datetime": "25 November 2026",
+      "end_datetime": "Durasi: 1 Hari Kerja (Peringatan HGN)",
+      "location": "Sekretariat FK3S Kec. Beji",
       "display_order": 3,
       "active": true
     },
     {
       "id": "JDW-4",
-      "activity": "Pengumuman Pemenang & Puncak HGN",
-      "start_datetime": "2026-11-27T17:00:00.000Z",
-      "end_datetime": "2026-11-27T17:00:00.000Z",
-      "location": "Kecamatan Beji",
+      "activity": "Tahap 4: Presentasi & Wawancara 5 Finalis serta Penetapan Juara",
+      "start_datetime": "27 – 28 November 2026",
+      "end_datetime": "Alokasi: 15 Menit/Peserta (Paparan 7 Menit + Tanya Jawab 8 Menit)",
+      "location": "Aula Korwilcam Pendidikan Kec. Beji",
       "display_order": 4,
       "active": true
     }

@@ -699,9 +699,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   const schoolBreakdown = Object.entries(schoolCountsMap).sort((a, b) => b[1] - a[1]);
 
   return (
-    <div className={`h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-white dark:bg-[#070b14] text-slate-950 dark:text-slate-100 flex flex-col lg:flex-row relative transition-colors duration-150 ${theme === 'light' ? 'admin-light-mode' : 'admin-dark-mode'}`}>
-      {/* Sidebar Navigation — 12 Required Menus */}
-      <aside className="no-print w-full lg:w-72 bg-[#F8FAFC] dark:bg-[#0a1122] border-b-2 lg:border-b-0 lg:border-r-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-3 sm:p-5 flex flex-col justify-between shrink-0 lg:overflow-y-auto">
+    <div className={`min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-white dark:bg-[#070b14] text-slate-950 dark:text-slate-100 flex flex-col lg:flex-row relative transition-colors duration-150 ${theme === 'light' ? 'admin-light-mode' : 'admin-dark-mode'}`}>
+      {/* Sidebar Navigation — 12 Required Menus (Sticky on desktop) */}
+      <aside className="no-print w-full lg:w-72 bg-[#F8FAFC] dark:bg-[#0a1122] border-b-2 lg:border-b-0 lg:border-r-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-3 sm:p-5 flex flex-col justify-between shrink-0 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
         <div className="space-y-4">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -792,9 +792,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-0 overflow-hidden">
-        {/* Top Bar */}
-        <header className="no-print shrink-0 z-20 bg-white/95 dark:bg-[#0a1122]/95 backdrop-blur-md border-b-2 border-[#004AAD]/20 dark:border-[#FFB800]/30 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4 shadow-xs">
+      <div className="flex-1 flex flex-col min-w-0">
+        {/* Top Bar — Sticky while scrolling */}
+        <header className="no-print sticky top-0 z-20 bg-white/95 dark:bg-[#0a1122]/95 backdrop-blur-md border-b-2 border-[#004AAD]/20 dark:border-[#FFB800]/30 px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-4 shadow-xs">
           <div>
             <div className="text-xs font-extrabold text-slate-600 dark:text-slate-300">
               Database Utama: <span className="font-mono font-black text-[#EA580C] dark:text-[#FFB800]">HGN 2026 Kec. Beji</span>
@@ -869,7 +869,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           </div>
         )}
 
-        <main className="admin-workspace flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 pb-40 lg:pb-8 space-y-8 max-w-7xl w-full mx-auto">
+        <main className="admin-workspace flex-1 min-w-0 p-4 sm:p-6 lg:p-8 pb-40 lg:pb-12 space-y-8 max-w-7xl w-full mx-auto">
           {/* =================================================================
            * MENU 1 — DASHBOARD & ANALYTICS (Section 6.A & Section 23)
            * ================================================================= */}

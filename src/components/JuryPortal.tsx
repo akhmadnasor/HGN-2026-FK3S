@@ -1287,9 +1287,9 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
   ];
 
   return (
-    <div className="h-[100dvh] w-full max-w-[100vw] overflow-hidden bg-white dark:bg-[#070b14] text-slate-950 dark:text-white flex flex-col lg:flex-row relative transition-colors duration-150">
-      {/* Desktop Sidebar Navigation */}
-      <aside className="w-full lg:w-68 bg-[#F8FAFC] dark:bg-[#0a1122] border-b-2 lg:border-b-0 lg:border-r-2 border-[#004AAD]/20 dark:border-[#FFB800]/30 p-3 sm:p-4 lg:p-5 flex flex-col justify-between shrink-0 lg:overflow-y-auto">
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden bg-white dark:bg-[#070b14] text-slate-950 dark:text-white flex flex-col lg:flex-row relative transition-colors duration-150">
+      {/* Desktop Sidebar Navigation (Sticky on desktop) */}
+      <aside className="w-full lg:w-68 bg-[#F8FAFC] dark:bg-[#0a1122] border-b-2 lg:border-b-0 lg:border-r-2 border-[#004AAD]/20 dark:border-[#FFB800]/30 p-3 sm:p-4 lg:p-5 flex flex-col justify-between shrink-0 lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
         <div className="space-y-5">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
@@ -1392,8 +1392,8 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
         </div>
       </aside>
 
-      {/* Main Content Area (Internal scroll so Floating Nav never shifts) */}
-      <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-4 sm:p-6 lg:p-8 pb-32 lg:pb-8 max-w-6xl mx-auto w-full space-y-6">
+      {/* Main Content Area */}
+      <div className="flex-1 min-w-0 p-4 sm:p-6 lg:p-8 pb-40 lg:pb-12 max-w-6xl mx-auto w-full space-y-6">
         {/* Dashboard Header */}
         <div className="rounded-3xl bg-gradient-to-r from-[#004AAD] to-[#1D4ED8] text-white border-2 border-[#003380] p-6 sm:p-7 flex flex-col sm:flex-row sm:items-center justify-between gap-5 shadow-md">
           <div className="space-y-1">

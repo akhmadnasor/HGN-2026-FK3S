@@ -657,11 +657,11 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
   ];
 
   return (
-    <div className="h-[100dvh] w-full max-w-[100vw] overflow-hidden flex flex-col relative bg-white dark:bg-[#070b14] text-slate-950 dark:text-white transition-colors duration-150">
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-hidden flex flex-col relative bg-white dark:bg-[#070b14] text-slate-950 dark:text-white transition-colors duration-150">
       {/* =====================================================================
-       * TOP NAVIGATION BAR — Royal Blue & Golden Orange Accent, Unframed FK3S Logo
+       * TOP NAVIGATION BAR — Fixed at top across Desktop, Tablet & Mobile
        * ===================================================================== */}
-      <header className="h-16 shrink-0 z-40 bg-white/95 dark:bg-[#0a1122]/95 backdrop-blur-md border-b-2 border-[#004AAD]/20 dark:border-[#FFB800]/30 shadow-xs">
+      <header className="fixed top-0 inset-x-0 h-16 shrink-0 z-40 bg-white/95 dark:bg-[#0a1122]/95 backdrop-blur-md border-b-2 border-[#004AAD]/20 dark:border-[#FFB800]/30 shadow-xs">
         <div className="max-w-[1440px] mx-auto px-4 sm:px-6 h-full flex items-center justify-between gap-3">
           {/* Zone 1: Top FK3S Logo WITHOUT box/iframe + Bold Brand Title */}
           <div
@@ -770,20 +770,20 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
       </header>
 
       {/* =====================================================================
-       * MAIN VIEWPORT WORKSPACE (Internal scroll on Mobile/Tablet so Floating Nav never shifts!)
+       * MAIN SCROLLABLE WORKSPACE (Natural vertical scroll across all devices)
        * ===================================================================== */}
       <main
         ref={mainScrollRef}
-        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden lg:overflow-hidden pb-44 lg:pb-0"
+        className="flex-1 w-full pt-16 pb-44 lg:pb-12 overflow-x-hidden"
       >
         {activePage === 'BERANDA' ? (
           /* =================================================================
            * PAGE 1: BERANDA UTAMA — 2-Column Executive Layout (Left Hero + Right 7 Tabs)
            * ================================================================= */
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-4 lg:py-5 h-full flex flex-col justify-between">
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 h-full items-stretch">
-              {/* LEFT COLUMN (5 Cols): Title -> FK3S KEC. BEJI -> Unframed HGN Logo -> Countdown & CTA */}
-              <div className="lg:col-span-5 flex flex-col justify-between rounded-3xl bg-white dark:bg-[#0d152a] border-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-5 sm:p-6 shadow-[0_12px_32px_-8px_rgba(0,74,173,0.12)]">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-5 lg:py-6 flex flex-col gap-6">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 lg:gap-6 items-start">
+              {/* LEFT COLUMN (5 Cols): Sticky on desktop so it stays anchored while scrolling */}
+              <div className="lg:col-span-5 lg:sticky lg:top-20 self-start flex flex-col justify-between rounded-3xl bg-white dark:bg-[#0d152a] border-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-5 sm:p-6 shadow-[0_12px_32px_-8px_rgba(0,74,173,0.12)] space-y-4">
                 {/* Top Identity Block */}
                 <div className="text-center">
                   <div className="inline-block px-3.5 py-1 rounded-lg bg-[#004AAD] text-white dark:bg-[#FFB800] dark:text-slate-950 text-[11px] font-black tracking-widest uppercase">
@@ -895,10 +895,10 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
               </div>
 
               {/* RIGHT COLUMN (7 Cols): 7-Tab Interactive Information Command Center */}
-              <div className="lg:col-span-7 flex flex-col justify-between rounded-3xl bg-white dark:bg-[#0d152a] border-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-5 sm:p-6 shadow-[0_12px_32px_-8px_rgba(0,74,173,0.12)] overflow-hidden">
-                {/* 7 Sub-Tabs Navigation Bar — Hidden on Mobile & Tablet because Floating Nav is active */}
-                <div className="hidden lg:block shrink-0">
-                  <div className="flex items-center gap-2 flex-wrap pb-3.5 border-b-2 border-slate-200 dark:border-slate-800">
+              <div className="lg:col-span-7 flex flex-col rounded-3xl bg-white dark:bg-[#0d152a] border-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-5 sm:p-6 shadow-[0_12px_32px_-8px_rgba(0,74,173,0.12)] space-y-4">
+                {/* 7 Sub-Tabs Navigation Bar — Sticky on Desktop so tab switches are always accessible */}
+                <div className="hidden lg:block shrink-0 sticky top-20 z-20 bg-white/95 dark:bg-[#0d152a]/95 backdrop-blur-md pb-3.5 border-b-2 border-slate-200 dark:border-slate-800">
+                  <div className="flex items-center gap-2 flex-wrap">
                     {berandaTabsList.map((tab) => {
                       const Icon = tab.icon;
                       const active = tab.id === 'REKAP_SEKOLAH' ? showSchoolRecapModal : berandaTab === tab.id;
@@ -929,8 +929,8 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                   </div>
                 </div>
 
-                {/* Active Tab Content Area (Fits cleanly without scrolling) */}
-                <div className="flex-1 py-4 flex flex-col justify-between overflow-y-auto">
+                {/* Active Tab Content Area */}
+                <div className="flex-1 py-2 flex flex-col gap-4">
                   {berandaTab === 'PILAR' && (
                     <div className="h-full flex flex-col justify-between gap-4">
                       <div className="rounded-2xl bg-gradient-to-r from-[#004AAD] to-[#1D4ED8] text-white p-4 border-2 border-[#003380] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
@@ -1430,9 +1430,9 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
           /* =================================================================
            * PAGE 2: JUKNIS & PENGUMPULAN KARYA PESERTA — 7 Interactive Tabs, Unframed FK3S Logo
            * ================================================================= */
-          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-4 lg:py-5 h-full flex flex-col justify-between gap-4">
-            {/* TOP HEADER STRIP ON PAGE 2: Unframed FK3S Logo + 7 Sub-Tabs */}
-            <div className="shrink-0 rounded-3xl bg-white dark:bg-[#0d152a] border-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-4 sm:px-6 shadow-xs flex flex-col xl:flex-row xl:items-center justify-between gap-4">
+          <div className="max-w-[1440px] mx-auto px-4 sm:px-6 py-5 lg:py-6 flex flex-col gap-6">
+            {/* TOP HEADER STRIP ON PAGE 2: Sticky under header so Juknis tabs stay reachable */}
+            <div className="sticky top-20 z-20 rounded-3xl bg-white/95 dark:bg-[#0d152a]/95 backdrop-blur-md border-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-4 sm:px-6 shadow-sm flex flex-col xl:flex-row xl:items-center justify-between gap-4">
               <div className="flex items-center gap-4">
                 {/* Direct Unframed FK3S Logo on Page 2 */}
                 <img
@@ -1492,8 +1492,8 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
               </div>
             </div>
 
-            {/* ACTIVE TAB WORKSPACE ON PAGE 2 (Fits in single screen without scrolling) */}
-            <div className="flex-1 rounded-3xl bg-white dark:bg-[#0d152a] border-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-5 sm:p-6 shadow-[0_12px_32px_-8px_rgba(0,74,173,0.12)] overflow-y-auto flex flex-col justify-between">
+            {/* ACTIVE TAB WORKSPACE ON PAGE 2 */}
+            <div className="rounded-3xl bg-white dark:bg-[#0d152a] border-2 border-[#004AAD]/25 dark:border-[#FFB800]/30 p-5 sm:p-6 shadow-[0_12px_32px_-8px_rgba(0,74,173,0.12)] flex flex-col gap-5">
               {/* TAB 1: BAB A, B, C (3 Columns Side-by-Side) */}
               {juknisTab === 'BAB_AC' && (
                 <div className="h-full flex flex-col justify-between gap-4">

@@ -5,7 +5,8 @@ import {
   Participant,
   EvaluationRecord,
   EvaluationDetail,
-  JudgingStage
+  JudgingStage,
+  IndicatorScoreItem
 } from '../types';
 import { Icon3D } from './Icons3D';
 import { resolveSafeEmbed } from '../utils/embedHelper';
@@ -35,8 +36,102 @@ import {
   ClipboardList,
   CheckSquare,
   BarChart3,
-  UserCheck
+  UserCheck,
+  Award,
+  Sparkles
 } from 'lucide-react';
+
+const LIKERT_OPTIONS = [
+  {
+    value: 1,
+    shortLabel: 'S. Kurang',
+    label: 'Sangat Kurang',
+    desc: 'Belum memenuhi standar minimal',
+    activeBtn: 'bg-red-600 text-white border-red-700 shadow-sm ring-2 ring-red-500/30',
+    badgeClass: 'bg-red-100 text-red-800 dark:bg-red-950/70 dark:text-red-300 border-red-300 dark:border-red-800'
+  },
+  {
+    value: 2,
+    shortLabel: 'Kurang',
+    label: 'Kurang',
+    desc: 'Terlihat sebagian kecil, perlu perbaikan',
+    activeBtn: 'bg-orange-500 text-white border-orange-600 shadow-sm ring-2 ring-orange-400/30',
+    badgeClass: 'bg-orange-100 text-orange-800 dark:bg-orange-950/70 dark:text-orange-300 border-orange-300 dark:border-orange-800'
+  },
+  {
+    value: 3,
+    shortLabel: 'Cukup',
+    label: 'Cukup',
+    desc: 'Memenuhi standar dasar',
+    activeBtn: 'bg-amber-500 text-slate-950 border-amber-600 shadow-sm ring-2 ring-amber-400/30',
+    badgeClass: 'bg-amber-100 text-amber-900 dark:bg-amber-950/70 dark:text-amber-300 border-amber-400 dark:border-amber-700'
+  },
+  {
+    value: 4,
+    shortLabel: 'Baik',
+    label: 'Baik',
+    desc: 'Terpenuhi baik, sistematis & relevan',
+    activeBtn: 'bg-[#004AAD] text-white border-[#003380] shadow-sm ring-2 ring-blue-500/30',
+    badgeClass: 'bg-blue-100 text-[#004AAD] dark:bg-blue-950/70 dark:text-blue-300 border-blue-300 dark:border-blue-800'
+  },
+  {
+    value: 5,
+    shortLabel: 'S. Baik',
+    label: 'Sangat Baik',
+    desc: 'Unggul, inspiratif & berdampak tinggi',
+    activeBtn: 'bg-emerald-600 text-white border-emerald-700 shadow-sm ring-2 ring-emerald-500/30',
+    badgeClass: 'bg-emerald-100 text-emerald-800 dark:bg-emerald-950/70 dark:text-emerald-300 border-emerald-400 dark:border-emerald-700'
+  }
+] as const;
+
+function parseCriterionIndicators(indicatorsJson?: string): string[] {
+  try {
+    const parsed = JSON.parse(indicatorsJson || '[]');
+    if (Array.isArray(parsed)) {
+      return parsed.map((item) => String(item || '').trim()).filter(Boolean);
+    }
+    return [];
+  } catch {
+    return [];
+  }
+}
+
+function getScorePredicate(score100: number): { label: string; badgeClass: string } {
+  if (score100 >= 90) {
+    return {
+      label: 'Sangat Inspiratif (A)',
+      badgeClass: 'bg-emerald-600 text-white border-emerald-700'
+    };
+  }
+  if (score100 >= 80) {
+    return {
+      label: 'Inspiratif / Sangat Baik (B+)',
+      badgeClass: 'bg-[#004AAD] text-white border-[#003380]'
+    };
+  }
+  if (score100 >= 70) {
+    return {
+      label: 'Baik (B)',
+      badgeClass: 'bg-amber-500 text-slate-950 border-amber-600'
+    };
+  }
+  if (score100 >= 60) {
+    return {
+      label: 'Cukup (C)',
+      badgeClass: 'bg-orange-500 text-white border-orange-600'
+    };
+  }
+  return {
+    label: 'Perlu Pembinaan (D)',
+    badgeClass: 'bg-red-600 text-white border-red-700'
+  };
+}
+
+interface CriterionScoreInput {
+  score: string; // Fallback for 0-indicator criteria or legacy records
+  indicatorScores: Array<number | null>; // 1..5 Likert score per indicator
+  notes: string;
+}
 
 interface EnrichedAssignment {
   assignment_id: string;
@@ -97,8 +192,9 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
   const [collapsePreview, setCollapsePreview] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
 
-  // Scoring Form Inputs
-  const [scoreInputs, setScoreInputs] = useState<Record<string, { score: string; notes: string }>>({});
+  // Scoring Form Inputs (Skala Likert 1–5 per Indikator)
+  const [scoreInputs, setScoreInputs] = useState<Record<string, CriterionScoreInput>>({});
+  const [highlightMissing, setHighlightMissing] = useState(false);
   const [strengths, setStrengths] = useState('');
   const [improvements, setImprovements] = useState('');
   const [recommendations, setRecommendations] = useState('');
@@ -189,19 +285,41 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
       .filter((c) => c.stage === asg.stage && c.active)
       .sort((a, b) => a.display_order - b.display_order);
 
-    const initialMap: Record<string, { score: string; notes: string }> = {};
+    const initialMap: Record<string, CriterionScoreInput> = {};
     stageCrits.forEach((c) => {
       const existingDetail = asg.details?.find((d) => d.criterion_id === c.criterion_id);
+      const indicators = parseCriterionIndicators(c.indicators_json);
+      const indicatorScores: Array<number | null> = Array(indicators.length).fill(null);
+
+      if (existingDetail?.indicator_scores_json) {
+        try {
+          const savedArr = JSON.parse(existingDetail.indicator_scores_json) as IndicatorScoreItem[];
+          if (Array.isArray(savedArr)) {
+            savedArr.forEach((item, idx) => {
+              const targetIdx = typeof item?.index === 'number' ? item.index : idx;
+              if (targetIdx >= 0 && targetIdx < indicatorScores.length) {
+                const v = Number(item?.score);
+                indicatorScores[targetIdx] = Number.isInteger(v) && v >= 1 && v <= 5 ? v : null;
+              }
+            });
+          }
+        } catch {
+          // ignore malformed snapshot
+        }
+      }
+
       initialMap[c.criterion_id] = {
         score:
           existingDetail && existingDetail.score !== null && existingDetail.score !== undefined
             ? String(existingDetail.score)
             : '',
+        indicatorScores,
         notes: existingDetail?.criterion_notes || ''
       };
     });
 
     setScoreInputs(initialMap);
+    setHighlightMissing(false);
     setStrengths(asg.evaluation?.strengths || '');
     setImprovements(asg.evaluation?.improvements || '');
     setRecommendations(asg.evaluation?.recommendations || '');
@@ -231,25 +349,176 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
         .sort((a, b) => a.display_order - b.display_order)
     : [];
 
-  const calculateLiveWeightedTotal = (): { total: number; allFilled: boolean } => {
-    let sum = 0;
-    let allFilled = currentStageCriteria.length > 0;
-    for (const c of currentStageCriteria) {
-      const entry = scoreInputs[c.criterion_id];
-      const raw = entry?.score;
-      if (raw === undefined || raw === null || raw.trim() === '') {
-        allFilled = false;
-      } else {
-        const val = Number(raw);
-        if (!Number.isNaN(val)) {
-          sum += (val * Number(c.weight_percentage)) / 100.0;
-        }
+  // Psychometric Likert 1–5 Computation Engine per Criterion
+  const getCriterionComputation = (crit: ScoringCriterion) => {
+    const indicators = parseCriterionIndicators(crit.indicators_json);
+    const entry = scoreInputs[crit.criterion_id] || {
+      score: '',
+      indicatorScores: Array(indicators.length).fill(null),
+      notes: ''
+    };
+    const weight = Number(crit.weight_percentage) || 0;
+
+    if (indicators.length > 0) {
+      const scoresArr = indicators.map((_, i) => {
+        const v = entry.indicatorScores?.[i];
+        return typeof v === 'number' && v >= 1 && v <= 5 ? v : null;
+      });
+      const filledValues = scoresArr.filter((v): v is number => v !== null);
+      const missingNumbers = scoresArr
+        .map((v, i) => (v === null ? i + 1 : null))
+        .filter((n): n is number => n !== null);
+
+      const filledCount = filledValues.length;
+      const totalCount = indicators.length;
+      const sumLikert = filledValues.reduce((acc, v) => acc + v, 0);
+      const maxFilledLikert = filledCount * 5;
+      const maxTotalLikert = totalCount * 5;
+      const avgLikert = filledCount > 0 ? sumLikert / filledCount : null;
+
+      // Standard proportional conversion: (Sum / (FilledCount * 5)) * 100 = Mean Likert * 20
+      let convertedScore100: number | null = null;
+      let isLegacyScore = false;
+      if (filledCount > 0) {
+        convertedScore100 = Math.round(((sumLikert / maxFilledLikert) * 100) * 100) / 100;
+      } else if (entry.score.trim() !== '' && !Number.isNaN(Number(entry.score))) {
+        convertedScore100 = Math.round(Number(entry.score) * 100) / 100;
+        isLegacyScore = true;
       }
+
+      const weightedContribution =
+        convertedScore100 !== null
+          ? Math.round(((convertedScore100 * weight) / 100.0) * 10000) / 10000
+          : 0;
+
+      return {
+        indicators,
+        scoresArr,
+        filledCount,
+        totalCount,
+        missingNumbers,
+        isComplete: filledCount === totalCount,
+        sumLikert,
+        maxFilledLikert,
+        maxTotalLikert,
+        avgLikert,
+        convertedScore100,
+        weightedContribution,
+        isLegacyScore
+      };
     }
-    return { total: sum, allFilled };
+
+    // Fallback for 0-indicator criteria
+    const hasNumeric = entry.score.trim() !== '' && !Number.isNaN(Number(entry.score));
+    const convertedScore100 = hasNumeric
+      ? Math.round(Math.min(100, Math.max(0, Number(entry.score))) * 100) / 100
+      : null;
+    const weightedContribution =
+      convertedScore100 !== null
+        ? Math.round(((convertedScore100 * weight) / 100.0) * 10000) / 10000
+        : 0;
+
+    return {
+      indicators: [] as string[],
+      scoresArr: [] as Array<number | null>,
+      filledCount: hasNumeric ? 1 : 0,
+      totalCount: 1,
+      missingNumbers: hasNumeric ? [] : [1],
+      isComplete: hasNumeric,
+      sumLikert: 0,
+      maxFilledLikert: 0,
+      maxTotalLikert: 0,
+      avgLikert: convertedScore100 !== null ? convertedScore100 / 20 : null,
+      convertedScore100,
+      weightedContribution,
+      isLegacyScore: false
+    };
   };
 
-  const { total: liveWeightedTotal, allFilled: allCriteriaScored } = calculateLiveWeightedTotal();
+  const calculateLiveScoringSummary = () => {
+    let weightedSum = 0;
+    let totalIndicators = 0;
+    let filledIndicators = 0;
+    let allComplete = currentStageCriteria.length > 0;
+    const missingDetails: Array<{ criterionName: string; missingCount: number; missingNumbers: number[] }> = [];
+    const breakdown: Array<{
+      crit: ScoringCriterion;
+      comp: ReturnType<typeof getCriterionComputation>;
+    }> = [];
+
+    for (const c of currentStageCriteria) {
+      const comp = getCriterionComputation(c);
+      breakdown.push({ crit: c, comp });
+      weightedSum += comp.weightedContribution;
+      totalIndicators += comp.totalCount;
+      filledIndicators += comp.filledCount;
+      if (!comp.isComplete) {
+        allComplete = false;
+        missingDetails.push({
+          criterionName: c.criterion_name,
+          missingCount: comp.missingNumbers.length,
+          missingNumbers: comp.missingNumbers
+        });
+      }
+    }
+
+    const total = Math.round(weightedSum * 100) / 100;
+    const progressPercent =
+      totalIndicators > 0 ? Math.round((filledIndicators / totalIndicators) * 100) : 0;
+
+    return {
+      total,
+      allComplete,
+      totalIndicators,
+      filledIndicators,
+      progressPercent,
+      missingDetails,
+      breakdown
+    };
+  };
+
+  const liveScoring = calculateLiveScoringSummary();
+  const liveWeightedTotal = liveScoring.total;
+  const allCriteriaScored = liveScoring.allComplete;
+  const livePredicate = getScorePredicate(liveWeightedTotal);
+
+  const handleSetIndicatorLikert = (criterionId: string, indicatorIndex: number, value: number, totalLen: number) => {
+    setScoreInputs((prev) => {
+      const current = prev[criterionId] || {
+        score: '',
+        indicatorScores: Array(totalLen).fill(null),
+        notes: ''
+      };
+      const nextArr = Array.from({ length: totalLen }, (_, idx) =>
+        idx === indicatorIndex ? value : current.indicatorScores?.[idx] ?? null
+      );
+      return {
+        ...prev,
+        [criterionId]: {
+          ...current,
+          indicatorScores: nextArr
+        }
+      };
+    });
+  };
+
+  const handleBulkSetCriterionLikert = (criterionId: string, value: number | null, totalLen: number) => {
+    setScoreInputs((prev) => {
+      const current = prev[criterionId] || {
+        score: '',
+        indicatorScores: Array(totalLen).fill(null),
+        notes: ''
+      };
+      return {
+        ...prev,
+        [criterionId]: {
+          ...current,
+          score: value === null ? '' : current.score,
+          indicatorScores: Array(totalLen).fill(value)
+        }
+      };
+    });
+  };
 
   const submitEvaluation = async (mode: 'DRAFT' | 'FINAL') => {
     if (!selectedAssignment || savingEval) return;
@@ -258,9 +527,18 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
 
     const payloadScores = currentStageCriteria.map((c) => {
       const entry = scoreInputs[c.criterion_id];
+      const comp = getCriterionComputation(c);
       return {
         criterion_id: c.criterion_id,
-        score: entry?.score !== undefined && entry.score.trim() !== '' ? Number(entry.score) : null,
+        score: comp.convertedScore100,
+        indicator_scores:
+          comp.indicators.length > 0
+            ? comp.indicators.map((indText, idx) => ({
+                index: idx,
+                indicator: indText,
+                score: comp.scoresArr[idx] ?? null
+              }))
+            : undefined,
         criterion_notes: entry?.notes || ''
       };
     });
@@ -282,12 +560,14 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
       });
       const json = await res.json();
       if (!res.ok || !json.success) {
+        if (mode === 'FINAL') setHighlightMissing(true);
         setEvalFeedback({
           type: 'error',
           message: json.message || 'Gagal menyimpan penilaian ke database.'
         });
       } else {
         setShowFinalizeModal(false);
+        setHighlightMissing(false);
         setEvalFeedback({
           type: 'success',
           message: json.message
@@ -911,115 +1191,333 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
               </div>
             )}
 
-            {/* Dynamic Scoring Criteria Cards (0 to 100 with Slider + Numeric Input) */}
+            {/* PANDUAN SKALA LIKERT 1–5 & PROGRES KELENGKAPAN INDIKATOR */}
+            <div className="rounded-2xl bg-gradient-to-br from-[#F0F6FF] via-white to-[#FFFBEB] dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border-2 border-[#004AAD]/35 dark:border-[#FFB800]/40 p-4 space-y-3 shadow-xs">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Sparkles className="w-4 h-4 text-[#004AAD] dark:text-[#FFB800] shrink-0" />
+                  <span className="text-xs font-black uppercase tracking-wide text-[#004AAD] dark:text-[#FFB800]">
+                    Instrumen Penilaian Skala Likert (1 – 5) Per Indikator
+                  </span>
+                </div>
+                <span className="px-2.5 py-0.5 rounded-lg bg-[#004AAD] text-white dark:bg-[#FFB800] dark:text-slate-950 font-mono font-black text-[11px] tabular-nums">
+                  {liveScoring.filledIndicators} / {liveScoring.totalIndicators} Indikator ({liveScoring.progressPercent}%)
+                </span>
+              </div>
+
+              {/* Progress Bar */}
+              <div className="w-full h-2.5 rounded-full bg-slate-200 dark:bg-slate-800 overflow-hidden">
+                <div
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    allCriteriaScored
+                      ? 'bg-emerald-600'
+                      : 'bg-gradient-to-r from-[#004AAD] via-[#1D4ED8] to-[#FFB800]'
+                  }`}
+                  style={{ width: `${liveScoring.progressPercent}%` }}
+                />
+              </div>
+
+              {/* 5-Level Likert Legend */}
+              <div className="grid grid-cols-5 gap-1.5 pt-0.5">
+                {LIKERT_OPTIONS.map((opt) => (
+                  <div
+                    key={opt.value}
+                    title={`${opt.value} — ${opt.label}: ${opt.desc}`}
+                    className={`rounded-xl border px-1.5 py-1.5 text-center ${opt.badgeClass}`}
+                  >
+                    <div className="font-mono font-black text-xs leading-none">{opt.value}</div>
+                    <div className="text-[10px] font-extrabold leading-tight mt-0.5 truncate">
+                      {opt.shortLabel}
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="text-[11px] font-bold text-slate-700 dark:text-slate-300 leading-snug">
+                Konversi otomatis baku:{' '}
+                <span className="font-mono font-black text-[#004AAD] dark:text-[#FFB800]">
+                  Nilai Kriteria = (Total Poin Likert ÷ Skor Maks) × 100
+                </span>{' '}
+                (Skala 1 = 20, 2 = 40, 3 = 60, 4 = 80, 5 = 100), dikalikan bobot resmi kriteria.
+              </div>
+            </div>
+
+            {/* Dynamic Scoring Criteria Cards (Skala Likert 1–5 pada Masing-Masing Indikator) */}
             <div className="space-y-5">
-              {currentStageCriteria.map((crit, idx) => {
-                let indicators: string[] = [];
-                try {
-                  indicators = JSON.parse(crit.indicators_json || '[]');
-                } catch {
-                  indicators = [];
-                }
-                const entry = scoreInputs[crit.criterion_id] || { score: '', notes: '' };
-                const isScored = entry.score.trim() !== '';
-                const numVal = isScored ? Math.min(100, Math.max(0, Number(entry.score))) : 0;
-                const weightedContribution = isScored
-                  ? ((numVal * Number(crit.weight_percentage)) / 100.0).toFixed(2)
-                  : '0.00';
+              {liveScoring.breakdown.map(({ crit, comp }, idx) => {
+                const entry = scoreInputs[crit.criterion_id] || {
+                  score: '',
+                  indicatorScores: Array(comp.indicators.length).fill(null),
+                  notes: ''
+                };
 
                 return (
                   <div
                     key={crit.criterion_id}
-                    className="rounded-2xl bg-[#F8FAFC] dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 p-5 space-y-4"
+                    className={`rounded-2xl bg-[#F8FAFC] dark:bg-slate-900 border-2 p-4 sm:p-5 space-y-4 transition-colors ${
+                      highlightMissing && !comp.isComplete
+                        ? 'border-red-500 ring-2 ring-red-500/20'
+                        : comp.isComplete
+                        ? 'border-emerald-500/60 dark:border-emerald-500/50'
+                        : 'border-slate-300 dark:border-slate-700'
+                    }`}
                   >
-                    <div className="flex items-start justify-between gap-4 border-b-2 border-slate-200 dark:border-slate-800 pb-3">
-                      <div>
-                        <span className="px-2.5 py-0.5 rounded-md bg-[#004AAD] text-white font-mono font-black text-xs">
-                          Kriteria 0{idx + 1} • Bobot {crit.weight_percentage}%
-                        </span>
-                        <h3 className="font-display font-black text-base sm:text-lg text-slate-950 dark:text-white mt-1.5">
+                    {/* Criterion Header */}
+                    <div className="flex flex-wrap items-start justify-between gap-3 border-b-2 border-slate-200 dark:border-slate-800 pb-3">
+                      <div className="min-w-0 flex-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span className="px-2.5 py-0.5 rounded-md bg-[#004AAD] text-white font-mono font-black text-xs">
+                            Kriteria 0{idx + 1} • Bobot {crit.weight_percentage}%
+                          </span>
+                          <span
+                            className={`px-2 py-0.5 rounded-md font-mono font-black text-[11px] border ${
+                              comp.isComplete
+                                ? 'bg-emerald-100 text-emerald-800 border-emerald-400 dark:bg-emerald-950/70 dark:text-emerald-300 dark:border-emerald-700'
+                                : 'bg-amber-100 text-amber-900 border-amber-400 dark:bg-amber-950/60 dark:text-amber-300 dark:border-amber-700'
+                            }`}
+                          >
+                            {comp.filledCount}/{comp.totalCount} Indikator
+                          </span>
+                        </div>
+                        <h3 className="font-display font-black text-base sm:text-lg text-slate-950 dark:text-white mt-1.5 leading-snug">
                           {crit.criterion_name}
                         </h3>
+                        {crit.description && (
+                          <p className="text-[11px] font-semibold text-slate-600 dark:text-slate-400 mt-0.5 leading-relaxed">
+                            {crit.description}
+                          </p>
+                        )}
                       </div>
-                      <div className="text-right shrink-0">
-                        <div className="text-[11px] font-bold text-slate-600 dark:text-slate-400">Kontribusi Skor</div>
-                        <div className="font-mono font-black text-base text-[#EA580C] dark:text-[#FFB800] tabular-nums">
-                          +{weightedContribution}
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <div className="rounded-xl bg-white dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 px-3 py-1.5 text-right">
+                          <div className="text-[10px] font-extrabold text-slate-600 dark:text-slate-400 uppercase">
+                            Skor (0–100)
+                          </div>
+                          <div className="font-mono font-black text-base text-[#004AAD] dark:text-[#38BDF8] tabular-nums leading-tight">
+                            {comp.convertedScore100 !== null ? comp.convertedScore100.toFixed(2) : '-'}
+                          </div>
+                        </div>
+                        <div className="rounded-xl bg-[#FFFBEB] dark:bg-amber-950/30 border-2 border-amber-400/70 dark:border-amber-600/50 px-3 py-1.5 text-right">
+                          <div className="text-[10px] font-extrabold text-[#B45309] dark:text-[#FFB800] uppercase">
+                            Kontribusi
+                          </div>
+                          <div className="font-mono font-black text-base text-[#EA580C] dark:text-[#FFB800] tabular-nums leading-tight">
+                            +{comp.weightedContribution.toFixed(2)}
+                          </div>
                         </div>
                       </div>
                     </div>
 
-                    {indicators.length > 0 && (
-                      <div className="rounded-xl bg-white dark:bg-slate-950 border-2 border-slate-200 dark:border-slate-800 p-3.5 space-y-1.5">
-                        <div className="text-xs font-black text-[#004AAD] dark:text-[#FFB800]">
-                          Indikator Penilaian:
-                        </div>
-                        <ul className="space-y-1 text-xs font-semibold text-slate-800 dark:text-slate-200 list-decimal list-inside">
-                          {indicators.map((ind, i) => (
-                            <li key={i} className="leading-relaxed">
-                              {ind}
-                            </li>
-                          ))}
-                        </ul>
+                    {/* Legacy Score Notice (only if saved previously before per-indicator Likert) */}
+                    {comp.isLegacyScore && !isFinalized && (
+                      <div className="rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-400 px-3 py-2 text-[11px] font-bold text-amber-900 dark:text-amber-200">
+                        Tersimpan nilai kriteria lama ({comp.convertedScore100?.toFixed(2)}). Silakan pilih skala Likert 1–5 pada masing-masing indikator di bawah untuk memperbarui rincian penilaian.
                       </div>
                     )}
 
-                    {/* Synchronized Numeric & Slider Controls (0–100) */}
-                    <div className="space-y-3 pt-1">
-                      <div className="flex items-center justify-between gap-4">
-                        <label className="text-xs font-black text-slate-950 dark:text-white">
-                          Nilai {crit.criterion_name} (0–100):
-                        </label>
-                        <input
-                          type="number"
-                          min={0}
-                          max={100}
-                          step="0.01"
-                          disabled={isFinalized}
-                          value={entry.score}
-                          placeholder="Belum diisi"
-                          onChange={(e) => {
-                            const raw = e.target.value;
-                            if (raw === '') {
-                              setScoreInputs({
-                                ...scoreInputs,
-                                [crit.criterion_id]: { ...entry, score: '' }
-                              });
-                              return;
-                            }
-                            const n = Number(raw);
-                            if (!Number.isNaN(n) && n >= 0 && n <= 100) {
-                              setScoreInputs({
-                                ...scoreInputs,
-                                [crit.criterion_id]: { ...entry, score: raw }
-                              });
-                            }
-                          }}
-                          className="w-28 rounded-xl bg-white dark:bg-slate-950 border-2 border-[#004AAD] dark:border-[#FFB800] focus:outline-none px-3 py-2 text-right font-mono font-black text-base text-[#004AAD] dark:text-[#FFB800] tabular-nums disabled:opacity-60"
-                        />
-                      </div>
+                    {/* Per-Indicator Likert 1–5 Matrix */}
+                    {comp.indicators.length > 0 ? (
+                      <div className="space-y-2.5">
+                        {/* Quick-Set Baseline Bar (Editable Mode Only) */}
+                        {!isFinalized && (
+                          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-slate-800 px-3 py-2">
+                            <span className="text-[11px] font-extrabold text-slate-700 dark:text-slate-300">
+                              Isi Cepat Baseline Kriteria Ini:
+                            </span>
+                            <div className="flex items-center gap-1">
+                              {LIKERT_OPTIONS.map((opt) => (
+                                <button
+                                  key={opt.value}
+                                  type="button"
+                                  title={`Set seluruh indikator di kriteria ini ke ${opt.value} (${opt.label})`}
+                                  onClick={() =>
+                                    handleBulkSetCriterionLikert(
+                                      crit.criterion_id,
+                                      opt.value,
+                                      comp.indicators.length
+                                    )
+                                  }
+                                  className="w-7 h-7 rounded-lg text-xs font-mono font-black bg-slate-100 hover:bg-[#004AAD] hover:text-white dark:bg-slate-800 dark:hover:bg-[#FFB800] dark:hover:text-slate-950 text-slate-800 dark:text-slate-200 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
+                                >
+                                  {opt.value}
+                                </button>
+                              ))}
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleBulkSetCriterionLikert(
+                                    crit.criterion_id,
+                                    null,
+                                    comp.indicators.length
+                                  )
+                                }
+                                title="Kosongkan seluruh indikator di kriteria ini"
+                                className="ml-1 px-2 h-7 rounded-lg text-[10px] font-black bg-slate-100 hover:bg-red-100 text-slate-700 hover:text-red-700 dark:bg-slate-800 dark:hover:bg-red-950 dark:text-slate-300 dark:hover:text-red-300 border border-slate-300 dark:border-slate-700 transition-colors cursor-pointer"
+                              >
+                                Reset
+                              </button>
+                            </div>
+                          </div>
+                        )}
 
-                      <div className="flex items-center gap-3">
-                        <span className="font-mono text-xs font-black text-slate-600 dark:text-slate-400 tabular-nums">0</span>
-                        <input
-                          type="range"
-                          min={0}
-                          max={100}
-                          step={1}
-                          disabled={isFinalized}
-                          value={isScored ? numVal : 0}
-                          onChange={(e) => {
-                            setScoreInputs({
-                              ...scoreInputs,
-                              [crit.criterion_id]: { ...entry, score: e.target.value }
-                            });
-                          }}
-                          className="w-full accent-[#004AAD] dark:accent-[#FFB800] cursor-pointer disabled:cursor-not-allowed"
-                        />
-                        <span className="font-mono text-xs font-black text-slate-600 dark:text-slate-400 tabular-nums">100</span>
-                      </div>
-                    </div>
+                        {/* Individual Indicator Likert Rows */}
+                        {comp.indicators.map((indText, indIdx) => {
+                          const currentVal = comp.scoresArr[indIdx];
+                          const selectedOpt = LIKERT_OPTIONS.find((o) => o.value === currentVal);
+                          const isMissingNow = highlightMissing && currentVal === null;
 
+                          return (
+                            <div
+                              key={indIdx}
+                              className={`rounded-xl bg-white dark:bg-slate-950 border-2 p-3 space-y-2.5 transition-all ${
+                                isMissingNow
+                                  ? 'border-red-500 bg-red-50/40 dark:bg-red-950/20'
+                                  : currentVal !== null
+                                  ? 'border-slate-200 dark:border-slate-800'
+                                  : 'border-slate-200/90 dark:border-slate-800/90'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between gap-2.5">
+                                <div className="flex items-start gap-2 min-w-0">
+                                  <span
+                                    className={`w-6 h-6 rounded-lg font-mono font-black text-[11px] flex items-center justify-center shrink-0 mt-0.5 ${
+                                      currentVal !== null
+                                        ? 'bg-[#004AAD] text-white dark:bg-[#FFB800] dark:text-slate-950'
+                                        : isMissingNow
+                                        ? 'bg-red-600 text-white'
+                                        : 'bg-slate-200 dark:bg-slate-800 text-slate-700 dark:text-slate-300'
+                                    }`}
+                                  >
+                                    {String(indIdx + 1).padStart(2, '0')}
+                                  </span>
+                                  <p className="text-xs sm:text-[13px] font-bold text-slate-900 dark:text-slate-100 leading-snug">
+                                    {indText}
+                                  </p>
+                                </div>
+
+                                {selectedOpt ? (
+                                  <span
+                                    className={`px-2 py-0.5 rounded-md text-[10px] font-black border whitespace-nowrap shrink-0 ${selectedOpt.badgeClass}`}
+                                  >
+                                    {selectedOpt.value} • {selectedOpt.label}
+                                  </span>
+                                ) : (
+                                  <span
+                                    className={`px-2 py-0.5 rounded-md text-[10px] font-black border whitespace-nowrap shrink-0 ${
+                                      isMissingNow
+                                        ? 'bg-red-600 text-white border-red-700'
+                                        : 'bg-slate-100 dark:bg-slate-900 text-slate-500 dark:text-slate-400 border-slate-300 dark:border-slate-700'
+                                    }`}
+                                  >
+                                    {isMissingNow ? 'Wajib diisi' : 'Belum dinilai'}
+                                  </span>
+                                )}
+                              </div>
+
+                              {/* 5-Button Likert Scale Selector */}
+                              <div className="grid grid-cols-5 gap-1.5" role="radiogroup" aria-label={indText}>
+                                {LIKERT_OPTIONS.map((opt) => {
+                                  const isSelected = currentVal === opt.value;
+                                  return (
+                                    <button
+                                      key={opt.value}
+                                      type="button"
+                                      role="radio"
+                                      aria-checked={isSelected}
+                                      disabled={isFinalized}
+                                      title={`Skor ${opt.value} — ${opt.label}: ${opt.desc}`}
+                                      onClick={() =>
+                                        handleSetIndicatorLikert(
+                                          crit.criterion_id,
+                                          indIdx,
+                                          opt.value,
+                                          comp.indicators.length
+                                        )
+                                      }
+                                      className={`py-2 px-1 rounded-xl border-2 flex flex-col items-center justify-center transition-all select-none ${
+                                        isSelected
+                                          ? opt.activeBtn
+                                          : 'bg-slate-50 dark:bg-slate-900 text-slate-700 dark:text-slate-300 border-slate-200 dark:border-slate-700 hover:border-[#004AAD] dark:hover:border-[#FFB800] hover:bg-[#F0F6FF] dark:hover:bg-slate-800'
+                                      } ${isFinalized ? 'cursor-not-allowed opacity-85' : 'cursor-pointer active:scale-95'}`}
+                                    >
+                                      <span className="font-mono font-black text-sm leading-none tabular-nums">
+                                        {opt.value}
+                                      </span>
+                                      <span
+                                        className={`text-[9px] font-extrabold leading-tight mt-0.5 truncate max-w-full ${
+                                          isSelected ? 'opacity-95' : 'text-slate-500 dark:text-slate-400'
+                                        }`}
+                                      >
+                                        {opt.shortLabel}
+                                      </span>
+                                    </button>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          );
+                        })}
+
+                        {/* Transparent Calculation Formula Bar per Criterion */}
+                        <div className="rounded-xl bg-[#F0F6FF] dark:bg-slate-950 border border-[#004AAD]/25 dark:border-slate-800 px-3.5 py-2.5 flex flex-wrap items-center justify-between gap-2 text-[11px] font-bold">
+                          <div className="text-slate-800 dark:text-slate-200">
+                            Poin Likert:{' '}
+                            <span className="font-mono font-black text-[#004AAD] dark:text-[#FFB800] tabular-nums">
+                              {comp.sumLikert} / {comp.maxTotalLikert}
+                            </span>
+                            {' • '}
+                            Rata-rata:{' '}
+                            <span className="font-mono font-black text-[#004AAD] dark:text-[#FFB800] tabular-nums">
+                              {comp.avgLikert !== null ? comp.avgLikert.toFixed(2) : '-'} / 5.00
+                            </span>
+                          </div>
+                          <div className="font-mono font-black text-[#EA580C] dark:text-[#FFB800] tabular-nums">
+                            {comp.convertedScore100 !== null
+                              ? `${comp.convertedScore100.toFixed(2)} × ${crit.weight_percentage}% = +${comp.weightedContribution.toFixed(2)}`
+                              : 'Menunggu skor indikator'}
+                          </div>
+                        </div>
+                      </div>
+                    ) : (
+                      /* Fallback if Admin creates a criterion with 0 indicators */
+                      <div className="space-y-2.5 pt-1">
+                        <div className="flex items-center justify-between gap-4">
+                          <label className="text-xs font-black text-slate-950 dark:text-white">
+                            Nilai {crit.criterion_name} (0–100):
+                          </label>
+                          <input
+                            type="number"
+                            min={0}
+                            max={100}
+                            step="0.01"
+                            disabled={isFinalized}
+                            value={entry.score}
+                            placeholder="Belum diisi"
+                            onChange={(e) => {
+                              const raw = e.target.value;
+                              if (raw === '') {
+                                setScoreInputs({
+                                  ...scoreInputs,
+                                  [crit.criterion_id]: { ...entry, score: '' }
+                                });
+                                return;
+                              }
+                              const n = Number(raw);
+                              if (!Number.isNaN(n) && n >= 0 && n <= 100) {
+                                setScoreInputs({
+                                  ...scoreInputs,
+                                  [crit.criterion_id]: { ...entry, score: raw }
+                                });
+                              }
+                            }}
+                            className="w-28 rounded-xl bg-white dark:bg-slate-950 border-2 border-[#004AAD] dark:border-[#FFB800] focus:outline-none px-3 py-2 text-right font-mono font-black text-base text-[#004AAD] dark:text-[#FFB800] tabular-nums disabled:opacity-60"
+                          />
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Per-Criterion Notes */}
                     <div>
                       <label className="block text-xs font-extrabold text-slate-800 dark:text-slate-200 mb-1.5">
                         Catatan {crit.criterion_name}:
@@ -1094,14 +1592,14 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
               {selectedAssignment.stage === 'FINAL' && (
                 <div>
                   <label className="block text-xs font-black text-[#EA580C] dark:text-[#FFB800] mb-1.5">
-                    Catatan Paparan dan Kemampuan Mempertanggungjawabkan Inovasi (Babak Final)
+                    Catatan Paparan (7 Menit) & Tanya Jawab (8 Menit) — Babak Final
                   </label>
                   <textarea
                     rows={3}
                     disabled={isFinalized}
                     value={presentationNotes}
                     onChange={(e) => setPresentationNotes(e.target.value)}
-                    placeholder="Observasi dewan juri saat paparan luring dan sesi tanya jawab..."
+                    placeholder="Observasi dewan juri saat paparan luring 7 menit dan sesi tanya jawab 8 menit..."
                     className="w-full rounded-xl bg-white dark:bg-slate-950 border-2 border-[#F59E0B] focus:outline-none p-3 text-xs font-bold text-slate-950 dark:text-white disabled:opacity-60"
                   />
                 </div>
@@ -1110,19 +1608,34 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
 
             {/* Weighted Total Summary Card + Action Buttons */}
             <div className="rounded-2xl bg-gradient-to-r from-[#FFFBEB] to-[#FEF3C7] dark:from-slate-900 dark:to-slate-950 border-2 border-[#F59E0B] p-5 space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="space-y-1">
                   <div className="text-xs font-black text-[#D97706] dark:text-[#FFB800]">
-                    TOTAL NILAI AKHIR TERTIMBANG
+                    TOTAL NILAI AKHIR TERTIMBANG (SKALA LIKERT 1–5)
                   </div>
                   <div className="text-xs font-bold text-slate-800 dark:text-slate-300">
                     {allCriteriaScored
-                      ? 'Seluruh kriteria telah terisi lengkap'
-                      : 'Masih terdapat kriteria yang belum diberi nilai'}
+                      ? `Seluruh ${liveScoring.totalIndicators} indikator pada ${currentStageCriteria.length} kriteria telah dinilai lengkap.`
+                      : `Terisi ${liveScoring.filledIndicators} dari ${liveScoring.totalIndicators} indikator (${liveScoring.totalIndicators - liveScoring.filledIndicators} indikator belum diisi).`}
                   </div>
+                  {liveScoring.filledIndicators > 0 && (
+                    <div className="pt-0.5">
+                      <span
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-md text-[11px] font-black border ${livePredicate.badgeClass}`}
+                      >
+                        <Award className="w-3.5 h-3.5" />
+                        <span>Predikat: {livePredicate.label}</span>
+                      </span>
+                    </div>
+                  )}
                 </div>
-                <div className="font-mono font-black text-3xl text-[#004AAD] dark:text-[#FFB800] tabular-nums">
-                  {liveWeightedTotal.toFixed(2)}
+                <div className="text-right">
+                  <div className="font-mono font-black text-3xl text-[#004AAD] dark:text-[#FFB800] tabular-nums leading-none">
+                    {liveWeightedTotal.toFixed(2)}
+                  </div>
+                  <div className="text-[11px] font-mono font-bold text-slate-600 dark:text-slate-400 mt-0.5">
+                    dari 100.00
+                  </div>
                 </div>
               </div>
 
@@ -1153,12 +1666,17 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
                     disabled={savingEval}
                     onClick={() => {
                       if (!allCriteriaScored) {
+                        setHighlightMissing(true);
+                        const detailText = liveScoring.missingDetails
+                          .map((m) => `${m.criterionName} (${m.missingCount} indikator: #${m.missingNumbers.join(', #')})`)
+                          .join('; ');
                         setEvalFeedback({
                           type: 'error',
-                          message: 'Seluruh kriteria wajib diisi dengan nilai 0–100 sebelum melakukan Finalisasi Penilaian.'
+                          message: `Seluruh indikator wajib diberi skor Likert 1–5 sebelum finalisasi. Indikator belum diisi: ${detailText}.`
                         });
                         return;
                       }
+                      setHighlightMissing(false);
                       setShowFinalizeModal(true);
                     }}
                     className="sm:col-span-2 px-5 py-3.5 rounded-xl font-black text-xs text-slate-950 bg-gradient-to-r from-[#FFD000] via-[#FFB800] to-[#FF9000] hover:brightness-105 border-2 border-[#B45309]/40 shadow-md inline-flex items-center justify-center gap-2 cursor-pointer"
@@ -1180,10 +1698,10 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
           </div>
         </div>
 
-        {/* Finalization Confirmation Dialog */}
+        {/* Finalization Confirmation Dialog (With Per-Criterion Likert Breakdown) */}
         {showFinalizeModal && (
-          <div className="fixed inset-0 z-50 bg-slate-950/70 backdrop-blur-sm flex items-center justify-center p-4">
-            <div className="max-w-md w-full rounded-3xl bg-white dark:bg-slate-900 border-2 border-[#004AAD] dark:border-[#FFB800] p-6 sm:p-8 space-y-5 shadow-2xl">
+          <div className="fixed inset-0 z-50 bg-slate-950/75 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+            <div className="max-w-lg w-full rounded-3xl bg-white dark:bg-slate-900 border-2 border-[#004AAD] dark:border-[#FFB800] p-6 sm:p-7 space-y-4 shadow-2xl">
               <div className="flex items-center gap-3.5">
                 <Icon3D type="judging" size="md" />
                 <div>
@@ -1196,24 +1714,66 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-[#F0F6FF] dark:bg-slate-950 border-2 border-[#004AAD]/30 p-4 flex items-center justify-between">
-                <span className="text-xs font-black text-slate-900 dark:text-slate-200">Nilai Akhir Tertimbang:</span>
-                <span className="font-mono font-black text-2xl text-[#004AAD] dark:text-[#FFB800] tabular-nums">
+              {/* Per-Criterion Likert Summary Table */}
+              <div className="rounded-2xl border-2 border-slate-200 dark:border-slate-800 overflow-hidden text-xs">
+                <table className="w-full text-left border-collapse">
+                  <thead>
+                    <tr className="bg-slate-100 dark:bg-slate-950 text-slate-700 dark:text-slate-300 font-black">
+                      <th className="py-2 px-3">Kriteria</th>
+                      <th className="py-2 px-2 text-center">Avg Likert</th>
+                      <th className="py-2 px-2 text-right">Skor 100</th>
+                      <th className="py-2 px-3 text-right">Tertimbang</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-200 dark:divide-slate-800 font-bold">
+                    {liveScoring.breakdown.map(({ crit, comp }) => (
+                      <tr key={crit.criterion_id} className="bg-white dark:bg-slate-900">
+                        <td className="py-2 px-3 text-slate-950 dark:text-white">
+                          <div className="font-extrabold leading-tight">{crit.criterion_name}</div>
+                          <div className="text-[10px] text-slate-500">
+                            Bobot {crit.weight_percentage}% • {comp.filledCount}/{comp.totalCount} indikator
+                          </div>
+                        </td>
+                        <td className="py-2 px-2 text-center font-mono text-[#004AAD] dark:text-[#38BDF8] tabular-nums">
+                          {comp.avgLikert !== null ? comp.avgLikert.toFixed(2) : '-'}
+                        </td>
+                        <td className="py-2 px-2 text-right font-mono text-slate-800 dark:text-slate-200 tabular-nums">
+                          {comp.convertedScore100 !== null ? comp.convertedScore100.toFixed(2) : '-'}
+                        </td>
+                        <td className="py-2 px-3 text-right font-mono font-black text-[#EA580C] dark:text-[#FFB800] tabular-nums">
+                          +{comp.weightedContribution.toFixed(2)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              <div className="rounded-2xl bg-[#F0F6FF] dark:bg-slate-950 border-2 border-[#004AAD]/30 p-4 flex items-center justify-between gap-3">
+                <div>
+                  <span className="text-xs font-black text-slate-900 dark:text-slate-200 block">
+                    Total Nilai Akhir Tertimbang:
+                  </span>
+                  <span className={`inline-block mt-1 px-2 py-0.5 rounded-md text-[10px] font-black border ${livePredicate.badgeClass}`}>
+                    {livePredicate.label}
+                  </span>
+                </div>
+                <span className="font-mono font-black text-3xl text-[#004AAD] dark:text-[#FFB800] tabular-nums">
                   {liveWeightedTotal.toFixed(2)}
                 </span>
               </div>
 
               <p className="text-xs font-semibold text-slate-800 dark:text-slate-300 leading-relaxed">
-                Apakah Anda yakin ingin memfinalisasi penilaian ini? Setelah difinalisasi, nilai akan dikunci dan masuk ke perhitungan peringkat resmi.
+                Apakah Anda yakin ingin memfinalisasi penilaian ini? Setelah difinalisasi, seluruh skor Likert indikator akan dikunci dan masuk ke perhitungan peringkat resmi.
               </p>
 
-              <div className="flex items-center justify-end gap-3 pt-2">
+              <div className="flex items-center justify-end gap-3 pt-1">
                 <button
                   type="button"
                   onClick={() => setShowFinalizeModal(false)}
                   className="px-4 py-2.5 rounded-xl text-xs font-extrabold text-slate-800 dark:text-slate-200 bg-slate-100 dark:bg-slate-800 border-2 border-slate-300 dark:border-slate-700 cursor-pointer"
                 >
-                  Batal
+                  Periksa Kembali
                 </button>
                 <button
                   type="button"
@@ -1221,7 +1781,7 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
                   onClick={() => submitEvaluation('FINAL')}
                   className="px-5 py-2.5 rounded-xl text-xs font-black text-slate-950 bg-gradient-to-r from-[#FFD000] to-[#FFB800] border-2 border-[#B45309]/40 cursor-pointer"
                 >
-                  {savingEval ? 'Memfinalisasi...' : 'Ya, Finalisasi Sekarang'}
+                  {savingEval ? 'Memfinalisasi...' : 'Ya, Finalisasi & Kunci'}
                 </button>
               </div>
             </div>

@@ -6,6 +6,7 @@ import {
   JuryAssignment,
   EvaluationRecord,
   EvaluationDetail,
+  IndicatorScoreItem,
   ScoreRecapItem,
   FinalistWinnerRecord,
   AnnouncementItem,
@@ -3231,24 +3232,88 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                               </div>
 
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                                {dets.map((d) => (
-                                  <div
-                                    key={d.detail_id}
-                                    className="rounded-xl bg-slate-900 border border-slate-800 p-3 space-y-1"
-                                  >
-                                    <div className="text-xs font-semibold text-white">
-                                      {d.criterion_name_snapshot} ({d.weight_snapshot}%)
+                                {dets.map((d) => {
+                                  let indicatorItems: IndicatorScoreItem[] = [];
+                                  if (d.indicator_scores_json) {
+                                    try {
+                                      const parsed = JSON.parse(d.indicator_scores_json);
+                                      if (Array.isArray(parsed)) {
+                                        indicatorItems = parsed.filter(
+                                          (item): item is IndicatorScoreItem =>
+                                            item && typeof item === 'object' && typeof item.indicator === 'string'
+                                        );
+                                      }
+                                    } catch {
+                                      indicatorItems = [];
+                                    }
+                                  }
+                                  const validLikert = indicatorItems
+                                    .map((it) => it.score)
+                                    .filter((v): v is number => typeof v === 'number' && v >= 1 && v <= 5);
+                                  const avgLikert =
+                                    validLikert.length > 0
+                                      ? validLikert.reduce((a, b) => a + b, 0) / validLikert.length
+                                      : null;
+
+                                  return (
+                                    <div
+                                      key={d.detail_id}
+                                      className="rounded-xl bg-slate-900 border border-slate-800 p-3 space-y-2"
+                                    >
+                                      <div className="text-xs font-semibold text-white">
+                                        {d.criterion_name_snapshot} ({d.weight_snapshot}%)
+                                      </div>
+                                      <div className="font-mono text-sm text-amber-300 tabular-nums">
+                                        Skor: {d.score != null ? Number(d.score).toFixed(2) : '-'} → Tertimbang:{' '}
+                                        {Number(d.weighted_score).toFixed(2)}
+                                      </div>
+                                      {avgLikert !== null && (
+                                        <div className="text-[11px] font-mono text-cyan-300 tabular-nums">
+                                          Likert: {avgLikert.toFixed(2)} / 5.00 ({validLikert.length}/{indicatorItems.length} indikator)
+                                        </div>
+                                      )}
+                                      {indicatorItems.length > 0 && (
+                                        <div className="space-y-1 pt-1 border-t border-slate-800/80">
+                                          {indicatorItems.map((it, idx) => {
+                                            const lv = it.score;
+                                            const badgeClass =
+                                              lv === 5
+                                                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40'
+                                                : lv === 4
+                                                  ? 'bg-cyan-500/20 text-cyan-300 border-cyan-500/40'
+                                                  : lv === 3
+                                                    ? 'bg-amber-500/20 text-amber-300 border-amber-500/40'
+                                                    : lv === 2
+                                                      ? 'bg-orange-500/20 text-orange-300 border-orange-500/40'
+                                                      : lv === 1
+                                                        ? 'bg-rose-500/20 text-rose-300 border-rose-500/40'
+                                                        : 'bg-slate-800 text-slate-400 border-slate-700';
+                                            return (
+                                              <div
+                                                key={`${d.detail_id}-ind-${idx}`}
+                                                className="flex items-start justify-between gap-2 text-[10px] leading-snug"
+                                              >
+                                                <span className="text-slate-300">
+                                                  {idx + 1}. {it.indicator}
+                                                </span>
+                                                <span
+                                                  className={`shrink-0 px-1.5 py-0.5 rounded border font-mono font-bold tabular-nums ${badgeClass}`}
+                                                >
+                                                  {lv ?? '-'}
+                                                </span>
+                                              </div>
+                                            );
+                                          })}
+                                        </div>
+                                      )}
+                                      {d.criterion_notes && (
+                                        <p className="text-[11px] text-slate-400 italic pt-1 border-t border-slate-800/60">
+                                          "{d.criterion_notes}"
+                                        </p>
+                                      )}
                                     </div>
-                                    <div className="font-mono text-sm text-amber-300 tabular-nums">
-                                      Skor: {d.score ?? '-'} → Tertimbang: {Number(d.weighted_score).toFixed(2)}
-                                    </div>
-                                    {d.criterion_notes && (
-                                      <p className="text-[11px] text-slate-400 italic">
-                                        "{d.criterion_notes}"
-                                      </p>
-                                    )}
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
 
                               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs pt-2">

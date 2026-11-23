@@ -315,6 +315,7 @@ interface DatabaseSchema {
     weight_snapshot: number;
     score: number | null;
     weighted_score: number;
+    indicator_scores_json?: string;
     criterion_notes: string;
     updated_at: string;
   }>;
@@ -2550,31 +2551,108 @@ async function handleJuryEvaluationSave(req: Request, res: Response, targetStatu
       ? scores.find((s: any) => s.criterion_id === crit.criterion_id)
       : null;
 
-    const rawScore = submitted?.score;
-    const isBlank = rawScore === null || rawScore === undefined || String(rawScore).trim() === '';
-
-    if (targetStatus === 'FINAL' && isBlank) {
-      return res.status(400).json({
-        success: false,
-        message: `Nilai untuk kriteria "${crit.criterion_name}" belum diisi. Seluruh kriteria wajib dinilai sebelum finalisasi.`,
-        error_code: 'INCOMPLETE_CRITERIA_SCORE'
-      });
+    let critIndicators: string[] = [];
+    try {
+      const parsed = JSON.parse(crit.indicators_json || '[]');
+      if (Array.isArray(parsed)) {
+        critIndicators = parsed.map((x) => String(x || '').trim()).filter(Boolean);
+      }
+    } catch {
+      critIndicators = [];
     }
 
     let numericScore: number | null = null;
     let weightedScore = 0;
+    let indicatorScoresJson = '';
 
-    if (!isBlank) {
-      numericScore = Number(rawScore);
-      if (Number.isNaN(numericScore) || numericScore < 0 || numericScore > 100) {
+    const hasSubmittedIndicators =
+      critIndicators.length > 0 && Array.isArray(submitted?.indicator_scores);
+
+    if (hasSubmittedIndicators) {
+      const submittedArr: any[] = submitted.indicator_scores;
+      const normalizedSnapshot: Array<{ index: number; indicator: string; score: number | null }> = [];
+      const missingIndices: number[] = [];
+      const validLikertValues: number[] = [];
+
+      for (let i = 0; i < critIndicators.length; i++) {
+        const rawEntry = submittedArr.find((item: any) =>
+          typeof item === 'object' && item !== null ? Number(item.index) === i : false
+        );
+        const rawVal =
+          rawEntry !== undefined
+            ? rawEntry.score
+            : typeof submittedArr[i] === 'number' || typeof submittedArr[i] === 'string'
+            ? submittedArr[i]
+            : null;
+
+        const isIndBlank =
+          rawVal === null || rawVal === undefined || String(rawVal).trim() === '';
+
+        if (isIndBlank) {
+          normalizedSnapshot.push({ index: i, indicator: critIndicators[i], score: null });
+          missingIndices.push(i + 1);
+        } else {
+          const likertNum = Number(rawVal);
+          if (!Number.isInteger(likertNum) || likertNum < 1 || likertNum > 5) {
+            return res.status(400).json({
+              success: false,
+              message: `Skor Likert pada kriteria "${crit.criterion_name}" indikator ke-${i + 1} harus berupa bilangan bulat 1 hingga 5.`,
+              error_code: 'INVALID_LIKERT_SCORE'
+            });
+          }
+          normalizedSnapshot.push({ index: i, indicator: critIndicators[i], score: likertNum });
+          validLikertValues.push(likertNum);
+        }
+      }
+
+      if (targetStatus === 'FINAL' && missingIndices.length > 0) {
         return res.status(400).json({
           success: false,
-          message: `Nilai untuk "${crit.criterion_name}" harus berada pada rentang 0 hingga 100.`,
-          error_code: 'SCORE_OUT_OF_RANGE'
+          message: `Kriteria "${crit.criterion_name}" masih memiliki ${missingIndices.length} indikator yang belum dinilai (Indikator ke-${missingIndices.join(', ')}). Seluruh indikator wajib diberi skor Likert 1–5 sebelum finalisasi.`,
+          error_code: 'INCOMPLETE_INDICATOR_SCORES'
         });
       }
-      weightedScore = (numericScore * Number(crit.weight_percentage)) / 100.0;
-      weightedTotal += weightedScore;
+
+      indicatorScoresJson = JSON.stringify(normalizedSnapshot);
+
+      if (validLikertValues.length > 0) {
+        // Formula Resmi Proporsional Skala Likert 1–5 ke Skala 0–100:
+        // Nilai = (Total Skor Likert / (Jumlah Indikator Terisi × 5)) × 100 = Rata-rata Likert × 20
+        const sumLikert = validLikertValues.reduce((acc, v) => acc + v, 0);
+        const maxPossible = validLikertValues.length * 5;
+        const convertedScore = (sumLikert / maxPossible) * 100;
+        numericScore = Math.round(convertedScore * 100) / 100;
+        weightedScore =
+          Math.round(((numericScore * Number(crit.weight_percentage)) / 100.0) * 10000) / 10000;
+        weightedTotal += weightedScore;
+      }
+    } else {
+      // Fallback for criteria with 0 indicators or legacy payloads
+      const rawScore = submitted?.score;
+      const isBlank = rawScore === null || rawScore === undefined || String(rawScore).trim() === '';
+
+      if (targetStatus === 'FINAL' && isBlank) {
+        return res.status(400).json({
+          success: false,
+          message: `Nilai untuk kriteria "${crit.criterion_name}" belum diisi. Seluruh kriteria wajib dinilai sebelum finalisasi.`,
+          error_code: 'INCOMPLETE_CRITERIA_SCORE'
+        });
+      }
+
+      if (!isBlank) {
+        numericScore = Number(rawScore);
+        if (Number.isNaN(numericScore) || numericScore < 0 || numericScore > 100) {
+          return res.status(400).json({
+            success: false,
+            message: `Nilai untuk "${crit.criterion_name}" harus berada pada rentang 0 hingga 100.`,
+            error_code: 'SCORE_OUT_OF_RANGE'
+          });
+        }
+        numericScore = Math.round(numericScore * 100) / 100;
+        weightedScore =
+          Math.round(((numericScore * Number(crit.weight_percentage)) / 100.0) * 10000) / 10000;
+        weightedTotal += weightedScore;
+      }
     }
 
     newDetails.push({
@@ -2585,10 +2663,13 @@ async function handleJuryEvaluationSave(req: Request, res: Response, targetStatu
       weight_snapshot: Number(crit.weight_percentage),
       score: numericScore,
       weighted_score: weightedScore,
+      indicator_scores_json: indicatorScoresJson,
       criterion_notes: String(submitted?.criterion_notes || '').trim(),
       updated_at: now
     });
   }
+
+  weightedTotal = Math.round(weightedTotal * 100) / 100;
 
   const rubricVersion = stageCriteria[0]?.rubric_version || 1;
   const record: DatabaseSchema['PENILAIAN'][0] = {

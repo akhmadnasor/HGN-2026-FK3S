@@ -121,6 +121,12 @@ export interface EvaluationRecord {
   reopen_reason: string;
 }
 
+export interface IndicatorScoreItem {
+  index: number;
+  indicator: string;
+  score: number | null; // Skala Likert 1 - 5
+}
+
 export interface EvaluationDetail {
   detail_id: string;
   evaluation_id: string;
@@ -129,6 +135,7 @@ export interface EvaluationDetail {
   weight_snapshot: number;
   score: number | null;
   weighted_score: number;
+  indicator_scores_json?: string; // JSON stringified IndicatorScoreItem[]
   criterion_notes: string;
   updated_at: string;
 }

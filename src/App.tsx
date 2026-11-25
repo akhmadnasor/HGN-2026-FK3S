@@ -187,6 +187,10 @@ export function App() {
           publicData.settings?.app_icon_url ||
           'https://lh3.googleusercontent.com/d/13M5y3gnxVP6cUPGKRXqdYqmHxFjPAvpD'
         }
+        hgnLogoUrl={
+          publicData.settings?.main_logo_url ||
+          'https://lh3.googleusercontent.com/d/1_q1kZ4MJoP6VQR7qs61HId_k_HHXB4oe'
+        }
         theme={theme}
         onToggleTheme={toggleTheme}
         onBackToPublic={() => {

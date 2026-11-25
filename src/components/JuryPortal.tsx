@@ -38,8 +38,11 @@ import {
   BarChart3,
   UserCheck,
   Award,
-  Sparkles
+  Sparkles,
+  Download,
+  Printer
 } from 'lucide-react';
+import { OfflineRubricModal, OfflineRubricTarget } from './OfficialDocuments';
 
 const LIKERT_OPTIONS = [
   {
@@ -150,6 +153,7 @@ interface EnrichedAssignment {
 
 interface JuryPortalProps {
   mainLogoUrl: string;
+  hgnLogoUrl?: string;
   onBackToPublic: () => void;
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
@@ -157,6 +161,7 @@ interface JuryPortalProps {
 
 export const JuryPortal: React.FC<JuryPortalProps> = ({
   mainLogoUrl,
+  hgnLogoUrl = 'https://lh3.googleusercontent.com/d/1_q1kZ4MJoP6VQR7qs61HId_k_HHXB4oe',
   onBackToPublic,
   theme,
   onToggleTheme
@@ -204,6 +209,11 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
   const [showFinalizeModal, setShowFinalizeModal] = useState(false);
   const [showConflictModal, setShowConflictModal] = useState(false);
   const [conflictReason, setConflictReason] = useState('');
+  const [offlineRubricModal, setOfflineRubricModal] = useState<{
+    open: boolean;
+    stage: JudgingStage;
+    target: OfflineRubricTarget | null;
+  }>({ open: false, stage: 'FINAL', target: null });
 
   // Password Change State
   const [currentPassword, setCurrentPassword] = useState('');
@@ -920,8 +930,29 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
             </div>
           </div>
 
-          {/* Right Controls: Theme Toggle + Preview Collapse + Live Weighted Score */}
-          <div className="flex items-center gap-2.5">
+          {/* Right Controls: Download Rubrik Offline + Theme Toggle + Preview Collapse + Live Weighted Score */}
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              type="button"
+              onClick={() =>
+                setOfflineRubricModal({
+                  open: true,
+                  stage: selectedAssignment.stage,
+                  target: {
+                    participant_id: p.participant_id,
+                    full_name: p.full_name,
+                    school: p.school,
+                    innovation_title: p.innovation_title
+                  }
+                })
+              }
+              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white border-2 border-emerald-700 text-xs font-black inline-flex items-center gap-1.5 shadow-xs cursor-pointer whitespace-nowrap"
+              title="Unduh atau cetak rubrik penilaian offline (ukuran A4)"
+            >
+              <Download className="w-4 h-4 shrink-0" />
+              <span>Download Rubrik Offline</span>
+            </button>
+
             <button
               type="button"
               onClick={onToggleTheme}
@@ -1239,6 +1270,33 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
                   Nilai Kriteria = (Total Poin Likert ÷ Skor Maks) × 100
                 </span>{' '}
                 (Skala 1 = 20, 2 = 40, 3 = 60, 4 = 80, 5 = 100), dikalikan bobot resmi kriteria.
+              </div>
+
+              <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300">
+                  {selectedAssignment.stage === 'FINAL'
+                    ? 'Tahap Final (Paparan 7 Menit + Tanya Jawab 8 Menit) — Butuh lembar rubrik cetak/offline?'
+                    : 'Butuh lembar rubrik penilaian cetak untuk catatan offline?'}
+                </span>
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOfflineRubricModal({
+                      open: true,
+                      stage: selectedAssignment.stage,
+                      target: {
+                        participant_id: p.participant_id,
+                        full_name: p.full_name,
+                        school: p.school,
+                        innovation_title: p.innovation_title
+                      }
+                    })
+                  }
+                  className="px-3 py-1.5 rounded-lg bg-[#004AAD] hover:bg-[#003B8E] text-white dark:bg-[#FFB800] dark:text-slate-950 font-black text-[11px] inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                >
+                  <Printer className="w-3.5 h-3.5" />
+                  <span>Unduh / Cetak Rubrik Offline (A4)</span>
+                </button>
               </div>
             </div>
 
@@ -1827,6 +1885,27 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
             </form>
           </div>
         )}
+
+        {/* Modal Download Rubrik Penilaian Offline (A4) */}
+        <OfflineRubricModal
+          isOpen={offlineRubricModal.open}
+          onClose={() => setOfflineRubricModal((prev) => ({ ...prev, open: false }))}
+          stage={offlineRubricModal.stage}
+          criteria={allCriteria}
+          juryName={jury?.full_name || ''}
+          juryCategory={jury?.jury_category || ''}
+          fk3sLogo={mainLogoUrl}
+          mainHgnLogo={hgnLogoUrl}
+          targetParticipant={offlineRubricModal.target}
+          allStageTargets={assignments
+            .filter((a) => a.stage === offlineRubricModal.stage && a.participant)
+            .map((a) => ({
+              participant_id: a.participant!.participant_id,
+              full_name: a.participant!.full_name,
+              school: a.participant!.school,
+              innovation_title: a.participant!.innovation_title
+            }))}
+        />
       </div>
     );
   }
@@ -1834,9 +1913,13 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
   /* =========================================================================
    * SECTION 9 — JURY DASHBOARD (/juri/dashboard)
    * ========================================================================= */
-  const filteredAssignments = assignments.filter((a) =>
-    stageFilter === 'ALL' ? true : a.stage === stageFilter
-  );
+  const filteredAssignments = [...assignments]
+    .filter((a) => (stageFilter === 'ALL' ? true : a.stage === stageFilter))
+    .sort((a, b) => {
+      if (a.stage === 'FINAL' && b.stage !== 'FINAL') return -1;
+      if (a.stage !== 'FINAL' && b.stage === 'FINAL') return 1;
+      return 0;
+    });
 
   const juryMenus = [
     { id: 'DASHBOARD' as const, label: '1. Dashboard', shortLabel: 'Dashboard', icon: LayoutDashboard },
@@ -2009,6 +2092,47 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
           ))}
         </div>
 
+        {/* Banner Tahap Final Top 5 & Download Rubrik Offline */}
+        {assignments.some((a) => a.stage === 'FINAL') && (
+          <div className="rounded-2xl bg-gradient-to-r from-[#FFFBEB] via-white to-[#EFF6FF] dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border-2 border-[#FFB800] p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 shadow-xs">
+            <div className="space-y-1">
+              <div className="text-xs font-black uppercase tracking-wide text-[#B45309] dark:text-[#FFB800]">
+                Tahap Penilaian Selanjutnya · Babak Final Top 5
+              </div>
+              <h3 className="font-display font-black text-base sm:text-lg text-slate-950 dark:text-white">
+                5 Finalis Lolos Siap Dinilai (Paparan 7 Menit + Tanya Jawab 8 Menit)
+              </h3>
+              <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
+                Gunakan tombol di samping untuk langsung memfilter daftar 5 Finalis atau mengunduh rubrik penilaian offline (ukuran A4 / Word / PDF) untuk penjurian luring.
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-2 shrink-0">
+              <button
+                type="button"
+                onClick={() => setStageFilter('FINAL')}
+                className="px-4 py-2.5 rounded-xl bg-[#004AAD] hover:bg-[#003B8E] text-white font-black text-xs inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              >
+                <Award className="w-4 h-4 text-[#FFD000]" />
+                <span>Lihat 5 Finalis (Tahap Final)</span>
+              </button>
+              <button
+                type="button"
+                onClick={() =>
+                  setOfflineRubricModal({
+                    open: true,
+                    stage: 'FINAL',
+                    target: null
+                  })
+                }
+                className="px-4 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap shadow-xs"
+              >
+                <Download className="w-4 h-4" />
+                <span>Download Rubrik Final Offline (A4)</span>
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Views based on activeNav */}
         {(activeNav === 'DASHBOARD' || activeNav === 'DAFTAR_KARYA' || activeNav === 'PENILAIAN_SAYA') && (
           <div className="space-y-5">
@@ -2019,21 +2143,37 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
                   : 'Daftar Karya Peserta yang Ditugaskan'}
               </h2>
 
-              <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-xl self-start">
-                {(['ALL', 'PENYISIHAN', 'FINAL'] as const).map((st) => (
-                  <button
-                    key={st}
-                    type="button"
-                    onClick={() => setStageFilter(st)}
-                    className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-colors cursor-pointer ${
-                      stageFilter === st
-                        ? 'bg-[#004AAD] text-white dark:bg-[#FFB800] dark:text-slate-950'
-                        : 'text-slate-800 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    {st === 'ALL' ? 'Semua Tahap' : st}
-                  </button>
-                ))}
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() =>
+                    setOfflineRubricModal({
+                      open: true,
+                      stage: stageFilter === 'PENYISIHAN' ? 'PENYISIHAN' : 'FINAL',
+                      target: null
+                    })
+                  }
+                  className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-black text-xs inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                >
+                  <Download className="w-3.5 h-3.5" />
+                  <span>Rubrik Offline</span>
+                </button>
+                <div className="flex items-center gap-1.5 p-1.5 bg-slate-100 dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 rounded-xl self-start">
+                  {(['ALL', 'PENYISIHAN', 'FINAL'] as const).map((st) => (
+                    <button
+                      key={st}
+                      type="button"
+                      onClick={() => setStageFilter(st)}
+                      className={`px-3.5 py-1.5 rounded-lg text-xs font-black transition-colors cursor-pointer ${
+                        stageFilter === st
+                          ? 'bg-[#004AAD] text-white dark:bg-[#FFB800] dark:text-slate-950'
+                          : 'text-slate-800 dark:text-slate-300 hover:bg-white dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      {st === 'ALL' ? 'Semua Tahap' : st}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -2324,6 +2464,26 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
           })}
         </div>
       </div>
+      {/* Modal Download Rubrik Penilaian Offline (A4) */}
+      <OfflineRubricModal
+        isOpen={offlineRubricModal.open}
+        onClose={() => setOfflineRubricModal((prev) => ({ ...prev, open: false }))}
+        stage={offlineRubricModal.stage}
+        criteria={allCriteria}
+        juryName={jury?.full_name || ''}
+        juryCategory={jury?.jury_category || ''}
+        fk3sLogo={mainLogoUrl}
+        mainHgnLogo={hgnLogoUrl}
+        targetParticipant={offlineRubricModal.target}
+        allStageTargets={assignments
+          .filter((a) => a.stage === offlineRubricModal.stage && a.participant)
+          .map((a) => ({
+            participant_id: a.participant!.participant_id,
+            full_name: a.participant!.full_name,
+            school: a.participant!.school,
+            innovation_title: a.participant!.innovation_title
+          }))}
+      />
     </div>
   );
 };

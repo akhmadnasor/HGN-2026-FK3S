@@ -19,6 +19,7 @@ import {
 } from '../types';
 import { Icon3D } from './Icons3D';
 import { formatRupiah } from '../utils/embedHelper';
+import { OfficialTop5AnnouncementModal, OfflineRubricModal } from './OfficialDocuments';
 import {
   LayoutDashboard,
   Palette,
@@ -138,6 +139,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   // Sub-states for Kriteria Penilaian (Menu 7)
   const [criteriaStageTab, setCriteriaStageTab] = useState<JudgingStage>('PENYISIHAN');
   const [previewJuryForm, setPreviewJuryForm] = useState(false);
+  const [showAdminTop5A4, setShowAdminTop5A4] = useState(false);
+  const [showAdminOfflineRubric, setShowAdminOfflineRubric] = useState(false);
 
   // Sub-states for Monitoring Penjurian (Menu 8)
   const [monitorStageFilter, setMonitorStageFilter] = useState<'ALL' | 'PENYISIHAN' | 'FINAL'>('ALL');
@@ -3356,20 +3359,38 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       Pilih hingga 5 peserta terbaik dari peringkat penyisihan. Pengumuman tidak dipublikasikan otomatis tanpa persetujuan Anda.
                     </p>
                   </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      const best5 = recapList
-                        .filter((r) => r.stage === 'PENYISIHAN' && r.evaluation_complete)
-                        .sort((a, b) => (a.rank || 999) - (b.rank || 999))
-                        .slice(0, 5)
-                        .map((r) => r.participant_id);
-                      setSelectedTop5Ids(best5);
-                    }}
-                    className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-amber-300"
-                  >
-                    Pilih Otomatis 5 Peringkat Teratas
-                  </button>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminTop5A4(true)}
+                      className="px-3.5 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                    >
+                      <Printer className="w-3.5 h-3.5" />
+                      <span>Pengumuman Top 5 (A4)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowAdminOfflineRubric(true)}
+                      className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                    >
+                      <Download className="w-3.5 h-3.5" />
+                      <span>Rubrik Final Offline (A4)</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const best5 = recapList
+                          .filter((r) => r.stage === 'PENYISIHAN' && r.evaluation_complete)
+                          .sort((a, b) => (a.rank || 999) - (b.rank || 999))
+                          .slice(0, 5)
+                          .map((r) => r.participant_id);
+                        setSelectedTop5Ids(best5);
+                      }}
+                      className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-xs font-semibold text-amber-300 cursor-pointer whitespace-nowrap"
+                    >
+                      Pilih Otomatis 5 Peringkat Teratas
+                    </button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -4017,6 +4038,56 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
           })}
         </div>
       </div>
+      <OfficialTop5AnnouncementModal
+        isOpen={showAdminTop5A4}
+        onClose={() => setShowAdminTop5A4(false)}
+        fk3sLogo={
+          settingsForm.app_icon_url ||
+          'https://lh3.googleusercontent.com/d/13M5y3gnxVP6cUPGKRXqdYqmHxFjPAvpD'
+        }
+        mainHgnLogo={
+          settingsForm.main_logo_url ||
+          'https://lh3.googleusercontent.com/d/1_q1kZ4MJoP6VQR7qs61HId_k_HHXB4oe'
+        }
+        organizer={settingsForm.organizer || 'FK3S KEC. BEJI'}
+        top5={finalisPemenang
+          .filter((f) => f.selection_type === 'TOP_5')
+          .map((f) => {
+            const p = participants.find((item) => item.participant_id === f.participant_id);
+            return {
+              ...f,
+              full_name: p?.full_name || '-',
+              school: p?.school || '-',
+              innovation_title: p?.innovation_title || '-'
+            };
+          })}
+      />
+
+      <OfflineRubricModal
+        isOpen={showAdminOfflineRubric}
+        onClose={() => setShowAdminOfflineRubric(false)}
+        stage="FINAL"
+        criteria={criteriaList}
+        fk3sLogo={
+          settingsForm.app_icon_url ||
+          'https://lh3.googleusercontent.com/d/13M5y3gnxVP6cUPGKRXqdYqmHxFjPAvpD'
+        }
+        mainHgnLogo={
+          settingsForm.main_logo_url ||
+          'https://lh3.googleusercontent.com/d/1_q1kZ4MJoP6VQR7qs61HId_k_HHXB4oe'
+        }
+        allStageTargets={finalisPemenang
+          .filter((f) => f.selection_type === 'TOP_5')
+          .map((f) => {
+            const p = participants.find((item) => item.participant_id === f.participant_id);
+            return {
+              participant_id: f.participant_id,
+              full_name: p?.full_name || '-',
+              school: p?.school || '-',
+              innovation_title: p?.innovation_title || '-'
+            };
+          })}
+      />
     </div>
   );
 };

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { PublicDataPayload } from '../types';
 import { Icon3D } from './Icons3D';
 import { formatRupiah } from '../utils/embedHelper';
+import { OfficialTop5AnnouncementModal } from './OfficialDocuments';
 import {
   ExternalLink,
   CheckCircle2,
@@ -112,6 +113,7 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
     submitted_at?: string;
   } | null>(null);
   const [copiedCertId, setCopiedCertId] = useState(false);
+  const [showTop5AnnouncementA4, setShowTop5AnnouncementA4] = useState(false);
 
   const mainScrollRef = useRef<HTMLElement | null>(null);
   const scrollToTop = () => {
@@ -1308,13 +1310,23 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
 
                   {berandaTab === 'PENGUMUMAN' && (
                     <div className="h-full flex flex-col justify-between gap-4">
-                      <div>
-                        <span className="text-xs font-black uppercase tracking-wider text-[#EA580C] dark:text-[#FFB800]">
-                          PAPAN INFORMASI RESMI
-                        </span>
-                        <h2 className="font-display font-black text-xl text-slate-950 dark:text-white">
-                          Pengumuman Panitia {organizer}
-                        </h2>
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                        <div>
+                          <span className="text-xs font-black uppercase tracking-wider text-[#EA580C] dark:text-[#FFB800]">
+                            PAPAN INFORMASI RESMI
+                          </span>
+                          <h2 className="font-display font-black text-xl text-slate-950 dark:text-white">
+                            Pengumuman Panitia {organizer}
+                          </h2>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setShowTop5AnnouncementA4(true)}
+                          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FFD000] via-[#FFB800] to-[#FF9000] hover:brightness-105 text-slate-950 font-black text-xs inline-flex items-center gap-2 shadow-sm cursor-pointer self-start sm:self-auto whitespace-nowrap shrink-0"
+                        >
+                          <Printer className="w-4 h-4" />
+                          <span>Buka Pengumuman Top 5 (A4)</span>
+                        </button>
                       </div>
 
                       {data.pengumuman.length === 0 ? (
@@ -1323,29 +1335,54 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 flex-1">
-                          {data.pengumuman.map((ann) => (
-                            <article
-                              key={ann.announcement_id}
-                              className="rounded-2xl bg-[#F8FAFC] dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 p-4 flex flex-col justify-between"
-                            >
-                              <div>
-                                <div className="flex items-center justify-between gap-2 mb-2">
-                                  <span className="px-2.5 py-1 rounded-md bg-[#004AAD] text-white text-[11px] font-black uppercase">
-                                    {ann.category}
-                                  </span>
-                                  <span className="font-mono font-bold text-xs text-slate-700 dark:text-slate-300">
-                                    {ann.publication_date}
-                                  </span>
+                          {data.pengumuman.map((ann) => {
+                            const isTop5Ann =
+                              ann.announcement_id === 'ANN-TOP5-2026' ||
+                              ann.title.toLowerCase().includes('top 5') ||
+                              ann.title.toLowerCase().includes('finalis');
+                            return (
+                              <article
+                                key={ann.announcement_id}
+                                className={`rounded-2xl bg-[#F8FAFC] dark:bg-slate-900 border-2 p-4 flex flex-col justify-between gap-3 ${
+                                  isTop5Ann
+                                    ? 'border-[#004AAD] dark:border-[#FFB800] sm:col-span-2'
+                                    : 'border-slate-300 dark:border-slate-700'
+                                }`}
+                              >
+                                <div>
+                                  <div className="flex items-center justify-between gap-2 mb-2">
+                                    <span className="text-xs font-extrabold text-[#004AAD] dark:text-[#FFB800]">
+                                      {ann.category}
+                                    </span>
+                                    <span className="font-mono font-bold text-xs text-slate-600 dark:text-slate-400">
+                                      {ann.publication_date}
+                                    </span>
+                                  </div>
+                                  <h3 className="font-display font-black text-base text-slate-950 dark:text-white mb-1.5">
+                                    {ann.title}
+                                  </h3>
+                                  <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 leading-relaxed">
+                                    {ann.content}
+                                  </p>
                                 </div>
-                                <h3 className="font-display font-black text-base text-slate-950 dark:text-white mb-1.5">
-                                  {ann.title}
-                                </h3>
-                                <p className="text-xs sm:text-sm font-semibold text-slate-800 dark:text-slate-200 leading-relaxed">
-                                  {ann.content}
-                                </p>
-                              </div>
-                            </article>
-                          ))}
+                                {isTop5Ann && (
+                                  <div className="pt-2 border-t border-slate-200 dark:border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">
+                                      Dokumen Resmi Surat Pengumuman 5 Finalis Lolos (Kop FK3S &amp; HGN 2026, Ukuran A4)
+                                    </span>
+                                    <button
+                                      type="button"
+                                      onClick={() => setShowTop5AnnouncementA4(true)}
+                                      className="px-3.5 py-2 rounded-xl bg-[#004AAD] hover:bg-[#003B8E] text-white dark:bg-[#FFB800] dark:text-slate-950 font-black text-xs inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+                                    >
+                                      <Printer className="w-3.5 h-3.5" />
+                                      <span>Lihat &amp; Cetak Surat Pengumuman (A4)</span>
+                                    </button>
+                                  </div>
+                                )}
+                              </article>
+                            );
+                          })}
                         </div>
                       )}
                     </div>
@@ -1413,7 +1450,7 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
 
                       {data.winners.length > 0 || data.top5.length > 0 ? (
                         <div className="space-y-3 flex-1">
-                          <div className="flex items-center justify-between">
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                             <div>
                               <span className="text-xs font-black uppercase tracking-wider text-[#EA580C] dark:text-[#FFB800]">
                                 KEPUTUSAN RESMI DEWAN JURI
@@ -1424,6 +1461,14 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                                   : 'Daftar Finalis Top 5 HGN Beji 2026'}
                               </h2>
                             </div>
+                            <button
+                              type="button"
+                              onClick={() => setShowTop5AnnouncementA4(true)}
+                              className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FFD000] via-[#FFB800] to-[#FF9000] hover:brightness-105 text-slate-950 font-black text-xs inline-flex items-center gap-2 shadow-sm cursor-pointer self-start sm:self-auto whitespace-nowrap shrink-0"
+                            >
+                              <Printer className="w-4 h-4" />
+                              <span>Cetak Pengumuman Resmi (A4)</span>
+                            </button>
                           </div>
 
                           <div className="overflow-x-auto rounded-2xl border-2 border-slate-300 dark:border-slate-700">
@@ -3205,6 +3250,15 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
           </div>
         </div>
       )}
+      {/* POP-UP SURAT PENGUMUMAN RESMI TOP 5 FINALIS (UKURAN A4) */}
+      <OfficialTop5AnnouncementModal
+        isOpen={showTop5AnnouncementA4}
+        onClose={() => setShowTop5AnnouncementA4(false)}
+        fk3sLogo={fk3sLogo}
+        mainHgnLogo={mainHgnLogo}
+        organizer={organizer}
+        top5={data.top5}
+      />
     </div>
   );
 };

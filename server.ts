@@ -755,6 +755,32 @@ function normalizeSchoolRecords(rawSchools: any[]): DatabaseSchema['SEKOLAH'] {
 
 function applyRemoteDatabaseSnapshot(remoteData: any) {
   if (!remoteData || typeof remoteData !== 'object') return;
+  if (Array.isArray(remoteData.PENGATURAN) && remoteData.PENGATURAN.length > 0) {
+    const syncKeys = new Set([
+      'active_judging_stage',
+      'preliminary_results_published',
+      'final_results_published',
+      'submission_enabled',
+      'jury_portal_enabled'
+    ]);
+    remoteData.PENGATURAN.forEach((remoteSetting: any) => {
+      const k = String(remoteSetting?.key || '').trim();
+      if (!syncKeys.has(k)) return;
+      const val = String(remoteSetting?.value ?? '');
+      const localSetting = db.PENGATURAN.find((s) => s.key === k);
+      if (localSetting) {
+        localSetting.value = val;
+        if (remoteSetting?.updated_at) localSetting.updated_at = String(remoteSetting.updated_at);
+      } else {
+        db.PENGATURAN.push({
+          key: k,
+          value: val,
+          description: String(remoteSetting?.description || k),
+          updated_at: String(remoteSetting?.updated_at || nowJakarta())
+        });
+      }
+    });
+  }
   if (Array.isArray(remoteData.SEKOLAH) && remoteData.SEKOLAH.length > 0) {
     const normalized = normalizeSchoolRecords(remoteData.SEKOLAH);
     if (normalized.length > 0) {
@@ -771,11 +797,37 @@ function applyRemoteDatabaseSnapshot(remoteData: any) {
   }
   if (Array.isArray(remoteData.PENUGASAN_JURI)) db.PENUGASAN_JURI = remoteData.PENUGASAN_JURI;
   if (Array.isArray(remoteData.PENILAIAN)) db.PENILAIAN = remoteData.PENILAIAN;
-  if (Array.isArray(remoteData.DETAIL_NILAI)) db.DETAIL_NILAI = remoteData.DETAIL_NILAI;
-  if (Array.isArray(remoteData.REKAP_PENILAIAN)) db.REKAP_PENILAIAN = remoteData.REKAP_PENILAIAN;
-  if (Array.isArray(remoteData.FINALIS_PEMENANG)) db.FINALIS_PEMENANG = remoteData.FINALIS_PEMENANG;
+  if (Array.isArray(remoteData.DETAIL_NILAI)) {
+    const localIndicatorMap = new Map<string, string>();
+    (db.DETAIL_NILAI || []).forEach((d) => {
+      if (d.detail_id && d.indicator_scores_json) {
+        localIndicatorMap.set(d.detail_id, d.indicator_scores_json);
+      }
+    });
+    db.DETAIL_NILAI = remoteData.DETAIL_NILAI.map((d: any) => ({
+      ...d,
+      indicator_scores_json: d.indicator_scores_json || localIndicatorMap.get(d.detail_id) || undefined
+    }));
+  }
+  if (Array.isArray(remoteData.REKAP_PENILAIAN)) {
+    db.REKAP_PENILAIAN = remoteData.REKAP_PENILAIAN.map((r: any) => ({
+      ...r,
+      evaluation_complete: r.evaluation_complete === true || String(r.evaluation_complete).toLowerCase() === 'true',
+      is_tied: r.is_tied === true || String(r.is_tied).toLowerCase() === 'true',
+      admin_exception: r.admin_exception === true || String(r.admin_exception).toLowerCase() === 'true'
+    }));
+  }
+  if (Array.isArray(remoteData.FINALIS_PEMENANG)) {
+    db.FINALIS_PEMENANG = remoteData.FINALIS_PEMENANG.map((f: any) => ({
+      ...f,
+      published: f.published === true || String(f.published).toLowerCase() === 'true'
+    }));
+  }
   if (Array.isArray(remoteData.PENGUMUMAN) && remoteData.PENGUMUMAN.length > 0) {
-    db.PENGUMUMAN = remoteData.PENGUMUMAN;
+    db.PENGUMUMAN = remoteData.PENGUMUMAN.map((a: any) => ({
+      ...a,
+      published: a.published === true || String(a.published).toLowerCase() === 'true'
+    }));
   }
 }
 
@@ -989,16 +1041,26 @@ function recalculateRecapForStage(stage: 'PENYISIHAN' | 'FINAL') {
   );
   const stageEvaluations = db.PENILAIAN.filter((e) => e.stage === stage);
 
-  // Determine eligible participants for this stage
+  // Determine eligible unique participants for this stage (deduplicated by participant_id)
+  const seenEligible = new Set<string>();
   const eligibleParticipants = db.PESERTA.filter((p) => {
+    if (!p.participant_id || seenEligible.has(p.participant_id)) return false;
     if (p.verification_status === 'DIKECUALIKAN') return false;
     if (stage === 'FINAL') {
       const isTop5 = db.FINALIS_PEMENANG.some(
         (f) => f.participant_id === p.participant_id && f.selection_type === 'TOP_5'
       );
-      return isTop5;
+      if (isTop5) {
+        seenEligible.add(p.participant_id);
+        return true;
+      }
+      return false;
     }
-    return p.verification_status === 'TERVERIFIKASI' || activeAssignments.some((a) => a.participant_id === p.participant_id);
+    const ok =
+      p.verification_status === 'TERVERIFIKASI' ||
+      activeAssignments.some((a) => a.participant_id === p.participant_id);
+    if (ok) seenEligible.add(p.participant_id);
+    return ok;
   });
 
   const stageRecaps: DatabaseSchema['REKAP_PENILAIAN'] = eligibleParticipants.map((p) => {

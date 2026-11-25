@@ -44,7 +44,7 @@ var TABLES = {
   ],
   DETAIL_NILAI: [
     'detail_id', 'evaluation_id', 'criterion_id', 'criterion_name_snapshot',
-    'weight_snapshot', 'score', 'weighted_score', 'criterion_notes', 'updated_at'
+    'weight_snapshot', 'score', 'weighted_score', 'indicator_scores_json', 'criterion_notes', 'updated_at'
   ],
   REKAP_PENILAIAN: [
     'participant_id', 'stage', 'required_jurors', 'finalized_jurors',
@@ -577,7 +577,10 @@ function calculateStageRankings(stage) {
   var recapRows = [];
   var now = nowJakarta();
 
+  var seenIds = {};
   participants.forEach(function(p) {
+    if (!p.participant_id || seenIds[p.participant_id]) return;
+    seenIds[p.participant_id] = true;
     var reqJurors = assignments.filter(function(a) { return a.participant_id === p.participant_id; }).length;
     var finEvals = evaluations.filter(function(e) {
       return e.participant_id === p.participant_id && e.evaluation_status === 'FINAL';

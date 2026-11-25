@@ -3496,7 +3496,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                       onChange={(e) =>
                         setSettingsForm((prev) => ({ ...prev, top5_announcement_at: e.target.value }))
                       }
-                      placeholder="2026-11-26T07:00:00+07:00"
+                      placeholder="2026-11-26T10:30:00+07:00"
                       className="rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white w-56"
                     />
                     <button

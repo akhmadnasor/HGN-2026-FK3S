@@ -166,7 +166,7 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
     return () => clearInterval(timer);
   }, [deadlineStr, submissionEnabled]);
 
-  // Scheduled Top 5 Announcement Countdown (e.g. Besok 26 Nov 2026 07:00 WIB)
+  // Scheduled Top 5 Announcement Countdown (e.g. 26 Nov 2026 10:30 WIB)
   const top5AnnouncementAt = settings.top5_announcement_at || '';
   const top5Unlocked = data.top5.length > 0;
   const isTop5ScheduledPending =
@@ -212,10 +212,26 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
     return () => clearInterval(timer);
   }, [top5AnnouncementAt, top5Unlocked, onRefreshPublicData]);
 
+  const formatTop5TimeWib = (isoStr: string) => {
+    try {
+      const d = new Date(isoStr);
+      if (Number.isNaN(d.getTime())) return '10.30 WIB';
+      const timePart = new Intl.DateTimeFormat('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(d);
+      return `${timePart.replace(':', '.')} WIB`;
+    } catch {
+      return '10.30 WIB';
+    }
+  };
+
   const formatTop5ScheduleWib = (isoStr: string) => {
     try {
       const d = new Date(isoStr);
-      if (Number.isNaN(d.getTime())) return 'Kamis, 26 November 2026 · Pukul 07.00 WIB';
+      if (Number.isNaN(d.getTime())) return 'Kamis, 26 November 2026 · Pukul 10.30 WIB';
       const datePart = new Intl.DateTimeFormat('id-ID', {
         timeZone: 'Asia/Jakarta',
         weekday: 'long',
@@ -223,15 +239,9 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
         month: 'long',
         year: 'numeric'
       }).format(d);
-      const timePart = new Intl.DateTimeFormat('id-ID', {
-        timeZone: 'Asia/Jakarta',
-        hour: '2-digit',
-        minute: '2-digit',
-        hour12: false
-      }).format(d);
-      return `${datePart} · Pukul ${timePart.replace(':', '.')} WIB`;
+      return `${datePart} · Pukul ${formatTop5TimeWib(isoStr)}`;
     } catch {
-      return 'Kamis, 26 November 2026 · Pukul 07.00 WIB';
+      return 'Kamis, 26 November 2026 · Pukul 10.30 WIB';
     }
   };
 
@@ -1411,7 +1421,7 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                               Pengumuman 5 Finalis Terbaik Dibuka {formatTop5ScheduleWib(top5AnnouncementAt)}
                             </h3>
                             <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 leading-relaxed">
-                              Hasil penilaian Dewan Juri telah difinalisasi. Daftar nama 5 Finalis lolos Babak Final beserta surat pengumuman resmi ukuran A4 akan terbuka secara otomatis tepat pukul 07.00 WIB.
+                              Hasil penilaian Dewan Juri telah difinalisasi. Daftar nama 5 Finalis lolos Babak Final beserta surat pengumuman resmi ukuran A4 akan terbuka secara otomatis tepat pukul {formatTop5TimeWib(top5AnnouncementAt)}.
                             </p>
                           </div>
                           <div className="flex items-center gap-2 shrink-0 font-mono tabular-nums">
@@ -1625,7 +1635,7 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                                 </div>
                                 <h3 className="font-display font-black text-lg sm:text-xl text-slate-950 dark:text-white mt-0.5">
                                   {isTop5ScheduledPending
-                                    ? 'Pengumuman Resmi Top 5 Dibuka Pukul 07.00 WIB'
+                                    ? `Pengumuman Resmi Top 5 Dibuka Pukul ${formatTop5TimeWib(top5AnnouncementAt)}`
                                     : 'Menunggu Tahap Penilaian & Pengesahan Dewan Juri'}
                                 </h3>
                                 {isTop5ScheduledPending && (

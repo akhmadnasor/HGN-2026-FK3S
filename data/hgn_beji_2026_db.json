@@ -152,9 +152,9 @@
     },
     {
       "key": "top5_announcement_at",
-      "value": "2026-11-26T07:00:00+07:00",
+      "value": "2026-11-26T10:30:00+07:00",
       "description": "Jadwal rilis otomatis pengumuman Top 5 (WIB)",
-      "updated_at": "2026-11-25T09:42:00+07:00"
+      "updated_at": "2026-11-26T00:28:49+07:00"
     }
   ],
   "JUKNIS": [
@@ -1515,128 +1515,145 @@
       "admin_notes": "",
       "created_at": "2026-11-01T00:35:39+07:00",
       "updated_at": "2026-11-23T08:43:18+07:00"
+    },
+    {
+      "jury_id": "JURI-03-507",
+      "full_name": "AYUB, M.Pd",
+      "identity_number": "-",
+      "jury_category": "Pengawas",
+      "institution": "Pengawas Dinas",
+      "whatsapp": "",
+      "username": "juri03",
+      "password_verifier": "b68552efbe9385526e2409e08163ee2e838c64b13ef99f62119c9740c3b278ff9ae141e38c6a5f13b80b8fa2e40735ad4ff830610f8329e5979526ab5f72e386",
+      "password_salt": "bfb5e4d4df25cf85c191c29adc6bb5db",
+      "must_change_password": false,
+      "account_status": "AKTIF",
+      "assigned_stages": "FINAL",
+      "admin_notes": "",
+      "created_at": "2026-11-25T11:07:56+07:00",
+      "updated_at": "2026-11-25T11:09:13+07:00"
     }
   ],
   "KRITERIA_PENILAIAN": [
     {
       "criterion_id": "KRIT-PENY-1",
       "stage": "PENYISIHAN",
-      "rubric_version": 1,
+      "rubric_version": 2,
       "criterion_name": "Pedagogik & Inovasi",
       "description": "Penilaian kedalaman pedagogik, orisinalitas inovasi, penerapan Deep Learning (Joyful, Meaningful, Mindful), serta kesesuaian Modul Ajar.",
-      "indicators_json": "[\"Relevansi inovasi pembelajaran dengan kebutuhan belajar siswa\",\"Orisinalitas dan kreativitas metode atau media pembelajaran\",\"Penerapan prinsip Joyful Learning (pembelajaran menyenangkan)\",\"Penerapan prinsip Meaningful Learning (pembelajaran bermakna)\",\"Penerapan prinsip Mindful Learning (pembelajaran berkesadaran)\"]",
+      "indicators_json": "[\"Orisinalitas ide inovasi metode/media serta relevansinya dengan kebutuhan nyata belajar siswa\",\"Implementasi nyata prinsip Deep Learning (Joyful, Meaningful, dan Mindful Learning) dalam pembelajaran\",\"Kelengkapan, keterpaduan, dan kesesuaian Modul Ajar dengan praktik pelaksanaan nyata di kelas\"]",
       "weight_percentage": 40,
       "minimum_score": 0,
       "maximum_score": 100,
       "display_order": 1,
       "active": true,
       "created_at": "2026-10-31T19:45:05+07:00",
-      "updated_at": "2026-11-23T08:39:34+07:00"
+      "updated_at": "2026-11-26T00:28:49+07:00"
     },
     {
       "criterion_id": "KRIT-PENY-2",
       "stage": "PENYISIHAN",
-      "rubric_version": 1,
+      "rubric_version": 2,
       "criterion_name": "Dampak / Hasil Nyata",
       "description": "Penilaian implementasi alur STAR (Situasi, Tantangan, Aksi, Refleksi), bukti nyata di kelas, testimoni, serta dampak bagi siswa.",
-      "indicators_json": "[\"Kejelasan identifikasi masalah awal pembelajaran (Situasi)\",\"Relevansi tantangan yang dihadapi guru di kelas (Tantangan)\",\"Ketepatan langkah nyata dalam kerangka alur STAR (Aksi)\",\"Kualitas refleksi hasil pembelajaran dan rencana tindak lanjut (Refleksi)\"]",
+      "indicators_json": "[\"Keruntutan dan ketajaman alur STAR (Situasi, Tantangan, Aksi, Refleksi) dalam memecahkan masalah kelas\",\"Bukti autentik keterlaksanaan serta peningkatan terukur pada hasil belajar dan motivasi siswa\",\"Kualitas testimoni autentik (siswa/rekan sejawat/kepala sekolah) dan rencana tindak lanjut keberlanjutan\"]",
       "weight_percentage": 35,
       "minimum_score": 0,
       "maximum_score": 100,
       "display_order": 2,
       "active": true,
       "created_at": "2026-10-31T19:45:05+07:00",
-      "updated_at": "2026-11-23T08:39:34+07:00"
+      "updated_at": "2026-11-26T00:28:49+07:00"
     },
     {
       "criterion_id": "KRIT-PENY-3",
       "stage": "PENYISIHAN",
-      "rubric_version": 1,
+      "rubric_version": 2,
       "criterion_name": "Kualitas Teknis Video",
       "description": "Penilaian ketepatan durasi 5–7 menit, kejelasan visual & audio, penyuntingan, serta kelengkapan bukti dokumentasi.",
-      "indicators_json": "[\"Kesesuaian durasi video (minimal 5 menit dan maksimal 7 menit)\",\"Struktur alur penyajian video yang runtut dan komunikatifKreativitas penyuntingan (editing) dan estetika grafis pendukung\",\"Kejelasan artikulasi dan narasi penjelasan guru\",\"Kelengkapan dan keterbacaan bukti visual serta dokumentasi media pembelajaran\"]",
+      "indicators_json": "[\"Kepatuhan durasi video (5–7 menit) dengan alur penyajian yang runtut, padat, dan komunikatif\",\"Kejernihan kualitas visual, pencahayaan, audio narasi guru, serta estetika penyuntingan (editing)\",\"Kelengkapan dan keterbacaan dokumentasi media pembelajaran serta bukti visual aktivitas siswa\"]",
       "weight_percentage": 25,
       "minimum_score": 0,
       "maximum_score": 100,
       "display_order": 3,
       "active": true,
       "created_at": "2026-10-31T19:45:05+07:00",
-      "updated_at": "2026-11-23T08:39:34+07:00"
+      "updated_at": "2026-11-26T00:28:49+07:00"
     },
     {
       "criterion_id": "KRIT-FIN-1",
       "stage": "FINAL",
-      "rubric_version": 2,
+      "rubric_version": 3,
       "criterion_name": "Presentasi & Tanya Jawab",
       "description": "Kualitas penyampaian paparan luring (7 menit), penguasaan panggung, demonstrasi media, serta ketajaman menjawab pertanyaan Dewan Juri (8 menit).",
-      "indicators_json": "[\"Sistematika alur paparan, kejelasan artikulasi, dan penguasaan panggung selama 7 menit presentasi\",\"Ketepatan manajemen waktu presentasi (7 menit) serta efektivitas demonstrasi media/alat peraga secara langsung\",\"Ketajaman, ketepatan, dan penguasaan konsep saat menjawab pertanyaan Dewan Juri (sesi tanya jawab 8 menit)\",\"Sikap profesional, kepercayaan diri, kejujuran akademik, dan kemampuan mempertanggungjawabkan orisinalitas karya\"]",
+      "indicators_json": "[\"Kejelasan alur paparan, penguasaan panggung, dan ketepatan manajemen waktu presentasi (7 menit)\",\"Efektivitas demonstrasi langsung media/alat peraga inovasi beserta keterkaitannya dengan praktik kelas\",\"Ketajaman argumentasi, kejujuran akademik, dan ketepatan menjawab pertanyaan Dewan Juri (8 menit)\"]",
       "weight_percentage": 20,
       "minimum_score": 0,
       "maximum_score": 100,
       "display_order": 1,
       "active": true,
       "created_at": "2026-11-25T09:55:00+07:00",
-      "updated_at": "2026-11-25T09:55:00+07:00"
+      "updated_at": "2026-11-26T00:28:49+07:00"
     },
     {
       "criterion_id": "KRIT-FIN-2",
       "stage": "FINAL",
-      "rubric_version": 2,
+      "rubric_version": 3,
       "criterion_name": "Ide Inovasi Pembelajaran",
       "description": "Kebaruan, orisinalitas, relevansi ide inovasi terhadap kebutuhan belajar siswa, keterpaduan Modul Ajar, serta potensi replikasi.",
-      "indicators_json": "[\"Kebaruan (orisinalitas) dan kreativitas ide inovasi metode, strategi, atau media pembelajaran\",\"Relevansi ide inovasi dengan permasalahan nyata belajar siswa di kelas serta karakteristik kurikulum\",\"Keterpaduan perencanaan Modul Ajar dengan rancangan inovasi dan asesmen pembelajaran\",\"Kemudahan replikasi dan potensi keberlanjutan inovasi untuk diterapkan oleh guru atau sekolah lain\"]",
+      "indicators_json": "[\"Orisinalitas, kebaruan, dan daya beda ide inovasi metode/media dibandingkan praktik pembelajaran konvensional\",\"Relevansi langsung inovasi terhadap kebutuhan belajar siswa, capaian kurikulum, dan keterpaduan Modul Ajar\",\"Potensi replikasi, skalabilitas, dan keberlanjutan penerapan inovasi oleh guru atau satuan pendidikan lain\"]",
       "weight_percentage": 20,
       "minimum_score": 0,
       "maximum_score": 100,
       "display_order": 2,
       "active": true,
       "created_at": "2026-11-25T09:55:00+07:00",
-      "updated_at": "2026-11-25T09:55:00+07:00"
+      "updated_at": "2026-11-26T00:28:49+07:00"
     },
     {
       "criterion_id": "KRIT-FIN-3",
       "stage": "FINAL",
-      "rubric_version": 2,
+      "rubric_version": 3,
       "criterion_name": "Prinsip Deep Learning",
       "description": "Implementasi nyata ketiga pilar Pembelajaran Mendalam (Joyful, Meaningful, dan Mindful Learning) secara terpadu di kelas.",
-      "indicators_json": "[\"Penerapan prinsip Joyful Learning (menciptakan suasana belajar yang menggembirakan, aman, dan memotivasi siswa)\",\"Penerapan prinsip Meaningful Learning (pembelajaran kontekstual yang mengaitkan konsep dengan kehidupan nyata siswa)\",\"Penerapan prinsip Mindful Learning (mendorong kesadaran belajar, berpikir kritis, dan refleksi mandiri siswa)\",\"Keterpaduan utuh ketiga pilar Deep Learning dalam skenario pembelajaran dan interaksi aktif guru–siswa\"]",
+      "indicators_json": "[\"Joyful Learning: terciptanya atmosfer belajar yang menggembirakan, aman, inklusif, dan memicu antusiasme siswa\",\"Meaningful Learning: pembelajaran kontekstual yang mengaitkan konsep esensial dengan pengalaman hidup nyata siswa\",\"Mindful Learning: tumbuhnya kesadaran belajar, penalaran kritis, dan refleksi mandiri siswa selama proses belajar\"]",
       "weight_percentage": 20,
       "minimum_score": 0,
       "maximum_score": 100,
       "display_order": 3,
       "active": true,
       "created_at": "2026-11-25T09:55:00+07:00",
-      "updated_at": "2026-11-25T09:55:00+07:00"
+      "updated_at": "2026-11-26T00:28:49+07:00"
     },
     {
       "criterion_id": "KRIT-FIN-4",
       "stage": "FINAL",
-      "rubric_version": 2,
+      "rubric_version": 3,
       "criterion_name": "Prinsip Alur STAR",
       "description": "Kejelasan, keruntutan, dan ketajaman penerapan kerangka STAR (Situasi, Tantangan, Aksi, Refleksi) dalam praktik baik.",
-      "indicators_json": "[\"Kejelasan pemaparan Situasi (latar belakang masalah belajar awal yang spesifik dan berbasis data kelas)\",\"Ketajaman analisis Tantangan (identifikasi kendala nyata di sekolah/kelas beserta pihak yang terlibat)\",\"Ketepatan strategi Aksi (langkah konkret, terstruktur, dan pemanfaatan sumber daya/media pembelajaran)\",\"Kedalaman Refleksi (evaluasi objektif keberhasilan, kendala yang diatasi, serta rencana tindak lanjut konkret)\"]",
+      "indicators_json": "[\"Ketajaman diagnosis Situasi dan pemetaan Tantangan nyata di kelas berbasis data awal yang objektif\",\"Ketepatan dan keterstrukturan strategi Aksi konkret dalam memecahkan masalah belajar menggunakan sumber daya kelas\",\"Kedalaman Refleksi kritis terhadap efektivitas aksi, kendala yang teratasi, serta rencana tindak lanjut terukur\"]",
       "weight_percentage": 20,
       "minimum_score": 0,
       "maximum_score": 100,
       "display_order": 4,
       "active": true,
       "created_at": "2026-11-25T09:55:00+07:00",
-      "updated_at": "2026-11-25T09:55:00+07:00"
+      "updated_at": "2026-11-26T00:28:49+07:00"
     },
     {
       "criterion_id": "KRIT-FIN-5",
       "stage": "FINAL",
-      "rubric_version": 2,
+      "rubric_version": 3,
       "criterion_name": "Dampak Nyata & Hasil Pembelajaran",
       "description": "Bukti autentik keterlaksanaan, peningkatan hasil/motivasi belajar siswa yang terukur, testimoni autentik, serta pengimbasan.",
-      "indicators_json": "[\"Bukti autentik keterlaksanaan praktik baik di kelas (produk karya siswa, dokumentasi proses, dan lembar asesmen)\",\"Peningkatan terukur pada hasil belajar, partisipasi aktif, atau motivasi belajar siswa (perbandingan sebelum–sesudah)\",\"Kualitas dan kebermaknaan testimoni autentik (siswa, rekan sejawat, atau kepala sekolah)\",\"Dampak pengimbasan positif terhadap ekosistem belajar sekolah atau komunitas belajar guru (KKG)\"]",
+      "indicators_json": "[\"Bukti autentik keterlaksanaan inovasi (karya siswa, dokumentasi proses kelas, dan hasil asesmen nyata)\",\"Peningkatan terukur pada capaian belajar, partisipasi aktif, dan motivasi siswa (perbandingan sebelum–sesudah)\",\"Testimoni autentik (siswa/rekan sejawat/kepala sekolah) serta dampak pengimbasan ke komunitas belajar (KKG/sekolah)\"]",
       "weight_percentage": 20,
       "minimum_score": 0,
       "maximum_score": 100,
       "display_order": 5,
       "active": true,
       "created_at": "2026-11-25T09:55:00+07:00",
-      "updated_at": "2026-11-25T09:55:00+07:00"
+      "updated_at": "2026-11-26T00:28:49+07:00"
     }
   ],
   "PENUGASAN_JURI": [
@@ -2890,6 +2907,61 @@
       "stage": "FINAL",
       "assignment_status": "ACTIVE",
       "assigned_at": "2026-11-25T09:15:00+07:00",
+      "assigned_by": "ADMIN-01",
+      "conflict_flag": false,
+      "conflict_notes": ""
+    },
+    {
+      "assignment_id": "ASG-FIN-1795579847824-YL6W",
+      "jury_id": "JURI-03-507",
+      "participant_id": "HGN26-015",
+      "stage": "FINAL",
+      "assignment_status": "ACTIVE",
+      "assigned_at": "2026-11-25T11:10:47+07:00",
+      "assigned_by": "ADMIN-01",
+      "conflict_flag": false,
+      "conflict_notes": ""
+    },
+    {
+      "assignment_id": "ASG-FIN-1795579847824-HIGP",
+      "jury_id": "JURI-03-507",
+      "participant_id": "HGN26-025",
+      "stage": "FINAL",
+      "assignment_status": "ACTIVE",
+      "assigned_at": "2026-11-25T11:10:47+07:00",
+      "assigned_by": "ADMIN-01",
+      "conflict_flag": false,
+      "conflict_notes": ""
+    },
+    {
+      "assignment_id": "ASG-FIN-1795579847824-1HEO",
+      "jury_id": "JURI-03-507",
+      "participant_id": "HGN26-027",
+      "stage": "FINAL",
+      "assignment_status": "ACTIVE",
+      "assigned_at": "2026-11-25T11:10:47+07:00",
+      "assigned_by": "ADMIN-01",
+      "conflict_flag": false,
+      "conflict_notes": ""
+    },
+    {
+      "assignment_id": "ASG-FIN-1795579847824-VD9G",
+      "jury_id": "JURI-03-507",
+      "participant_id": "HGN26-001",
+      "stage": "FINAL",
+      "assignment_status": "ACTIVE",
+      "assigned_at": "2026-11-25T11:10:47+07:00",
+      "assigned_by": "ADMIN-01",
+      "conflict_flag": false,
+      "conflict_notes": ""
+    },
+    {
+      "assignment_id": "ASG-FIN-1795579847824-M5DF",
+      "jury_id": "JURI-03-507",
+      "participant_id": "HGN26-053",
+      "stage": "FINAL",
+      "assignment_status": "ACTIVE",
+      "assigned_at": "2026-11-25T11:10:47+07:00",
       "assigned_by": "ADMIN-01",
       "conflict_flag": false,
       "conflict_notes": ""

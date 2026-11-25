@@ -374,31 +374,19 @@ const DB_FILE = IS_SERVERLESS ? TMP_DB_FILE : BUNDLED_DB_FILE;
 function getInitialDatabase(): DatabaseSchema {
   const now = nowJakarta();
   const indPedagogik = JSON.stringify([
-    'Relevansi inovasi pembelajaran dengan kebutuhan belajar siswa',
-    'Orisinalitas dan kreativitas metode atau media pembelajaran',
-    'Penerapan prinsip Joyful Learning (pembelajaran menyenangkan)',
-    'Penerapan prinsip Meaningful Learning (pembelajaran bermakna)',
-    'Penerapan prinsip Mindful Learning (pembelajaran berkesadaran)',
-    'Kelengkapan dan keterpaduan Modul Ajar',
-    'Kesesuaian antara perencanaan Modul Ajar dan pelaksanaan nyata di kelas'
+    'Orisinalitas ide inovasi metode/media serta relevansinya dengan kebutuhan nyata belajar siswa',
+    'Implementasi nyata prinsip Deep Learning (Joyful, Meaningful, dan Mindful Learning) dalam pembelajaran',
+    'Kelengkapan, keterpaduan, dan kesesuaian Modul Ajar dengan praktik pelaksanaan nyata di kelas'
   ]);
   const indDampak = JSON.stringify([
-    'Kejelasan identifikasi masalah awal pembelajaran (Situasi)',
-    'Relevansi tantangan yang dihadapi guru di kelas (Tantangan)',
-    'Ketepatan langkah nyata dalam kerangka alur STAR (Aksi)',
-    'Bukti autentik aktivitas pembelajaran nyata bersama siswa',
-    'Dampak positif yang terukur terhadap hasil atau motivasi belajar siswa',
-    'Kualitas dan relevansi testimoni (siswa, rekan sejawat, atau kepala sekolah)',
-    'Kualitas refleksi hasil pembelajaran dan rencana tindak lanjut (Refleksi)'
+    'Keruntutan dan ketajaman alur STAR (Situasi, Tantangan, Aksi, Refleksi) dalam memecahkan masalah kelas',
+    'Bukti autentik keterlaksanaan serta peningkatan terukur pada hasil belajar dan motivasi siswa',
+    'Kualitas testimoni autentik (siswa/rekan sejawat/kepala sekolah) dan rencana tindak lanjut keberlanjutan'
   ]);
   const indVideo = JSON.stringify([
-    'Kesesuaian durasi video (minimal 5 menit dan maksimal 7 menit)',
-    'Kejernihan kualitas visual dan pencahayaan video',
-    'Kejernihan kualitas audio, suara guru, dan musik latar yang proporsional',
-    'Struktur alur penyajian video yang runtut dan komunikatif',
-    'Kreativitas penyuntingan (editing) dan estetika grafis pendukung',
-    'Kejelasan artikulasi dan narasi penjelasan guru',
-    'Kelengkapan dan keterbacaan bukti visual serta dokumentasi media pembelajaran'
+    'Kepatuhan durasi video (5–7 menit) dengan alur penyajian yang runtut, padat, dan komunikatif',
+    'Kejernihan kualitas visual, pencahayaan, audio narasi guru, serta estetika penyuntingan (editing)',
+    'Kelengkapan dan keterbacaan dokumentasi media pembelajaran serta bukti visual aktivitas siswa'
   ]);
 
   return {
@@ -637,14 +625,13 @@ function getInitialDatabase(): DatabaseSchema {
       {
         criterion_id: 'KRIT-FIN-1',
         stage: 'FINAL',
-        rubric_version: 2,
+        rubric_version: 3,
         criterion_name: 'Presentasi & Tanya Jawab',
         description: 'Kualitas penyampaian paparan luring (7 menit), penguasaan panggung, demonstrasi media, serta ketajaman menjawab pertanyaan Dewan Juri (8 menit).',
         indicators_json: JSON.stringify([
-          'Sistematika alur paparan, kejelasan artikulasi, dan penguasaan panggung selama 7 menit presentasi',
-          'Ketepatan manajemen waktu presentasi (7 menit) serta efektivitas demonstrasi media/alat peraga secara langsung',
-          'Ketajaman, ketepatan, dan penguasaan konsep saat menjawab pertanyaan Dewan Juri (sesi tanya jawab 8 menit)',
-          'Sikap profesional, kepercayaan diri, kejujuran akademik, dan kemampuan mempertanggungjawabkan orisinalitas karya'
+          'Kejelasan alur paparan, penguasaan panggung, dan ketepatan manajemen waktu presentasi (7 menit)',
+          'Efektivitas demonstrasi langsung media/alat peraga inovasi beserta keterkaitannya dengan praktik kelas',
+          'Ketajaman argumentasi, kejujuran akademik, dan ketepatan menjawab pertanyaan Dewan Juri (8 menit)'
         ]),
         weight_percentage: 20,
         minimum_score: 0,
@@ -657,14 +644,13 @@ function getInitialDatabase(): DatabaseSchema {
       {
         criterion_id: 'KRIT-FIN-2',
         stage: 'FINAL',
-        rubric_version: 2,
+        rubric_version: 3,
         criterion_name: 'Ide Inovasi Pembelajaran',
         description: 'Kebaruan, orisinalitas, relevansi ide inovasi terhadap kebutuhan belajar siswa, keterpaduan Modul Ajar, serta potensi replikasi.',
         indicators_json: JSON.stringify([
-          'Kebaruan (orisinalitas) dan kreativitas ide inovasi metode, strategi, atau media pembelajaran',
-          'Relevansi ide inovasi dengan permasalahan nyata belajar siswa di kelas serta karakteristik kurikulum',
-          'Keterpaduan perencanaan Modul Ajar dengan rancangan inovasi dan asesmen pembelajaran',
-          'Kemudahan replikasi dan potensi keberlanjutan inovasi untuk diterapkan oleh guru atau sekolah lain'
+          'Orisinalitas, kebaruan, dan daya beda ide inovasi metode/media dibandingkan praktik pembelajaran konvensional',
+          'Relevansi langsung inovasi terhadap kebutuhan belajar siswa, capaian kurikulum, dan keterpaduan Modul Ajar',
+          'Potensi replikasi, skalabilitas, dan keberlanjutan penerapan inovasi oleh guru atau satuan pendidikan lain'
         ]),
         weight_percentage: 20,
         minimum_score: 0,
@@ -677,14 +663,13 @@ function getInitialDatabase(): DatabaseSchema {
       {
         criterion_id: 'KRIT-FIN-3',
         stage: 'FINAL',
-        rubric_version: 2,
+        rubric_version: 3,
         criterion_name: 'Prinsip Deep Learning',
         description: 'Implementasi nyata ketiga pilar Pembelajaran Mendalam (Joyful, Meaningful, dan Mindful Learning) secara terpadu di kelas.',
         indicators_json: JSON.stringify([
-          'Penerapan prinsip Joyful Learning (menciptakan suasana belajar yang menggembirakan, aman, dan memotivasi siswa)',
-          'Penerapan prinsip Meaningful Learning (pembelajaran kontekstual yang mengaitkan konsep dengan kehidupan nyata siswa)',
-          'Penerapan prinsip Mindful Learning (mendorong kesadaran belajar, berpikir kritis, dan refleksi mandiri siswa)',
-          'Keterpaduan utuh ketiga pilar Deep Learning dalam skenario pembelajaran dan interaksi aktif guru–siswa'
+          'Joyful Learning: terciptanya atmosfer belajar yang menggembirakan, aman, inklusif, dan memicu antusiasme siswa',
+          'Meaningful Learning: pembelajaran kontekstual yang mengaitkan konsep esensial dengan pengalaman hidup nyata siswa',
+          'Mindful Learning: tumbuhnya kesadaran belajar, penalaran kritis, dan refleksi mandiri siswa selama proses belajar'
         ]),
         weight_percentage: 20,
         minimum_score: 0,
@@ -697,14 +682,13 @@ function getInitialDatabase(): DatabaseSchema {
       {
         criterion_id: 'KRIT-FIN-4',
         stage: 'FINAL',
-        rubric_version: 2,
+        rubric_version: 3,
         criterion_name: 'Prinsip Alur STAR',
         description: 'Kejelasan, keruntutan, dan ketajaman penerapan kerangka STAR (Situasi, Tantangan, Aksi, Refleksi) dalam praktik baik.',
         indicators_json: JSON.stringify([
-          'Kejelasan pemaparan Situasi (latar belakang masalah belajar awal yang spesifik dan berbasis data kelas)',
-          'Ketajaman analisis Tantangan (identifikasi kendala nyata di sekolah/kelas beserta pihak yang terlibat)',
-          'Ketepatan strategi Aksi (langkah konkret, terstruktur, dan pemanfaatan sumber daya/media pembelajaran)',
-          'Kedalaman Refleksi (evaluasi objektif keberhasilan, kendala yang diatasi, serta rencana tindak lanjut konkret)'
+          'Ketajaman diagnosis Situasi dan pemetaan Tantangan nyata di kelas berbasis data awal yang objektif',
+          'Ketepatan dan keterstrukturan strategi Aksi konkret dalam memecahkan masalah belajar menggunakan sumber daya kelas',
+          'Kedalaman Refleksi kritis terhadap efektivitas aksi, kendala yang teratasi, serta rencana tindak lanjut terukur'
         ]),
         weight_percentage: 20,
         minimum_score: 0,
@@ -717,14 +701,13 @@ function getInitialDatabase(): DatabaseSchema {
       {
         criterion_id: 'KRIT-FIN-5',
         stage: 'FINAL',
-        rubric_version: 2,
+        rubric_version: 3,
         criterion_name: 'Dampak Nyata & Hasil Pembelajaran',
         description: 'Bukti autentik keterlaksanaan, peningkatan hasil/motivasi belajar siswa yang terukur, testimoni autentik, serta pengimbasan.',
         indicators_json: JSON.stringify([
-          'Bukti autentik keterlaksanaan praktik baik di kelas (produk karya siswa, dokumentasi proses, dan lembar asesmen)',
-          'Peningkatan terukur pada hasil belajar, partisipasi aktif, atau motivasi belajar siswa (perbandingan sebelum–sesudah)',
-          'Kualitas dan kebermaknaan testimoni autentik (siswa, rekan sejawat, atau kepala sekolah)',
-          'Dampak pengimbasan positif terhadap ekosistem belajar sekolah atau komunitas belajar guru (KKG)'
+          'Bukti autentik keterlaksanaan inovasi (karya siswa, dokumentasi proses kelas, dan hasil asesmen nyata)',
+          'Peningkatan terukur pada capaian belajar, partisipasi aktif, dan motivasi siswa (perbandingan sebelum–sesudah)',
+          'Testimoni autentik (siswa/rekan sejawat/kepala sekolah) serta dampak pengimbasan ke komunitas belajar (KKG/sekolah)'
         ]),
         weight_percentage: 20,
         minimum_score: 0,

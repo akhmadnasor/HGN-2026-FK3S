@@ -635,13 +635,18 @@ function getInitialDatabase(): DatabaseSchema {
         updated_at: now
       },
       {
-        criterion_id: 'KRIT-FINAL-1',
+        criterion_id: 'KRIT-FIN-1',
         stage: 'FINAL',
-        rubric_version: 1,
-        criterion_name: 'Pedagogik & Inovasi (Paparan Final)',
-        description: 'Kedalaman substansi pedagogik, penguasaan konsep Pembelajaran Mendalam, serta keselarasan Modul Ajar dengan praktik nyata (Draft Rubrik Final — dapat disesuaikan Admin).',
-        indicators_json: indPedagogik,
-        weight_percentage: 40,
+        rubric_version: 2,
+        criterion_name: 'Presentasi & Tanya Jawab',
+        description: 'Kualitas penyampaian paparan luring (7 menit), penguasaan panggung, demonstrasi media, serta ketajaman menjawab pertanyaan Dewan Juri (8 menit).',
+        indicators_json: JSON.stringify([
+          'Sistematika alur paparan, kejelasan artikulasi, dan penguasaan panggung selama 7 menit presentasi',
+          'Ketepatan manajemen waktu presentasi (7 menit) serta efektivitas demonstrasi media/alat peraga secara langsung',
+          'Ketajaman, ketepatan, dan penguasaan konsep saat menjawab pertanyaan Dewan Juri (sesi tanya jawab 8 menit)',
+          'Sikap profesional, kepercayaan diri, kejujuran akademik, dan kemampuan mempertanggungjawabkan orisinalitas karya'
+        ]),
+        weight_percentage: 20,
         minimum_score: 0,
         maximum_score: 100,
         display_order: 1,
@@ -650,13 +655,18 @@ function getInitialDatabase(): DatabaseSchema {
         updated_at: now
       },
       {
-        criterion_id: 'KRIT-FINAL-2',
+        criterion_id: 'KRIT-FIN-2',
         stage: 'FINAL',
-        rubric_version: 1,
-        criterion_name: 'Dampak Nyata & Pertanggungjawaban Inovasi',
-        description: 'Ketajaman analisis alur STAR, bukti dampak berkelanjutan bagi siswa, serta kemampuan menjawab pertanyaan dewan juri saat paparan luring.',
-        indicators_json: indDampak,
-        weight_percentage: 35,
+        rubric_version: 2,
+        criterion_name: 'Ide Inovasi Pembelajaran',
+        description: 'Kebaruan, orisinalitas, relevansi ide inovasi terhadap kebutuhan belajar siswa, keterpaduan Modul Ajar, serta potensi replikasi.',
+        indicators_json: JSON.stringify([
+          'Kebaruan (orisinalitas) dan kreativitas ide inovasi metode, strategi, atau media pembelajaran',
+          'Relevansi ide inovasi dengan permasalahan nyata belajar siswa di kelas serta karakteristik kurikulum',
+          'Keterpaduan perencanaan Modul Ajar dengan rancangan inovasi dan asesmen pembelajaran',
+          'Kemudahan replikasi dan potensi keberlanjutan inovasi untuk diterapkan oleh guru atau sekolah lain'
+        ]),
+        weight_percentage: 20,
         minimum_score: 0,
         maximum_score: 100,
         display_order: 2,
@@ -665,16 +675,61 @@ function getInitialDatabase(): DatabaseSchema {
         updated_at: now
       },
       {
-        criterion_id: 'KRIT-FINAL-3',
+        criterion_id: 'KRIT-FIN-3',
         stage: 'FINAL',
-        rubric_version: 1,
-        criterion_name: 'Kualitas Paparan & Demonstrasi Media',
-        description: 'Sistematika presentasi luring, kejelasan komunikasi, ketepatan waktu paparan, serta demonstrasi media pembelajaran.',
-        indicators_json: indVideo,
-        weight_percentage: 25,
+        rubric_version: 2,
+        criterion_name: 'Prinsip Deep Learning',
+        description: 'Implementasi nyata ketiga pilar Pembelajaran Mendalam (Joyful, Meaningful, dan Mindful Learning) secara terpadu di kelas.',
+        indicators_json: JSON.stringify([
+          'Penerapan prinsip Joyful Learning (menciptakan suasana belajar yang menggembirakan, aman, dan memotivasi siswa)',
+          'Penerapan prinsip Meaningful Learning (pembelajaran kontekstual yang mengaitkan konsep dengan kehidupan nyata siswa)',
+          'Penerapan prinsip Mindful Learning (mendorong kesadaran belajar, berpikir kritis, dan refleksi mandiri siswa)',
+          'Keterpaduan utuh ketiga pilar Deep Learning dalam skenario pembelajaran dan interaksi aktif guru–siswa'
+        ]),
+        weight_percentage: 20,
         minimum_score: 0,
         maximum_score: 100,
         display_order: 3,
+        active: true,
+        created_at: now,
+        updated_at: now
+      },
+      {
+        criterion_id: 'KRIT-FIN-4',
+        stage: 'FINAL',
+        rubric_version: 2,
+        criterion_name: 'Prinsip Alur STAR',
+        description: 'Kejelasan, keruntutan, dan ketajaman penerapan kerangka STAR (Situasi, Tantangan, Aksi, Refleksi) dalam praktik baik.',
+        indicators_json: JSON.stringify([
+          'Kejelasan pemaparan Situasi (latar belakang masalah belajar awal yang spesifik dan berbasis data kelas)',
+          'Ketajaman analisis Tantangan (identifikasi kendala nyata di sekolah/kelas beserta pihak yang terlibat)',
+          'Ketepatan strategi Aksi (langkah konkret, terstruktur, dan pemanfaatan sumber daya/media pembelajaran)',
+          'Kedalaman Refleksi (evaluasi objektif keberhasilan, kendala yang diatasi, serta rencana tindak lanjut konkret)'
+        ]),
+        weight_percentage: 20,
+        minimum_score: 0,
+        maximum_score: 100,
+        display_order: 4,
+        active: true,
+        created_at: now,
+        updated_at: now
+      },
+      {
+        criterion_id: 'KRIT-FIN-5',
+        stage: 'FINAL',
+        rubric_version: 2,
+        criterion_name: 'Dampak Nyata & Hasil Pembelajaran',
+        description: 'Bukti autentik keterlaksanaan, peningkatan hasil/motivasi belajar siswa yang terukur, testimoni autentik, serta pengimbasan.',
+        indicators_json: JSON.stringify([
+          'Bukti autentik keterlaksanaan praktik baik di kelas (produk karya siswa, dokumentasi proses, dan lembar asesmen)',
+          'Peningkatan terukur pada hasil belajar, partisipasi aktif, atau motivasi belajar siswa (perbandingan sebelum–sesudah)',
+          'Kualitas dan kebermaknaan testimoni autentik (siswa, rekan sejawat, atau kepala sekolah)',
+          'Dampak pengimbasan positif terhadap ekosistem belajar sekolah atau komunitas belajar guru (KKG)'
+        ]),
+        weight_percentage: 20,
+        minimum_score: 0,
+        maximum_score: 100,
+        display_order: 5,
         active: true,
         created_at: now,
         updated_at: now
@@ -1232,6 +1287,68 @@ app.get('/api/public', (_req: Request, res: Response) => {
       last_sync: lastGoogleSheetsSyncStatus.lastSync
     }
   });
+});
+
+// Safe SSRF-proof same-origin logo dataUrl loader for exact aspect-ratio PDF generation
+const logoAssetCache = new Map<string, { dataUrl: string; format: 'PNG' | 'JPEG'; cachedAt: number }>();
+
+app.get('/api/public/logo-asset', async (req: Request, res: Response) => {
+  const type = String(req.query.type || '').toLowerCase();
+  if (type !== 'fk3s' && type !== 'hgn') {
+    return res.status(400).json({ success: false, message: 'Parameter type harus fk3s atau hgn.' });
+  }
+
+  const settings = getSettingsMap();
+  const targetUrl =
+    type === 'fk3s'
+      ? settings.app_icon_url || 'https://lh3.googleusercontent.com/d/13M5y3gnxVP6cUPGKRXqdYqmHxFjPAvpD'
+      : settings.main_logo_url || 'https://lh3.googleusercontent.com/d/1_q1kZ4MJoP6VQR7qs61HId_k_HHXB4oe';
+
+  const cacheKey = `${type}:${targetUrl}`;
+  const cached = logoAssetCache.get(cacheKey);
+  if (cached && Date.now() - cached.cachedAt < 30 * 60 * 1000) {
+    return res.json({ success: true, data: cached });
+  }
+
+  try {
+    let buf: Buffer | null = null;
+    let contentType = 'image/png';
+
+    if (targetUrl.startsWith('https://lh3.googleusercontent.com/') || targetUrl.startsWith('https://drive.google.com/')) {
+      const imgRes = await fetch(targetUrl);
+      if (imgRes.ok) {
+        const arr = await imgRes.arrayBuffer();
+        buf = Buffer.from(arr);
+        contentType = imgRes.headers.get('content-type') || 'image/png';
+      }
+    }
+
+    if (!buf) {
+      const localName = type === 'fk3s' ? 'logo_fk3s.png' : 'logo_hgn.png';
+      const localPath = path.join(process.cwd(), 'public', 'assets', 'aistudio', localName);
+      if (fs.existsSync(localPath)) {
+        buf = fs.readFileSync(localPath);
+        contentType = 'image/png';
+      }
+    }
+
+    if (!buf) {
+      return res.status(404).json({ success: false, message: 'Logo tidak tersedia.' });
+    }
+
+    const isJpeg = contentType.toLowerCase().includes('jpeg') || contentType.toLowerCase().includes('jpg');
+    const mime = isJpeg ? 'image/jpeg' : 'image/png';
+    const format: 'PNG' | 'JPEG' = isJpeg ? 'JPEG' : 'PNG';
+    const payload = {
+      dataUrl: `data:${mime};base64,${buf.toString('base64')}`,
+      format,
+      cachedAt: Date.now()
+    };
+    logoAssetCache.set(cacheKey, payload);
+    return res.json({ success: true, data: payload });
+  } catch {
+    return res.status(500).json({ success: false, message: 'Gagal memuat aset logo.' });
+  }
 });
 
 app.post('/api/submissions', async (req: Request, res: Response) => {

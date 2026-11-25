@@ -257,13 +257,46 @@ function setupDatabase() {
       'Kelengkapan dan keterbacaan bukti visual serta dokumentasi media pembelajaran'
     ]);
 
+    var indFinPresentasi = JSON.stringify([
+      'Sistematika alur paparan, kejelasan artikulasi, dan penguasaan panggung selama 7 menit presentasi',
+      'Ketepatan manajemen waktu presentasi (7 menit) serta efektivitas demonstrasi media/alat peraga secara langsung',
+      'Ketajaman, ketepatan, dan penguasaan konsep saat menjawab pertanyaan Dewan Juri (sesi tanya jawab 8 menit)',
+      'Sikap profesional, kepercayaan diri, kejujuran akademik, dan kemampuan mempertanggungjawabkan orisinalitas karya'
+    ]);
+    var indFinInovasi = JSON.stringify([
+      'Kebaruan (orisinalitas) dan kreativitas ide inovasi metode, strategi, atau media pembelajaran',
+      'Relevansi ide inovasi dengan permasalahan nyata belajar siswa di kelas serta karakteristik kurikulum',
+      'Keterpaduan perencanaan Modul Ajar dengan rancangan inovasi dan asesmen pembelajaran',
+      'Kemudahan replikasi dan potensi keberlanjutan inovasi untuk diterapkan oleh guru atau sekolah lain'
+    ]);
+    var indFinDeepLearning = JSON.stringify([
+      'Penerapan prinsip Joyful Learning (menciptakan suasana belajar yang menggembirakan, aman, dan memotivasi siswa)',
+      'Penerapan prinsip Meaningful Learning (pembelajaran kontekstual yang mengaitkan konsep dengan kehidupan nyata siswa)',
+      'Penerapan prinsip Mindful Learning (mendorong kesadaran belajar, berpikir kritis, dan refleksi mandiri siswa)',
+      'Keterpaduan utuh ketiga pilar Deep Learning dalam skenario pembelajaran dan interaksi aktif guru–siswa'
+    ]);
+    var indFinStar = JSON.stringify([
+      'Kejelasan pemaparan Situasi (latar belakang masalah belajar awal yang spesifik dan berbasis data kelas)',
+      'Ketajaman analisis Tantangan (identifikasi kendala nyata di sekolah/kelas beserta pihak yang terlibat)',
+      'Ketepatan strategi Aksi (langkah konkret, terstruktur, dan pemanfaatan sumber daya/media pembelajaran)',
+      'Kedalaman Refleksi (evaluasi objektif keberhasilan, kendala yang diatasi, serta rencana tindak lanjut konkret)'
+    ]);
+    var indFinDampak = JSON.stringify([
+      'Bukti autentik keterlaksanaan praktik baik di kelas (produk karya siswa, dokumentasi proses, dan lembar asesmen)',
+      'Peningkatan terukur pada hasil belajar, partisipasi aktif, atau motivasi belajar siswa (perbandingan sebelum–sesudah)',
+      'Kualitas dan kebermaknaan testimoni autentik (siswa, rekan sejawat, atau kepala sekolah)',
+      'Dampak pengimbasan positif terhadap ekosistem belajar sekolah atau komunitas belajar guru (KKG)'
+    ]);
+
     var initialKriteria = [
       ['KRIT-PENY-1', 'PENYISIHAN', 1, 'Pedagogik & Inovasi', 'Penilaian kedalaman pedagogik, orisinalitas inovasi, penerapan Deep Learning (Joyful, Meaningful, Mindful), serta kesesuaian Modul Ajar.', indPedagogik, 40, 0, 100, 1, 'true', now, now],
       ['KRIT-PENY-2', 'PENYISIHAN', 1, 'Dampak / Hasil Nyata', 'Penilaian implementasi alur STAR (Situasi, Tantangan, Aksi, Refleksi), bukti nyata di kelas, testimoni, serta dampak bagi siswa.', indDampak, 35, 0, 100, 2, 'true', now, now],
       ['KRIT-PENY-3', 'PENYISIHAN', 1, 'Kualitas Teknis Video', 'Penilaian ketepatan durasi 5–7 menit, kejelasan visual & audio, penyuntingan, serta kelengkapan bukti dokumentasi.', indVideo, 25, 0, 100, 3, 'true', now, now],
-      ['KRIT-FIN-1', 'FINAL', 1, 'Pedagogik & Inovasi (Final)', 'Kedalaman konsep inovasi pembelajaran, penguasaan materi Modul Ajar, serta ketajaman strategi Deep Learning saat paparan.', indPedagogik, 40, 0, 100, 1, 'true', now, now],
-      ['KRIT-FIN-2', 'FINAL', 1, 'Dampak & Pertanggungjawaban Karya', 'Bukti dampak nyata inovasi, konsistensi alur STAR, serta kemampuan mempertanggungjawabkan karya di hadapan dewan juri.', indDampak, 35, 0, 100, 2, 'true', now, now],
-      ['KRIT-FIN-3', 'FINAL', 1, 'Kualitas Penyajian & Media', 'Kualitas media pembelajaran, kejelasan komunikasi paparan luring, serta kelengkapan demonstrasi praktik baik.', indVideo, 25, 0, 100, 3, 'true', now, now]
+      ['KRIT-FIN-1', 'FINAL', 2, 'Presentasi & Tanya Jawab', 'Kualitas penyampaian paparan luring (7 menit), penguasaan panggung, demonstrasi media, serta ketajaman menjawab pertanyaan Dewan Juri (8 menit).', indFinPresentasi, 20, 0, 100, 1, 'true', now, now],
+      ['KRIT-FIN-2', 'FINAL', 2, 'Ide Inovasi Pembelajaran', 'Kebaruan, orisinalitas, relevansi ide inovasi terhadap kebutuhan belajar siswa, keterpaduan Modul Ajar, serta potensi replikasi.', indFinInovasi, 20, 0, 100, 2, 'true', now, now],
+      ['KRIT-FIN-3', 'FINAL', 2, 'Prinsip Deep Learning', 'Implementasi nyata ketiga pilar Pembelajaran Mendalam (Joyful, Meaningful, dan Mindful Learning) secara terpadu di kelas.', indFinDeepLearning, 20, 0, 100, 3, 'true', now, now],
+      ['KRIT-FIN-4', 'FINAL', 2, 'Prinsip Alur STAR', 'Kejelasan, keruntutan, dan ketajaman penerapan kerangka STAR (Situasi, Tantangan, Aksi, Refleksi) dalam praktik baik.', indFinStar, 20, 0, 100, 4, 'true', now, now],
+      ['KRIT-FIN-5', 'FINAL', 2, 'Dampak Nyata & Hasil Pembelajaran', 'Bukti autentik keterlaksanaan, peningkatan hasil/motivasi belajar siswa yang terukur, testimoni autentik, serta pengimbasan.', indFinDampak, 20, 0, 100, 5, 'true', now, now]
     ];
     kriteriaSheet.getRange(2, 1, initialKriteria.length, 13).setValues(initialKriteria);
   }

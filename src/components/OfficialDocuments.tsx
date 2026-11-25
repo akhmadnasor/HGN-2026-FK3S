@@ -1,24 +1,26 @@
 import React, { useState } from 'react';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import {
   ScoringCriterion,
   JudgingStage,
   FinalistWinnerRecord
 } from '../types';
+import {
+  Printer,
+  Download,
+  X,
+  CheckCircle2,
+  ClipboardList,
+  Award,
+  Loader2
+} from 'lucide-react';
 
 type Top5FinalistInput = FinalistWinnerRecord & {
   full_name: string;
   school: string;
   innovation_title: string;
 };
-import {
-  Printer,
-  Download,
-  FileText,
-  X,
-  CheckCircle2,
-  ClipboardList,
-  Award
-} from 'lucide-react';
 
 export interface OfficialFinalistEntry {
   rank: number;
@@ -68,15 +70,6 @@ export const OFFICIAL_TOP_5_FALLBACK: OfficialFinalistEntry[] = [
   }
 ];
 
-function escapeHtml(text: string): string {
-  return String(text || '')
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
-
 function parseIndicators(indicatorsJson?: string): string[] {
   try {
     const parsed = JSON.parse(indicatorsJson || '[]');
@@ -87,18 +80,6 @@ function parseIndicators(indicatorsJson?: string): string[] {
   } catch {
     return [];
   }
-}
-
-function triggerFileDownload(content: string, filename: string, mimeType: string) {
-  const blob = new Blob([content], { type: mimeType });
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  document.body.removeChild(a);
-  setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 export function resolveFinalistEntries(top5?: Top5FinalistInput[]): OfficialFinalistEntry[] {
@@ -116,7 +97,76 @@ export function resolveFinalistEntries(top5?: Top5FinalistInput[]): OfficialFina
 }
 
 /* ============================================================================
- * 1. PENGUMUMAN RESMI LOMBA UKURAN A4 (LOGO PROPORSIONAL + TOP 5 FINALIS)
+ * PROPORTIONAL LOGO LOADER FOR jsPDF (EXACT ASPECT-RATIO PRESERVATION)
+ * ============================================================================ */
+interface LoadedPdfImage {
+  dataUrl: string;
+  format: 'PNG' | 'JPEG';
+  naturalWidth: number;
+  naturalHeight: number;
+}
+
+function measureImageDataUrl(dataUrl: string): Promise<{ width: number; height: number }> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      resolve({
+        width: img.naturalWidth || img.width || 100,
+        height: img.naturalHeight || img.height || 100
+      });
+    };
+    img.onerror = () => reject(new Error('Failed to measure image dimensions'));
+    img.src = dataUrl;
+  });
+}
+
+async function fetchLogoForPdf(type: 'fk3s' | 'hgn'): Promise<LoadedPdfImage | null> {
+  try {
+    const res = await fetch(`/api/public/logo-asset?type=${type}`);
+    if (!res.ok) return null;
+    const json = await res.json();
+    const dataUrl: string | undefined = json?.data?.dataUrl;
+    const format: 'PNG' | 'JPEG' = json?.data?.format === 'JPEG' ? 'JPEG' : 'PNG';
+    if (!dataUrl) return null;
+    const dims = await measureImageDataUrl(dataUrl);
+    return {
+      dataUrl,
+      format,
+      naturalWidth: dims.width,
+      naturalHeight: dims.height
+    };
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Draws an image strictly preserving its natural aspect ratio (object-contain)
+ * centered inside the target slot (slotX, slotY, maxW, maxH) in mm.
+ */
+function drawProportionalImageInPdf(
+  doc: jsPDF,
+  img: LoadedPdfImage | null,
+  slotX: number,
+  slotY: number,
+  maxW: number,
+  maxH: number
+) {
+  if (!img || img.naturalWidth <= 0 || img.naturalHeight <= 0) return;
+  const aspectRatio = img.naturalWidth / img.naturalHeight;
+  let drawW = maxW;
+  let drawH = drawW / aspectRatio;
+  if (drawH > maxH) {
+    drawH = maxH;
+    drawW = drawH * aspectRatio;
+  }
+  const offsetX = slotX + (maxW - drawW) / 2;
+  const offsetY = slotY + (maxH - drawH) / 2;
+  doc.addImage(img.dataUrl, img.format, offsetX, offsetY, drawW, drawH, undefined, 'FAST');
+}
+
+/* ============================================================================
+ * 1. PENGUMUMAN RESMI LOMBA UKURAN A4 (LOGO PROPORSIONAL + DOWNLOAD PDF A4)
  * ============================================================================ */
 interface OfficialTop5AnnouncementModalProps {
   isOpen: boolean;
@@ -127,118 +177,214 @@ interface OfficialTop5AnnouncementModalProps {
   top5?: Top5FinalistInput[];
 }
 
-function buildAnnouncementWordHtml(
-  entries: OfficialFinalistEntry[],
-  fk3sLogo: string,
-  mainHgnLogo: string
-): string {
-  const rowsHtml = entries
-    .map(
-      (item) => `
-      <tr>
-        <td style="border:1px solid #1e293b;padding:7px 8px;text-align:center;font-weight:bold;">${item.rank}</td>
-        <td style="border:1px solid #1e293b;padding:7px 8px;font-weight:bold;">${escapeHtml(item.full_name)}</td>
-        <td style="border:1px solid #1e293b;padding:7px 8px;">${escapeHtml(item.school)}</td>
-        <td style="border:1px solid #1e293b;padding:7px 8px;">${escapeHtml(item.innovation_title)}</td>
-      </tr>`
-    )
-    .join('');
+async function exportTop5AnnouncementPdf(entries: OfficialFinalistEntry[], organizer: string) {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
 
-  return `<!DOCTYPE html>
-<html lang="id" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
-<head>
-<meta charset="utf-8" />
-<title>Pengumuman Resmi Top 5 Finalis Lomba Guru Inspiratif 2026 - FK3S Kec. Beji</title>
-<style>
-  @page { size: A4 portrait; margin: 14mm 16mm; }
-  body { font-family: "Times New Roman", Georgia, serif; color: #0f172a; font-size: 11pt; line-height: 1.45; margin: 0; padding: 0; }
-  .kop-table { width: 100%; border-collapse: collapse; border-bottom: 3px solid #0f172a; padding-bottom: 6px; }
-  .kop-line-2 { border-top: 1px solid #0f172a; margin-top: 2px; margin-bottom: 14px; }
-  .title { text-align: center; margin: 10px 0 14px; }
-  .title h1 { font-size: 14pt; margin: 0; text-decoration: underline; letter-spacing: 0.5px; }
-  .title p { font-size: 10.5pt; margin: 3px 0 0; font-weight: bold; }
-  .data-table { width: 100%; border-collapse: collapse; margin: 12px 0; font-size: 10pt; }
-  .data-table th { background: #004AAD; color: #ffffff; border: 1px solid #1e293b; padding: 7px 8px; text-align: left; }
-  .box { border: 1px solid #334155; background: #f8fafc; padding: 10px 12px; margin: 12px 0; font-size: 10pt; }
-  .sign-table { width: 100%; border-collapse: collapse; margin-top: 20px; font-size: 10.5pt; }
-</style>
-</head>
-<body>
-  <table class="kop-table">
-    <tr>
-      <td style="width:74px;text-align:center;vertical-align:middle;">
-        <img src="${escapeHtml(fk3sLogo)}" alt="Logo FK3S" style="height:64px;width:auto;max-width:72px;object-fit:contain;" />
-      </td>
-      <td style="text-align:center;vertical-align:middle;padding:0 8px;">
-        <div style="font-size:12pt;font-weight:bold;letter-spacing:0.3px;">FORUM KELOMPOK KERJA KEPALA SEKOLAH (FK3S)</div>
-        <div style="font-size:11.5pt;font-weight:bold;">KORWILCAM BIDANG PENDIDIKAN KECAMATAN BEJI</div>
-        <div style="font-size:10.5pt;font-weight:bold;color:#004AAD;">PANITIA PELAKSANA LOMBA GURU INSPIRATIF HARI GURU NASIONAL 2026</div>
-        <div style="font-size:9pt;color:#475569;margin-top:2px;">Kecamatan Beji, Kabupaten Pasuruan, Provinsi Jawa Timur 67154 • #BejolanAji • Guru Hebat, Indonesia Kuat</div>
-      </td>
-      <td style="width:74px;text-align:center;vertical-align:middle;">
-        <img src="${escapeHtml(mainHgnLogo)}" alt="Logo HGN 2026" style="height:64px;width:auto;max-width:72px;object-fit:contain;" />
-      </td>
-    </tr>
-  </table>
-  <div class="kop-line-2"></div>
+  const [fk3sImg, hgnImg] = await Promise.all([
+    fetchLogoForPdf('fk3s'),
+    fetchLogoForPdf('hgn')
+  ]);
 
-  <div class="title">
-    <h1>PENGUMUMAN RESMI</h1>
-    <p>NOMOR: 421.2 / 05 / FK3S.BJI / HGN / XI / 2026</p>
-    <p style="margin-top:6px;font-size:11pt;color:#004AAD;">TENTANG PENETAPAN 5 FINALIS TERBAIK (TOP 5) LOLOS BABAK FINAL<br/>LOMBA GURU INSPIRATIF HARI GURU NASIONAL TAHUN 2026</p>
-  </div>
+  const pageW = doc.internal.pageSize.getWidth(); // 210mm
+  const marginX = 16;
+  const contentW = pageW - marginX * 2; // 178mm
 
-  <p style="text-align:justify;margin:0 0 10px;">
-    Berdasarkan hasil penilaian objektif Dewan Juri Tahap Penyisihan terhadap seluruh karya praktik baik dan inovasi pembelajaran guru Sekolah Dasar se-Kecamatan Beji pada ajang <strong>Lomba Guru Inspiratif Peringatan Hari Guru Nasional Tahun 2026</strong>, Panitia Pelaksana bersama Dewan Juri menetapkan <strong>5 (lima) peserta terbaik (Top 5)</strong> yang dinyatakan <strong>LOLOS KE BABAK FINAL (Presentasi &amp; Wawancara Luring)</strong> sebagai berikut:
-  </p>
+  // KOP SURAT DENGAN LOGO PROPORSIONAL (OBJECT-CONTAIN)
+  const kopTopY = 12;
+  const logoSlotW = 22;
+  const logoSlotH = 20;
 
-  <table class="data-table">
-    <thead>
-      <tr>
-        <th style="width:36px;text-align:center;">No.</th>
-        <th style="width:185px;">Nama Guru</th>
-        <th style="width:150px;">Asal Sekolah</th>
-        <th>Judul Karya Inovasi Pembelajaran</th>
-      </tr>
-    </thead>
-    <tbody>
-      ${rowsHtml}
-    </tbody>
-  </table>
+  drawProportionalImageInPdf(doc, fk3sImg, marginX, kopTopY, logoSlotW, logoSlotH);
+  drawProportionalImageInPdf(doc, hgnImg, pageW - marginX - logoSlotW, kopTopY, logoSlotW, logoSlotH);
 
-  <div class="box">
-    <strong>KETENTUAN PELAKSANAAN BABAK FINAL (PRESENTASI &amp; WAWANCARA):</strong>
-    <ol style="margin:6px 0 0;padding-left:18px;">
-      <li>Kelima finalis wajib mengikuti tahapan <strong>Babak Final Presentasi &amp; Wawancara Luring</strong> di hadapan Dewan Juri (Korwilcam, Pengawas SD, dan Praktisi Pendidikan) sesuai jadwal resmi panitia FK3S Kecamatan Beji.</li>
-      <li>Alokasi waktu uji petik setiap finalis adalah <strong>15 menit</strong>, terdiri atas <strong>7 menit paparan karya inovasi</strong> (berbasis alur STAR &amp; demonstrasi media) dan <strong>8 menit sesi tanya jawab</strong> bersama Dewan Juri.</li>
-      <li>Finalis diharapkan membawa perangkat/media pembelajaran (fisik maupun digital) serta salinan cetak Modul Ajar sebagai bahan verifikasi dan pertanggungjawaban karya.</li>
-      <li>Keputusan Dewan Juri bersifat objektif, independen, mutlak, dan tidak dapat diganggu gugat.</li>
-    </ol>
-  </div>
+  const centerX = pageW / 2;
+  doc.setTextColor(15, 23, 42);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(12);
+  doc.text('FORUM KELOMPOK KERJA KEPALA SEKOLAH (FK3S)', centerX, kopTopY + 5, { align: 'center' });
 
-  <p style="text-align:justify;margin:10px 0 0;">
-    Demikian pengumuman resmi ini disampaikan. Panitia mengucapkan selamat kepada para finalis yang lolos serta apresiasi setinggi-tingginya kepada seluruh guru inspiratif Kecamatan Beji yang telah berpartisipasi aktif memajukan kualitas pembelajaran.
-  </p>
+  doc.setFontSize(11);
+  doc.text('KORWILCAM BIDANG PENDIDIKAN KECAMATAN BEJI', centerX, kopTopY + 10.5, { align: 'center' });
 
-  <table class="sign-table">
-    <tr>
-      <td style="width:52%;vertical-align:top;font-size:9.5pt;color:#475569;">
-        Tembusan Yth.:<br/>
-        1. Korwilcam Bidang Pendidikan Kec. Beji<br/>
-        2. Pengawas SD Kecamatan Beji<br/>
-        3. Seluruh Kepala SD se-Kecamatan Beji
-      </td>
-      <td style="width:48%;text-align:center;vertical-align:top;">
-        Beji, 26 November 2026<br/>
-        <strong>Ketua Panitia HGN 2026 / Ketua FK3S Kec. Beji</strong>
-        <div style="height:56px;"></div>
-        <div style="font-weight:bold;text-decoration:underline;">PANITIA HGN FK3S KEC. BEJI</div>
-        <div style="font-size:9pt;color:#475569;">Kabupaten Pasuruan — Provinsi Jawa Timur</div>
-      </td>
-    </tr>
-  </table>
-</body>
-</html>`;
+  doc.setTextColor(0, 74, 173);
+  doc.setFontSize(10);
+  doc.text('PANITIA LOMBA GURU INSPIRATIF HARI GURU NASIONAL (HGN) 2026', centerX, kopTopY + 15.5, { align: 'center' });
+
+  doc.setTextColor(71, 85, 105);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.2);
+  doc.text(
+    'Kecamatan Beji, Kabupaten Pasuruan, Provinsi Jawa Timur 67154  •  #BejolanAji  •  Guru Hebat, Indonesia Kuat',
+    centerX,
+    kopTopY + 20.5,
+    { align: 'center' }
+  );
+
+  // Garis Kop Ganda
+  const lineY = kopTopY + 23.5;
+  doc.setDrawColor(15, 23, 42);
+  doc.setLineWidth(0.9);
+  doc.line(marginX, lineY, pageW - marginX, lineY);
+  doc.setLineWidth(0.3);
+  doc.line(marginX, lineY + 1.2, pageW - marginX, lineY + 1.2);
+
+  // JUDUL & NOMOR PENGUMUMAN
+  let cursorY = lineY + 9;
+  doc.setTextColor(15, 23, 42);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(13.5);
+  doc.text('PENGUMUMAN RESMI', centerX, cursorY, { align: 'center' });
+  const titleW = doc.getTextWidth('PENGUMUMAN RESMI');
+  doc.setLineWidth(0.4);
+  doc.line(centerX - titleW / 2, cursorY + 1.1, centerX + titleW / 2, cursorY + 1.1);
+
+  cursorY += 5.5;
+  doc.setFont('courier', 'bold');
+  doc.setFontSize(9.5);
+  doc.setTextColor(51, 65, 85);
+  doc.text('Nomor: 421.2 / 05 / FK3S.BJI / HGN / XI / 2026', centerX, cursorY, { align: 'center' });
+
+  cursorY += 6.5;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(10.5);
+  doc.setTextColor(0, 74, 173);
+  doc.text('PENETAPAN 5 FINALIS TERBAIK (TOP 5) LOLOS BABAK FINAL', centerX, cursorY, { align: 'center' });
+  cursorY += 5;
+  doc.text('LOMBA GURU INSPIRATIF HARI GURU NASIONAL TAHUN 2026', centerX, cursorY, { align: 'center' });
+
+  // PARAGRAF PEMBUKA
+  cursorY += 8;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(10);
+  doc.setTextColor(15, 23, 42);
+  const introText =
+    `Berdasarkan hasil penilaian objektif dan rapat pleno Dewan Juri Tahap Penyisihan terhadap seluruh portofolio karya inovasi pembelajaran guru Sekolah Dasar se-Kecamatan Beji, Kabupaten Pasuruan, dengan ini Panitia Pelaksana Peringatan Hari Guru Nasional Tahun 2026 ${organizer} menetapkan 5 (lima) peserta terbaik (Top 5) yang dinyatakan LOLOS KE BABAK FINAL (Presentasi & Wawancara Luring) sebagai berikut:`;
+  const introLines = doc.splitTextToSize(introText, contentW);
+  doc.text(introLines, marginX, cursorY, { align: 'justify', maxWidth: contentW });
+  cursorY += introLines.length * 4.8 + 4;
+
+  // TABEL RESMI 5 FINALIS
+  autoTable(doc, {
+    startY: cursorY,
+    margin: { left: marginX, right: marginX },
+    head: [['No.', 'Nama Guru', 'Asal Sekolah', 'Judul Karya Inovasi Pembelajaran']],
+    body: entries.map((e) => [String(e.rank), e.full_name, e.school, e.innovation_title]),
+    theme: 'grid',
+    styles: {
+      font: 'helvetica',
+      fontSize: 9.2,
+      textColor: [15, 23, 42],
+      lineColor: [30, 41, 59],
+      lineWidth: 0.25,
+      cellPadding: { top: 3, right: 3, bottom: 3, left: 3 },
+      valign: 'top'
+    },
+    headStyles: {
+      fillColor: [0, 74, 173],
+      textColor: [255, 255, 255],
+      fontStyle: 'bold',
+      halign: 'left'
+    },
+    columnStyles: {
+      0: { cellWidth: 11, halign: 'center', fontStyle: 'bold' },
+      1: { cellWidth: 48, fontStyle: 'bold' },
+      2: { cellWidth: 38 },
+      3: { cellWidth: contentW - 97 }
+    },
+    alternateRowStyles: {
+      fillColor: [248, 250, 252]
+    }
+  });
+
+  cursorY = ((doc as any).lastAutoTable?.finalY || cursorY + 60) + 6;
+
+  // KOTAK KETENTUAN BABAK FINAL
+  const ketentuanItems = [
+    '1. Kelima finalis wajib mengikuti Babak Final Presentasi & Wawancara Luring di hadapan Dewan Juri (Korwilcam, Pengawas SD, dan Praktisi Pendidikan) sesuai jadwal resmi panitia.',
+    '2. Alokasi waktu uji petik setiap finalis adalah 15 menit, terdiri atas 7 menit paparan karya inovasi (berbasis alur STAR & demonstrasi media) serta 8 menit sesi tanya jawab Dewan Juri.',
+    '3. Aspek penilaian Babak Final mencakup: Presentasi & Tanya Jawab (20%), Ide Inovasi Pembelajaran (20%), Prinsip Deep Learning (20%), Prinsip Alur STAR (20%), dan Dampak Nyata (20%).',
+    '4. Finalis wajib membawa media pembelajaran/alat peraga (fisik maupun digital) serta salinan cetak Modul Ajar untuk verifikasi karya. Keputusan Dewan Juri bersifat mutlak.'
+  ];
+  const wrappedKetentuan = ketentuanItems.map((line) => doc.splitTextToSize(line, contentW - 8));
+  const totalKetLines = wrappedKetentuan.reduce((acc, arr) => acc + arr.length, 0);
+  const boxH = 9 + totalKetLines * 4.2 + 3;
+
+  doc.setFillColor(248, 250, 252);
+  doc.setDrawColor(100, 116, 139);
+  doc.setLineWidth(0.3);
+  doc.roundedRect(marginX, cursorY, contentW, boxH, 1.5, 1.5, 'FD');
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.2);
+  doc.setTextColor(0, 74, 173);
+  doc.text('KETENTUAN PELAKSANAAN TAHAP SELANJUTNYA (BABAK FINAL):', marginX + 4, cursorY + 5.5);
+
+  let kY = cursorY + 10.2;
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.8);
+  doc.setTextColor(15, 23, 42);
+  wrappedKetentuan.forEach((lines) => {
+    doc.text(lines, marginX + 4, kY);
+    kY += lines.length * 4.2 + 0.6;
+  });
+
+  cursorY += boxH + 6;
+
+  // PENUTUP
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.8);
+  const closingText =
+    'Demikian pengumuman resmi ini disampaikan untuk diketahui dan dilaksanakan sebagaimana mestinya. Panitia mengucapkan selamat kepada para finalis serta apresiasi setinggi-tingginya kepada seluruh guru inspiratif se-Kecamatan Beji atas dedikasi dan karya inovasinya.';
+  const closingLines = doc.splitTextToSize(closingText, contentW);
+  doc.text(closingLines, marginX, cursorY, { align: 'justify', maxWidth: contentW });
+  cursorY += closingLines.length * 4.6 + 8;
+
+  // BLOK TANDA TANGAN
+  const signY = Math.min(cursorY, 248);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(8.8);
+  doc.setTextColor(51, 65, 85);
+  doc.text('Tembusan Yth.:', marginX, signY);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.5);
+  doc.text('1. Korwilcam Bidang Pendidikan Kecamatan Beji', marginX, signY + 4.5);
+  doc.text('2. Pengawas SD Kecamatan Beji', marginX, signY + 8.8);
+  doc.text('3. Seluruh Kepala SD se-Kecamatan Beji', marginX, signY + 13.1);
+  doc.setFontSize(7.5);
+  doc.setTextColor(100, 116, 139);
+  doc.text('Dokumen Resmi Portal Digital HGN 2026 FK3S Kec. Beji', marginX, signY + 20);
+
+  const rightCenterX = pageW - marginX - 38;
+  doc.setTextColor(15, 23, 42);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9.5);
+  doc.text('Beji, 26 November 2026', rightCenterX, signY, { align: 'center' });
+  doc.setFont('helvetica', 'bold');
+  doc.text(`Ketua Panitia HGN 2026 / Ketua ${organizer}`, rightCenterX, signY + 4.8, { align: 'center' });
+
+  doc.setFont('helvetica', 'italic');
+  doc.setFontSize(8);
+  doc.setTextColor(148, 163, 184);
+  doc.text('(Stempel & Tanda Tangan Resmi)', rightCenterX, signY + 15.5, { align: 'center' });
+
+  doc.setTextColor(15, 23, 42);
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9.5);
+  const sigLabel = 'PANITIA PELAKSANA HGN FK3S KEC. BEJI';
+  doc.text(sigLabel, rightCenterX, signY + 25.5, { align: 'center' });
+  const sigW = doc.getTextWidth(sigLabel);
+  doc.setLineWidth(0.3);
+  doc.line(rightCenterX - sigW / 2, signY + 26.5, rightCenterX + sigW / 2, signY + 26.5);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8.2);
+  doc.setTextColor(71, 85, 105);
+  doc.text('Kabupaten Pasuruan • Provinsi Jawa Timur', rightCenterX, signY + 30.5, { align: 'center' });
+
+  doc.save('Pengumuman_Resmi_Top5_Lomba_Guru_Inspiratif_2026_FK3S_Beji_A4.pdf');
 }
 
 export const OfficialTop5AnnouncementModal: React.FC<OfficialTop5AnnouncementModalProps> = ({
@@ -249,21 +395,22 @@ export const OfficialTop5AnnouncementModal: React.FC<OfficialTop5AnnouncementMod
   organizer = 'FK3S KEC. BEJI',
   top5
 }) => {
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [downloadedNotice, setDownloadedNotice] = useState(false);
 
   if (!isOpen) return null;
 
   const entries = resolveFinalistEntries(top5);
 
-  const handleDownloadDoc = () => {
-    const html = buildAnnouncementWordHtml(entries, fk3sLogo, mainHgnLogo);
-    triggerFileDownload(
-      html,
-      'Pengumuman_Resmi_Top5_Lomba_Guru_Inspiratif_2026_FK3S_Beji_A4.doc',
-      'application/msword;charset=utf-8'
-    );
-    setDownloadedNotice(true);
-    setTimeout(() => setDownloadedNotice(false), 3000);
+  const handleDownloadPdf = async () => {
+    setExportingPdf(true);
+    try {
+      await exportTop5AnnouncementPdf(entries, organizer);
+      setDownloadedNotice(true);
+      setTimeout(() => setDownloadedNotice(false), 3000);
+    } finally {
+      setExportingPdf(false);
+    }
   };
 
   return (
@@ -309,30 +456,41 @@ export const OfficialTop5AnnouncementModal: React.FC<OfficialTop5AnnouncementMod
       `}</style>
 
       <div className="w-full max-w-5xl max-h-[96vh] rounded-3xl bg-white dark:bg-[#0a1122] border-2 border-[#004AAD] dark:border-[#FFB800] shadow-2xl flex flex-col overflow-hidden">
-        {/* Top Action Toolbar */}
+        {/* Top Action Toolbar (PDF Only — No Word) */}
         <div className="no-print shrink-0 bg-slate-900 text-white px-4 sm:px-6 py-3 border-b border-slate-700 flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2.5">
             <Award className="w-4 h-4 text-[#FFD000] shrink-0" />
             <span className="font-display font-bold text-xs sm:text-sm tracking-wide">
-              Pengumuman Resmi Top 5 Finalis — Format Cetak A4 ({organizer})
+              Pengumuman Resmi Top 5 Finalis — Format PDF A4 ({organizer})
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={handleDownloadDoc}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold text-xs inline-flex items-center gap-1.5 border border-slate-600 cursor-pointer whitespace-nowrap"
+              disabled={exportingPdf}
+              onClick={handleDownloadPdf}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FFD000] via-[#FFB800] to-[#FF9000] hover:brightness-105 text-slate-950 font-black text-xs inline-flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap disabled:opacity-60"
             >
-              <Download className="w-3.5 h-3.5 text-cyan-300" />
-              <span>{downloadedNotice ? 'Berhasil Diunduh' : 'Unduh Word (.doc A4)'}</span>
+              {exportingPdf ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+              <span>
+                {exportingPdf
+                  ? 'Menyiapkan PDF A4...'
+                  : downloadedNotice
+                  ? 'PDF A4 Berhasil Diunduh'
+                  : 'Unduh PDF (A4)'}
+              </span>
             </button>
             <button
               type="button"
               onClick={() => window.print()}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FFD000] via-[#FFB800] to-[#FF9000] hover:brightness-105 text-slate-950 font-black text-xs inline-flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap"
+              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold text-xs inline-flex items-center gap-1.5 border border-slate-600 cursor-pointer whitespace-nowrap"
             >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Cetak / Simpan PDF (A4)</span>
+              <Printer className="w-3.5 h-3.5 text-cyan-300" />
+              <span>Cetak Langsung</span>
             </button>
             <button
               type="button"
@@ -354,12 +512,12 @@ export const OfficialTop5AnnouncementModal: React.FC<OfficialTop5AnnouncementMod
             <div>
               {/* KOP SURAT RESMI DENGAN LOGO PROPORSIONAL */}
               <div className="flex items-center justify-between gap-3 sm:gap-5 pb-3 border-b-[3px] border-slate-950">
-                <div className="shrink-0 w-16 sm:w-20 flex items-center justify-center">
+                <div className="shrink-0 w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center">
                   <img
                     src={fk3sLogo}
                     alt="Logo FK3S Kecamatan Beji"
                     referrerPolicy="no-referrer"
-                    className="max-h-16 sm:max-h-20 w-auto max-w-full object-contain"
+                    className="max-h-full max-w-full w-auto h-auto object-contain"
                     onError={(e) => {
                       const img = e.target as HTMLImageElement;
                       if (!img.src.includes('/assets/aistudio/logo_fk3s.png')) {
@@ -384,12 +542,12 @@ export const OfficialTop5AnnouncementModal: React.FC<OfficialTop5AnnouncementMod
                   </div>
                 </div>
 
-                <div className="shrink-0 w-16 sm:w-20 flex items-center justify-center">
+                <div className="shrink-0 w-16 sm:w-20 h-16 sm:h-20 flex items-center justify-center">
                   <img
                     src={mainHgnLogo}
                     alt="Logo Resmi HGN 2026"
                     referrerPolicy="no-referrer"
-                    className="max-h-16 sm:max-h-20 w-auto max-w-full object-contain"
+                    className="max-h-full max-w-full w-auto h-auto object-contain"
                     onError={(e) => {
                       const img = e.target as HTMLImageElement;
                       if (!img.src.includes('/assets/aistudio/logo_hgn.png')) {
@@ -473,11 +631,13 @@ export const OfficialTop5AnnouncementModal: React.FC<OfficialTop5AnnouncementMod
                     <strong>8 menit sesi tanya jawab</strong> bersama Dewan Juri.
                   </li>
                   <li>
-                    Finalis wajib membawa media pembelajaran/alat peraga (fisik maupun digital) serta salinan cetak
-                    Modul Ajar untuk keperluan verifikasi dan pertanggungjawaban karya.
+                    Aspek penilaian Babak Final meliputi: <strong>Presentasi &amp; Tanya Jawab (20%)</strong>,{' '}
+                    <strong>Ide Inovasi Pembelajaran (20%)</strong>, <strong>Prinsip Deep Learning (20%)</strong>,{' '}
+                    <strong>Prinsip Alur STAR (20%)</strong>, dan <strong>Dampak Nyata (20%)</strong>.
                   </li>
                   <li>
-                    Keputusan Dewan Juri bersifat independen, objektif, mutlak, dan tidak dapat diganggu gugat.
+                    Finalis wajib membawa media pembelajaran/alat peraga (fisik maupun digital) serta salinan cetak
+                    Modul Ajar untuk keperluan verifikasi karya. Keputusan Dewan Juri bersifat mutlak.
                   </li>
                 </ol>
               </div>
@@ -525,7 +685,8 @@ export const OfficialTop5AnnouncementModal: React.FC<OfficialTop5AnnouncementMod
 };
 
 /* ============================================================================
- * 2. DOWNLOAD & CETAK RUBRIK PENILAIAN OFFLINE (UKURAN A4 — TAHAP FINAL / PENYISIHAN)
+ * 2. DOWNLOAD RUBRIK PENILAIAN OFFLINE — FORMAT PDF A4 (LOGO PROPORSIONAL)
+ *    Khusus Tahap FINAL: Presentasi, Ide Inovasi, Deep Learning, STAR, Dampak Nyata
  * ============================================================================ */
 export interface OfflineRubricTarget {
   participant_id?: string;
@@ -547,202 +708,338 @@ interface OfflineRubricModalProps {
   allStageTargets?: OfflineRubricTarget[];
 }
 
-function buildSingleRubricHtmlBody(
+async function exportOfflineRubricPdf(
   stage: JudgingStage,
   criteria: ScoringCriterion[],
   juryName: string,
   juryCategory: string,
-  fk3sLogo: string,
-  mainHgnLogo: string,
-  target: OfflineRubricTarget | null,
-  pageBreakAfter: boolean
-): string {
-  const isFinal = stage === 'FINAL';
-  const stageTitle = isFinal
-    ? 'LEMBAR PENILAIAN & RUBRIK PENJURIAN OFFLINE — TAHAP FINAL (PRESENTASI & WAWANCARA)'
-    : 'LEMBAR PENILAIAN & RUBRIK PENJURIAN OFFLINE — TAHAP PENYISIHAN';
+  targets: Array<OfflineRubricTarget | null>,
+  filename: string
+) {
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
 
-  const criteriaBlocks = criteria
-    .map((crit, cIdx) => {
+  const [fk3sImg, hgnImg] = await Promise.all([
+    fetchLogoForPdf('fk3s'),
+    fetchLogoForPdf('hgn')
+  ]);
+
+  const pageW = doc.internal.pageSize.getWidth(); // 210mm
+  const pageH = doc.internal.pageSize.getHeight(); // 297mm
+  const marginX = 12;
+  const contentW = pageW - marginX * 2; // 186mm
+  const isFinal = stage === 'FINAL';
+
+  const drawRubricHeader = (docRef: jsPDF): number => {
+    const topY = 9;
+    const slotW = 17;
+    const slotH = 15;
+    drawProportionalImageInPdf(docRef, fk3sImg, marginX, topY, slotW, slotH);
+    drawProportionalImageInPdf(docRef, hgnImg, pageW - marginX - slotW, topY, slotW, slotH);
+
+    const cx = pageW / 2;
+    docRef.setTextColor(15, 23, 42);
+    docRef.setFont('helvetica', 'bold');
+    docRef.setFontSize(10.5);
+    docRef.text('FORUM KELOMPOK KERJA KEPALA SEKOLAH (FK3S) KECAMATAN BEJI', cx, topY + 4.2, { align: 'center' });
+
+    docRef.setTextColor(0, 74, 173);
+    docRef.setFontSize(9.2);
+    docRef.text(
+      isFinal
+        ? 'LEMBAR RUBRIK PENILAIAN OFFLINE — TAHAP FINAL (PRESENTASI & WAWANCARA)'
+        : 'LEMBAR RUBRIK PENILAIAN OFFLINE — TAHAP PENYISIHAN',
+      cx,
+      topY + 9,
+      { align: 'center' }
+    );
+
+    docRef.setTextColor(71, 85, 105);
+    docRef.setFont('helvetica', 'normal');
+    docRef.setFontSize(7.6);
+    docRef.text(
+      'Lomba Guru Inspiratif Hari Guru Nasional 2026  •  Kabupaten Pasuruan  •  Instrumen Skala Likert (1 – 5)',
+      cx,
+      topY + 13.4,
+      { align: 'center' }
+    );
+
+    const lineY = topY + 16.2;
+    docRef.setDrawColor(15, 23, 42);
+    docRef.setLineWidth(0.75);
+    docRef.line(marginX, lineY, pageW - marginX, lineY);
+    docRef.setLineWidth(0.25);
+    docRef.line(marginX, lineY + 1, pageW - marginX, lineY + 1);
+    return lineY + 3.5;
+  };
+
+  targets.forEach((target, targetIdx) => {
+    if (targetIdx > 0) {
+      doc.addPage('a4', 'portrait');
+    }
+
+    let y = drawRubricHeader(doc);
+
+    // Identitas Peserta & Juri
+    const identityBody: string[][] = [
+      [
+        'Nama Peserta',
+        target?.full_name || '...........................................................',
+        'Nama Juri',
+        juryName || '........................................'
+      ],
+      [
+        'Asal Sekolah',
+        target?.school || '...........................................................',
+        'Unsur / Tgl',
+        `${juryCategory || '................'} / ...... Nov 2026`
+      ],
+      [
+        'Judul Inovasi',
+        target?.innovation_title || '.................................................................................................................',
+        '',
+        ''
+      ]
+    ];
+
+    if (isFinal) {
+      identityBody.push([
+        'Alokasi Final',
+        'Total 15 Menit / Finalis: Paparan Presentasi Karya (7 Menit) + Tanya Jawab Dewan Juri (8 Menit)',
+        '',
+        ''
+      ]);
+    }
+
+    autoTable(doc, {
+      startY: y,
+      margin: { left: marginX, right: marginX },
+      body: identityBody.map((row, idx) => {
+        if (idx >= 2) {
+          return [
+            {
+              content: row[0],
+              styles: {
+                fillColor: idx === 3 ? [255, 251, 235] : [241, 245, 249],
+                fontStyle: 'bold' as const,
+                textColor: idx === 3 ? [146, 64, 14] : [15, 23, 42]
+              }
+            },
+            {
+              content: row[1],
+              colSpan: 3,
+              styles: {
+                fillColor: idx === 3 ? [255, 251, 235] : [255, 255, 255],
+                fontStyle: idx === 3 ? ('bold' as const) : ('normal' as const)
+              }
+            }
+          ];
+        }
+        return [
+          { content: row[0], styles: { fillColor: [241, 245, 249], fontStyle: 'bold' as const } },
+          { content: row[1], styles: { fontStyle: idx === 0 ? ('bold' as const) : ('normal' as const) } },
+          { content: row[2], styles: { fillColor: [241, 245, 249], fontStyle: 'bold' as const } },
+          { content: row[3] }
+        ];
+      }),
+      theme: 'grid',
+      styles: {
+        font: 'helvetica',
+        fontSize: 7.8,
+        textColor: [15, 23, 42],
+        lineColor: [51, 65, 85],
+        lineWidth: 0.2,
+        cellPadding: { top: 1.8, right: 2.2, bottom: 1.8, left: 2.2 }
+      },
+      columnStyles: {
+        0: { cellWidth: 24 },
+        1: { cellWidth: 74 },
+        2: { cellWidth: 23 },
+        3: { cellWidth: contentW - 121 }
+      }
+    });
+
+    y = ((doc as any).lastAutoTable?.finalY || y + 20) + 2.5;
+
+    // Panduan Skala Likert 1–5
+    doc.setFillColor(248, 250, 252);
+    doc.setDrawColor(148, 163, 184);
+    doc.setLineWidth(0.25);
+    doc.rect(marginX, y, contentW, 7.2, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.4);
+    doc.setTextColor(15, 23, 42);
+    doc.text(
+      'Panduan Skala Likert (1–5):  1 = Sangat Kurang (20)  •  2 = Kurang (40)  •  3 = Cukup (60)  •  4 = Baik (80)  •  5 = Sangat Baik (100)',
+      marginX + 2.5,
+      y + 3.1
+    );
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7);
+    doc.setTextColor(51, 65, 85);
+    doc.text(
+      'Beri tanda centang (v) atau lingkari satu angka pada setiap indikator. Rumus: Skor Kriteria = (Total Likert / Skor Maks) x 100, lalu dikali Bobot (%).',
+      marginX + 2.5,
+      y + 6.0
+    );
+    y += 9.2;
+
+    // Bangun Satu Tabel Rubrik Terpadu yang Rapi (Otomatis Lanjut Halaman Rapi jika Penuh)
+    const tableBody: any[] = [];
+    criteria.forEach((crit, cIdx) => {
       const inds = parseIndicators(crit.indicators_json);
       const maxPts = inds.length * 5;
-      const indRows = inds
-        .map(
-          (indText, iIdx) => `
-          <tr>
-            <td style="border:1px solid #334155;padding:4px 6px;text-align:center;width:26px;">${iIdx + 1}</td>
-            <td style="border:1px solid #334155;padding:4px 6px;">${escapeHtml(indText)}</td>
-            <td style="border:1px solid #334155;padding:4px 4px;text-align:center;width:28px;">☐ 1</td>
-            <td style="border:1px solid #334155;padding:4px 4px;text-align:center;width:28px;">☐ 2</td>
-            <td style="border:1px solid #334155;padding:4px 4px;text-align:center;width:28px;">☐ 3</td>
-            <td style="border:1px solid #334155;padding:4px 4px;text-align:center;width:28px;">☐ 4</td>
-            <td style="border:1px solid #334155;padding:4px 4px;text-align:center;width:28px;">☐ 5</td>
-          </tr>`
-        )
-        .join('');
-
-      return `
-        <div style="margin-bottom:10px;page-break-inside:avoid;">
-          <div style="background:#004AAD;color:#ffffff;padding:5px 8px;font-weight:bold;font-size:9.5pt;">
-            ${cIdx + 1}. ${escapeHtml(crit.criterion_name)} — Bobot ${crit.weight_percentage}% (${inds.length} Indikator, Skor Maks Likert: ${maxPts})
-          </div>
-          <table style="width:100%;border-collapse:collapse;font-size:8.8pt;">
-            <thead>
-              <tr style="background:#f1f5f9;">
-                <th style="border:1px solid #334155;padding:4px 6px;text-align:center;">No</th>
-                <th style="border:1px solid #334155;padding:4px 6px;text-align:left;">Indikator Penilaian</th>
-                <th style="border:1px solid #334155;padding:4px 3px;text-align:center;">1</th>
-                <th style="border:1px solid #334155;padding:4px 3px;text-align:center;">2</th>
-                <th style="border:1px solid #334155;padding:4px 3px;text-align:center;">3</th>
-                <th style="border:1px solid #334155;padding:4px 3px;text-align:center;">4</th>
-                <th style="border:1px solid #334155;padding:4px 3px;text-align:center;">5</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${indRows}
-              <tr style="background:#f8fafc;font-weight:bold;">
-                <td colspan="2" style="border:1px solid #334155;padding:5px 6px;text-align:right;">
-                  Total Poin Likert (Maks ${maxPts}): _______ &nbsp;|&nbsp; Skor Konversi (0–100) = (Total ÷ ${maxPts}) × 100 : _______
-                </td>
-                <td colspan="5" style="border:1px solid #334155;padding:5px 6px;text-align:center;">
-                  Tertimbang (${crit.weight_percentage}%): _________
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>`;
-    })
-    .join('');
-
-  return `
-    <div style="${pageBreakAfter ? 'page-break-after:always;' : ''}">
-      <table style="width:100%;border-collapse:collapse;border-bottom:2.5px solid #0f172a;margin-bottom:6px;">
-        <tr>
-          <td style="width:58px;text-align:center;vertical-align:middle;padding-bottom:4px;">
-            <img src="${escapeHtml(fk3sLogo)}" alt="Logo FK3S" style="height:48px;width:auto;max-width:56px;object-fit:contain;" />
-          </td>
-          <td style="text-align:center;vertical-align:middle;padding-bottom:4px;">
-            <div style="font-size:10.5pt;font-weight:bold;">FORUM KELOMPOK KERJA KEPALA SEKOLAH (FK3S) KECAMATAN BEJI</div>
-            <div style="font-size:9.5pt;font-weight:bold;color:#004AAD;">${stageTitle}</div>
-            <div style="font-size:8.2pt;color:#475569;">Lomba Guru Inspiratif Hari Guru Nasional 2026 · Kab. Pasuruan · Skala Likert 1–5</div>
-          </td>
-          <td style="width:58px;text-align:center;vertical-align:middle;padding-bottom:4px;">
-            <img src="${escapeHtml(mainHgnLogo)}" alt="Logo HGN" style="height:48px;width:auto;max-width:56px;object-fit:contain;" />
-          </td>
-        </tr>
-      </table>
-
-      <table style="width:100%;border-collapse:collapse;font-size:9pt;margin-bottom:8px;">
-        <tr>
-          <td style="border:1px solid #334155;padding:4px 7px;width:18%;background:#f8fafc;font-weight:bold;">Nama Peserta</td>
-          <td style="border:1px solid #334155;padding:4px 7px;width:36%;font-weight:bold;">${target?.full_name ? escapeHtml(target.full_name) : '...................................................'}</td>
-          <td style="border:1px solid #334155;padding:4px 7px;width:16%;background:#f8fafc;font-weight:bold;">Nama Juri</td>
-          <td style="border:1px solid #334155;padding:4px 7px;width:30%;">${juryName ? escapeHtml(juryName) : '........................................'}</td>
-        </tr>
-        <tr>
-          <td style="border:1px solid #334155;padding:4px 7px;background:#f8fafc;font-weight:bold;">Asal Sekolah</td>
-          <td style="border:1px solid #334155;padding:4px 7px;">${target?.school ? escapeHtml(target.school) : '...................................................'}</td>
-          <td style="border:1px solid #334155;padding:4px 7px;background:#f8fafc;font-weight:bold;">Unsur / Tanggal</td>
-          <td style="border:1px solid #334155;padding:4px 7px;">${juryCategory ? escapeHtml(juryCategory) : '.....................'} / .... Nov 2026</td>
-        </tr>
-        <tr>
-          <td style="border:1px solid #334155;padding:4px 7px;background:#f8fafc;font-weight:bold;">Judul Inovasi</td>
-          <td colspan="3" style="border:1px solid #334155;padding:4px 7px;">${target?.innovation_title ? escapeHtml(target.innovation_title) : '........................................................................................................................'}</td>
-        </tr>
-        ${
-          isFinal
-            ? `<tr>
-                <td style="border:1px solid #334155;padding:4px 7px;background:#fffbeb;font-weight:bold;">Alokasi Final</td>
-                <td colspan="3" style="border:1px solid #334155;padding:4px 7px;background:#fffbeb;"><strong>Total 15 Menit:</strong> Paparan Presentasi Karya (7 Menit) + Tanya Jawab Dewan Juri (8 Menit)</td>
-              </tr>`
-            : ''
+      tableBody.push([
+        {
+          content: `${cIdx + 1}. ${crit.criterion_name}  —  Bobot ${crit.weight_percentage}%  (${inds.length} Indikator, Skor Maks Likert: ${maxPts})`,
+          colSpan: 7,
+          styles: {
+            fillColor: [0, 74, 173],
+            textColor: [255, 255, 255],
+            fontStyle: 'bold',
+            fontSize: 7.8,
+            cellPadding: { top: 1.8, right: 2.5, bottom: 1.8, left: 2.5 }
+          }
         }
-      </table>
+      ]);
 
-      <div style="border:1px solid #94a3b8;background:#f8fafc;padding:5px 8px;font-size:8.2pt;margin-bottom:8px;">
-        <strong>Panduan Skala Likert (1–5):</strong>
-        <strong>1</strong> = Sangat Kurang (20) &nbsp;·&nbsp;
-        <strong>2</strong> = Kurang (40) &nbsp;·&nbsp;
-        <strong>3</strong> = Cukup (60) &nbsp;·&nbsp;
-        <strong>4</strong> = Baik (80) &nbsp;·&nbsp;
-        <strong>5</strong> = Sangat Baik (100).
-        Beri tanda centang (✓) atau lingkari satu angka pada setiap indikator.
-      </div>
+      inds.forEach((indText, iIdx) => {
+        tableBody.push([
+          { content: `${cIdx + 1}.${iIdx + 1}`, styles: { halign: 'center', fontStyle: 'bold' } },
+          { content: indText },
+          { content: '[  ] 1', styles: { halign: 'center', font: 'courier', fontSize: 7.2 } },
+          { content: '[  ] 2', styles: { halign: 'center', font: 'courier', fontSize: 7.2 } },
+          { content: '[  ] 3', styles: { halign: 'center', font: 'courier', fontSize: 7.2 } },
+          { content: '[  ] 4', styles: { halign: 'center', font: 'courier', fontSize: 7.2 } },
+          { content: '[  ] 5', styles: { halign: 'center', font: 'courier', fontSize: 7.2 } }
+        ]);
+      });
 
-      ${criteriaBlocks}
+      tableBody.push([
+        {
+          content: `Total Likert (Maks ${maxPts}): ______   |   Skor 0–100 = (Total / ${maxPts}) x 100 : ______`,
+          colSpan: 2,
+          styles: {
+            fillColor: [241, 245, 249],
+            fontStyle: 'bold',
+            halign: 'right',
+            fontSize: 7.2,
+            textColor: [30, 41, 59]
+          }
+        },
+        {
+          content: `Tertimbang (${crit.weight_percentage}%): _________`,
+          colSpan: 5,
+          styles: {
+            fillColor: [239, 246, 255],
+            fontStyle: 'bold',
+            halign: 'center',
+            fontSize: 7.3,
+            textColor: [0, 74, 173]
+          }
+        }
+      ]);
+    });
 
-      <table style="width:100%;border-collapse:collapse;font-size:9pt;margin-top:6px;">
-        <tr>
-          <td style="border:1px solid #0f172a;padding:6px 8px;background:#eff6ff;font-weight:bold;width:65%;">
-            TOTAL NILAI AKHIR TERTIMBANG (K1 + K2 + K3) &nbsp;&nbsp;[Skala 0 – 100]
-          </td>
-          <td style="border:1px solid #0f172a;padding:6px 8px;text-align:center;font-weight:bold;font-size:11pt;width:35%;">
-            ____________ / 100
-          </td>
-        </tr>
-      </table>
+    autoTable(doc, {
+      startY: y,
+      margin: { left: marginX, right: marginX, bottom: 12 },
+      head: [['No', 'Aspek & Indikator Penilaian', '1', '2', '3', '4', '5']],
+      body: tableBody,
+      theme: 'grid',
+      styles: {
+        font: 'helvetica',
+        fontSize: 7.4,
+        textColor: [15, 23, 42],
+        lineColor: [71, 85, 105],
+        lineWidth: 0.2,
+        cellPadding: { top: 1.35, right: 1.8, bottom: 1.35, left: 1.8 },
+        valign: 'middle'
+      },
+      headStyles: {
+        fillColor: [15, 23, 42],
+        textColor: [255, 255, 255],
+        fontStyle: 'bold',
+        halign: 'center',
+        fontSize: 7.5
+      },
+      columnStyles: {
+        0: { cellWidth: 10 },
+        1: { cellWidth: contentW - 65 },
+        2: { cellWidth: 11 },
+        3: { cellWidth: 11 },
+        4: { cellWidth: 11 },
+        5: { cellWidth: 11 },
+        6: { cellWidth: 11 }
+      }
+    });
 
-      <table style="width:100%;border-collapse:collapse;font-size:8.5pt;margin-top:8px;">
-        <tr>
-          <td style="border:1px solid #334155;padding:5px 7px;width:50%;height:46px;vertical-align:top;"><strong>Kelebihan Karya &amp; Paparan (7m):</strong></td>
-          <td style="border:1px solid #334155;padding:5px 7px;width:50%;height:46px;vertical-align:top;"><strong>Catatan Tanya Jawab (8m) &amp; Rekomendasi:</strong></td>
-        </tr>
-      </table>
+    y = ((doc as any).lastAutoTable?.finalY || y + 120) + 3;
 
-      <table style="width:100%;border-collapse:collapse;margin-top:10px;font-size:9pt;">
-        <tr>
-          <td style="width:60%;vertical-align:bottom;font-size:8pt;color:#475569;">
-            Predikat: A (≥90 Sangat Inspiratif) · B+ (80–89,99) · B (70–79,99) · C (60–69,99)
-          </td>
-          <td style="width:40%;text-align:center;">
-            Beji, ........ November 2026<br/>
-            <strong>Juri Penilai</strong>
-            <div style="height:36px;"></div>
-            ( ${juryName ? escapeHtml(juryName) : '........................................'} )
-          </td>
-        </tr>
-      </table>
-    </div>`;
-}
+    // Pastikan blok Total + Catatan + Tanda Tangan tidak terpotong di bawah halaman
+    if (y + 42 > pageH - 10) {
+      doc.addPage('a4', 'portrait');
+      y = 14;
+    }
 
-function buildOfflineRubricDocument(
-  stage: JudgingStage,
-  criteria: ScoringCriterion[],
-  juryName: string,
-  juryCategory: string,
-  fk3sLogo: string,
-  mainHgnLogo: string,
-  targets: Array<OfflineRubricTarget | null>
-): string {
-  const pages = targets
-    .map((t, idx) =>
-      buildSingleRubricHtmlBody(
-        stage,
-        criteria,
-        juryName,
-        juryCategory,
-        fk3sLogo,
-        mainHgnLogo,
-        t,
-        idx < targets.length - 1
-      )
-    )
-    .join('\n');
+    // Kotak Total Nilai Akhir
+    const criteriaSumLabel = criteria.map((_, i) => `K${i + 1}`).join(' + ');
+    doc.setFillColor(239, 246, 255);
+    doc.setDrawColor(15, 23, 42);
+    doc.setLineWidth(0.45);
+    doc.rect(marginX, y, contentW, 8.2, 'FD');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(8.5);
+    doc.setTextColor(15, 23, 42);
+    doc.text(`TOTAL NILAI AKHIR TERTIMBANG (${criteriaSumLabel})  [Skala 0 – 100]`, marginX + 3, y + 5.3);
+    doc.setTextColor(0, 74, 173);
+    doc.setFontSize(9.5);
+    doc.text('_______________ / 100', pageW - marginX - 3, y + 5.4, { align: 'right' });
+    y += 10.5;
 
-  return `<!DOCTYPE html>
-<html lang="id" xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
-<head>
-<meta charset="utf-8" />
-<title>Rubrik Penilaian Offline ${stage} - Lomba Guru Inspiratif 2026 FK3S Kec. Beji</title>
-<style>
-  @page { size: A4 portrait; margin: 10mm 12mm; }
-  body { font-family: Arial, Helvetica, sans-serif; color: #0f172a; margin: 0; padding: 0; }
-</style>
-</head>
-<body>
-${pages}
-</body>
-</html>`;
+    // Kotak Catatan Kualitatif
+    const halfW = (contentW - 3) / 2;
+    doc.setFillColor(255, 255, 255);
+    doc.setDrawColor(71, 85, 105);
+    doc.setLineWidth(0.25);
+    doc.rect(marginX, y, halfW, 17, 'D');
+    doc.rect(marginX + halfW + 3, y, halfW, 17, 'D');
+    doc.setFont('helvetica', 'bold');
+    doc.setFontSize(7.4);
+    doc.setTextColor(15, 23, 42);
+    doc.text(
+      isFinal ? 'Kelebihan Karya & Paparan (7 Menit):' : 'Kelebihan Karya:',
+      marginX + 2.2,
+      y + 3.8
+    );
+    doc.text(
+      isFinal ? 'Catatan Tanya Jawab (8 Menit) & Rekomendasi:' : 'Saran Perbaikan & Rekomendasi:',
+      marginX + halfW + 5.2,
+      y + 3.8
+    );
+    y += 20;
+
+    // Footer Predikat & Tanda Tangan Juri
+    doc.setFont('helvetica', 'normal');
+    doc.setFontSize(7.2);
+    doc.setTextColor(71, 85, 105);
+    doc.text('Predikat: A (>=90 Sangat Inspiratif) • B+ (80–89,99) • B (70–79,99) • C (60–69,99)', marginX, y + 11);
+
+    const signCenterX = pageW - marginX - 34;
+    doc.setTextColor(15, 23, 42);
+    doc.setFontSize(8.2);
+    doc.text('Beji, ........ November 2026', signCenterX, y + 1.5, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    doc.text('Juri Penilai', signCenterX, y + 5.2, { align: 'center' });
+    doc.setFont('helvetica', 'bold');
+    const jLabel = juryName || '........................................';
+    doc.text(`( ${jLabel} )`, signCenterX, y + 17.5, { align: 'center' });
+  });
+
+  doc.save(filename);
 }
 
 export const OfflineRubricModal: React.FC<OfflineRubricModalProps> = ({
@@ -760,6 +1057,7 @@ export const OfflineRubricModal: React.FC<OfflineRubricModalProps> = ({
   const [printMode, setPrintMode] = useState<'SINGLE' | 'BLANK' | 'ALL'>(
     targetParticipant ? 'SINGLE' : allStageTargets.length > 0 ? 'ALL' : 'BLANK'
   );
+  const [exportingPdf, setExportingPdf] = useState(false);
   const [downloadStatus, setDownloadStatus] = useState('');
 
   if (!isOpen) return null;
@@ -775,27 +1073,30 @@ export const OfflineRubricModal: React.FC<OfflineRubricModalProps> = ({
       ? allStageTargets
       : [null];
 
-  const handleDownloadFile = (format: 'DOC' | 'HTML') => {
-    const html = buildOfflineRubricDocument(
-      stage,
-      activeCriteria,
-      juryName,
-      juryCategory,
-      fk3sLogo,
-      mainHgnLogo,
-      resolvedTargets
-    );
-    const suffix =
-      printMode === 'SINGLE' && targetParticipant?.participant_id
-        ? targetParticipant.participant_id
-        : printMode === 'ALL'
-        ? `Bundel_${resolvedTargets.length}_Finalis`
-        : 'Master_Kosong';
-    const ext = format === 'DOC' ? 'doc' : 'html';
-    const mime = format === 'DOC' ? 'application/msword;charset=utf-8' : 'text/html;charset=utf-8';
-    triggerFileDownload(html, `Rubrik_Penilaian_${stage}_Offline_${suffix}_HGN2026.${ext}`, mime);
-    setDownloadStatus(`File .${ext} berhasil diunduh`);
-    setTimeout(() => setDownloadStatus(''), 3000);
+  const handleDownloadPdf = async () => {
+    setExportingPdf(true);
+    setDownloadStatus('');
+    try {
+      const suffix =
+        printMode === 'SINGLE' && targetParticipant?.participant_id
+          ? targetParticipant.participant_id
+          : printMode === 'ALL'
+          ? `Bundel_${resolvedTargets.length}_Finalis`
+          : 'Master_Kosong';
+      const filename = `Rubrik_Penilaian_${stage}_Offline_${suffix}_HGN2026_A4.pdf`;
+      await exportOfflineRubricPdf(
+        stage,
+        activeCriteria,
+        juryName,
+        juryCategory,
+        resolvedTargets,
+        filename
+      );
+      setDownloadStatus('PDF A4 berhasil diunduh');
+      setTimeout(() => setDownloadStatus(''), 3000);
+    } finally {
+      setExportingPdf(false);
+    }
   };
 
   return (
@@ -842,38 +1143,35 @@ export const OfflineRubricModal: React.FC<OfflineRubricModalProps> = ({
       `}</style>
 
       <div className="w-full max-w-5xl max-h-[96vh] rounded-3xl bg-white dark:bg-[#0a1122] border-2 border-[#004AAD] dark:border-[#FFB800] shadow-2xl flex flex-col overflow-hidden">
-        {/* Top Controls */}
+        {/* Top Controls (PDF Download Only — No Word) */}
         <div className="no-print shrink-0 bg-slate-900 text-white px-4 sm:px-6 py-3 border-b border-slate-700 flex flex-wrap items-center justify-between gap-2.5">
           <div className="flex items-center gap-2.5">
             <ClipboardList className="w-4 h-4 text-[#FFD000] shrink-0" />
             <span className="font-display font-bold text-xs sm:text-sm">
-              Download Rubrik Penilaian Offline — Tahap {stage === 'FINAL' ? 'FINAL (Top 5)' : 'PENYISIHAN'}
+              Download Rubrik Penilaian Offline (PDF A4) — Tahap {stage === 'FINAL' ? 'FINAL (Top 5)' : 'PENYISIHAN'}
             </span>
           </div>
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
-              onClick={() => handleDownloadFile('DOC')}
-              className="px-3.5 py-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              disabled={exportingPdf}
+              onClick={handleDownloadPdf}
+              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FFD000] via-[#FFB800] to-[#FF9000] hover:brightness-105 text-slate-950 font-black text-xs inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap disabled:opacity-60"
             >
-              <Download className="w-3.5 h-3.5" />
-              <span>Unduh Word (.doc)</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => handleDownloadFile('HTML')}
-              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold text-xs inline-flex items-center gap-1.5 border border-slate-600 cursor-pointer whitespace-nowrap"
-            >
-              <FileText className="w-3.5 h-3.5 text-cyan-300" />
-              <span>Unduh Offline (.html)</span>
+              {exportingPdf ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Download className="w-3.5 h-3.5" />
+              )}
+              <span>{exportingPdf ? 'Menyiapkan PDF A4...' : 'Unduh PDF (A4)'}</span>
             </button>
             <button
               type="button"
               onClick={() => window.print()}
-              className="px-4 py-2 rounded-xl bg-gradient-to-r from-[#FFD000] via-[#FFB800] to-[#FF9000] hover:brightness-105 text-slate-950 font-black text-xs inline-flex items-center gap-1.5 cursor-pointer whitespace-nowrap"
+              className="px-3.5 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-100 font-bold text-xs inline-flex items-center gap-1.5 border border-slate-600 cursor-pointer whitespace-nowrap"
             >
-              <Printer className="w-3.5 h-3.5" />
-              <span>Cetak / PDF A4</span>
+              <Printer className="w-3.5 h-3.5 text-cyan-300" />
+              <span>Cetak Langsung</span>
             </button>
             <button
               type="button"
@@ -912,7 +1210,7 @@ export const OfflineRubricModal: React.FC<OfflineRubricModalProps> = ({
                     : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
                 }`}
               >
-                Bundel Semua Finalis ({allStageTargets.length} Lembar A4)
+                Bundel Semua Finalis ({allStageTargets.length} Finalis · PDF A4)
               </button>
             )}
             <button
@@ -924,7 +1222,7 @@ export const OfflineRubricModal: React.FC<OfflineRubricModalProps> = ({
                   : 'bg-white dark:bg-slate-800 text-slate-700 dark:text-slate-300 border border-slate-300 dark:border-slate-700'
               }`}
             >
-              Form Master Kosong (1 Lembar A4)
+              Form Master Kosong (PDF A4)
             </button>
           </div>
 
@@ -946,14 +1244,14 @@ export const OfflineRubricModal: React.FC<OfflineRubricModalProps> = ({
                   tIdx < resolvedTargets.length - 1 ? 'rubric-page-break' : ''
                 }`}
               >
-                {/* Compact Kop Surat */}
+                {/* Compact Kop Surat dengan Logo Proporsional */}
                 <div className="flex items-center justify-between gap-3 pb-2.5 border-b-2 border-slate-950 mb-3">
-                  <div className="w-14 shrink-0 flex items-center justify-center">
+                  <div className="w-14 h-12 shrink-0 flex items-center justify-center">
                     <img
                       src={fk3sLogo}
                       alt="Logo FK3S"
                       referrerPolicy="no-referrer"
-                      className="max-h-12 w-auto object-contain"
+                      className="max-h-full max-w-full w-auto h-auto object-contain"
                     />
                   </div>
                   <div className="flex-1 text-center">
@@ -969,12 +1267,12 @@ export const OfflineRubricModal: React.FC<OfflineRubricModalProps> = ({
                       Lomba Guru Inspiratif Hari Guru Nasional 2026 · Kab. Pasuruan · Skala Likert 1–5
                     </div>
                   </div>
-                  <div className="w-14 shrink-0 flex items-center justify-center">
+                  <div className="w-14 h-12 shrink-0 flex items-center justify-center">
                     <img
                       src={mainHgnLogo}
                       alt="Logo HGN 2026"
                       referrerPolicy="no-referrer"
-                      className="max-h-12 w-auto object-contain"
+                      className="max-h-full max-w-full w-auto h-auto object-contain"
                     />
                   </div>
                 </div>
@@ -1058,12 +1356,12 @@ export const OfflineRubricModal: React.FC<OfflineRubricModalProps> = ({
                         <table className="w-full border-collapse text-[10.5px]">
                           <thead>
                             <tr className="bg-slate-100 border-b border-slate-700">
-                              <th className="py-1 px-1.5 border-r border-slate-600 text-center w-7">No</th>
+                              <th className="py-1 px-1.5 border-r border-slate-600 text-center w-8">No</th>
                               <th className="py-1 px-2 border-r border-slate-600 text-left">Indikator Penilaian</th>
                               {[1, 2, 3, 4, 5].map((lv) => (
                                 <th
                                   key={lv}
-                                  className="py-1 px-1 border-r last:border-r-0 border-slate-600 text-center w-8 font-mono"
+                                  className="py-1 px-1 border-r last:border-r-0 border-slate-600 text-center w-9 font-mono"
                                 >
                                   {lv}
                                 </th>
@@ -1074,7 +1372,7 @@ export const OfflineRubricModal: React.FC<OfflineRubricModalProps> = ({
                             {inds.map((indText, iIdx) => (
                               <tr key={`${crit.criterion_id}-${iIdx}`}>
                                 <td className="py-1 px-1.5 border-r border-slate-600 text-center font-mono">
-                                  {iIdx + 1}
+                                  {cIdx + 1}.{iIdx + 1}
                                 </td>
                                 <td className="py-1 px-2 border-r border-slate-600 leading-snug">{indText}</td>
                                 {[1, 2, 3, 4, 5].map((lv) => (
@@ -1105,17 +1403,25 @@ export const OfflineRubricModal: React.FC<OfflineRubricModalProps> = ({
 
                 {/* Final Total Box */}
                 <div className="mt-3 border-2 border-slate-900 bg-blue-50/70 px-3 py-2 flex items-center justify-between text-xs font-black">
-                  <span>TOTAL NILAI AKHIR TERTIMBANG (KRITERIA 1 + 2 + 3)</span>
+                  <span>
+                    TOTAL NILAI AKHIR TERTIMBANG ({activeCriteria.map((_, i) => `K${i + 1}`).join(' + ')})
+                  </span>
                   <span className="font-mono text-sm">____________ / 100</span>
                 </div>
 
                 {/* Qualitative Notes */}
                 <div className="grid grid-cols-2 gap-2.5 mt-2.5 text-[10.5px]">
-                  <div className="border border-slate-700 p-2 min-h-[58px]">
-                    <div className="font-bold text-slate-900">Kelebihan Karya &amp; Paparan (7 Menit):</div>
+                  <div className="border border-slate-700 p-2 min-h-[54px]">
+                    <div className="font-bold text-slate-900">
+                      {stage === 'FINAL' ? 'Kelebihan Karya & Paparan (7 Menit):' : 'Kelebihan Karya:'}
+                    </div>
                   </div>
-                  <div className="border border-slate-700 p-2 min-h-[58px]">
-                    <div className="font-bold text-slate-900">Catatan Tanya Jawab (8 Menit) &amp; Rekomendasi:</div>
+                  <div className="border border-slate-700 p-2 min-h-[54px]">
+                    <div className="font-bold text-slate-900">
+                      {stage === 'FINAL'
+                        ? 'Catatan Tanya Jawab (8 Menit) & Rekomendasi:'
+                        : 'Saran Perbaikan & Rekomendasi:'}
+                    </div>
                   </div>
                 </div>
 

@@ -2103,7 +2103,7 @@ export const JuryPortal: React.FC<JuryPortalProps> = ({
                 5 Finalis Lolos Siap Dinilai (Paparan 7 Menit + Tanya Jawab 8 Menit)
               </h3>
               <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
-                Gunakan tombol di samping untuk langsung memfilter daftar 5 Finalis atau mengunduh rubrik penilaian offline (ukuran A4 / Word / PDF) untuk penjurian luring.
+                Rubrik Final mencakup 5 aspek khusus (Presentasi, Ide Inovasi, Deep Learning, Prinsip STAR, dan Dampak Nyata). Gunakan tombol di samping untuk memfilter 5 Finalis atau mengunduh rubrik penilaian offline dalam format PDF A4.
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-2 shrink-0">

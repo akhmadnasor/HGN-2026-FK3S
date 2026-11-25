@@ -229,7 +229,7 @@ function buildAnnouncementWordHtml(
         3. Seluruh Kepala SD se-Kecamatan Beji
       </td>
       <td style="width:48%;text-align:center;vertical-align:top;">
-        Beji, 25 November 2026<br/>
+        Beji, 26 November 2026<br/>
         <strong>Ketua Panitia HGN 2026 / Ketua FK3S Kec. Beji</strong>
         <div style="height:56px;"></div>
         <div style="font-weight:bold;text-decoration:underline;">PANITIA HGN FK3S KEC. BEJI</div>
@@ -502,7 +502,7 @@ export const OfficialTop5AnnouncementModal: React.FC<OfficialTop5AnnouncementMod
               </div>
 
               <div className="text-center text-xs text-slate-950">
-                <div>Beji, 25 November 2026</div>
+                <div>Beji, 26 November 2026</div>
                 <div className="font-bold mt-0.5">Ketua Panitia HGN 2026 / Ketua {organizer}</div>
                 <div className="h-14 sm:h-16 flex items-center justify-center">
                   <span className="text-[10px] font-mono text-slate-400 italic">

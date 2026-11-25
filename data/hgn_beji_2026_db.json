@@ -112,7 +112,7 @@
       "key": "preliminary_results_published",
       "value": "true",
       "description": "Publikasi pengumuman Top 5",
-      "updated_at": "2026-11-25T09:30:00+07:00"
+      "updated_at": "2026-11-25T09:42:00+07:00"
     },
     {
       "key": "final_results_published",
@@ -149,6 +149,12 @@
       "value": "2026-11-01T00:54:06+07:00",
       "description": "Waktu pembaruan terakhir",
       "updated_at": "2026-11-01T00:54:06+07:00"
+    },
+    {
+      "key": "top5_announcement_at",
+      "value": "2026-11-26T07:00:00+07:00",
+      "description": "Jadwal rilis otomatis pengumuman Top 5 (WIB)",
+      "updated_at": "2026-11-25T09:42:00+07:00"
     }
   ],
   "JUKNIS": [
@@ -9025,10 +9031,10 @@
       "title": "Pengumuman Resmi 5 Finalis Terbaik (Top 5) Lolos Babak Final Lomba Guru Inspiratif 2026",
       "content": "Selamat kepada 5 Guru Inspiratif Kecamatan Beji yang resmi lolos ke Babak Final: (1) Ayu Nur Fitri, S.Pd — SDN Kedungringin IV Beji, (2) Mohammad Hilfi Azra Dzikrulloh, S.Pd. — SDN Baujeng II Beji, (3) Rahma Nurani, S.Pd. — SDN Glanggang II Beji, (4) Anita Puji Lestari, S.Pd — SDN Gununggangsir II Beji, dan (5) Anita Tri Wulandari, S.Pd — SDN Kedungringin II Beji. Finalis diwajibkan mengikuti sesi Presentasi (7 menit) & Tanya Jawab (8 menit) di hadapan Dewan Juri. Surat pengumuman resmi ukuran A4 dapat dilihat dan diunduh langsung pada halaman ini.",
       "category": "Pengumuman Top 5 Finalis",
-      "publication_date": "2026-11-24T17:00:00.000Z",
+      "publication_date": "2026-11-26",
       "published": true,
       "display_order": 1,
-      "updated_at": "2026-11-25T09:15:00+07:00"
+      "updated_at": "2026-11-25T09:42:00+07:00"
     },
     {
       "announcement_id": "ANN-1",

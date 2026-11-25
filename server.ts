@@ -760,6 +760,7 @@ function applyRemoteDatabaseSnapshot(remoteData: any) {
       'active_judging_stage',
       'preliminary_results_published',
       'final_results_published',
+      'top5_announcement_at',
       'submission_enabled',
       'jury_portal_enabled'
     ]);
@@ -1150,12 +1151,30 @@ app.get('/api/public', (_req: Request, res: Response) => {
     .filter((h) => h.active)
     .sort((a, b) => a.display_order - b.display_order);
 
-  const pengumuman = [...db.PENGUMUMAN]
-    .filter((a) => a.published)
-    .sort((a, b) => a.display_order - b.display_order);
+  const scheduledTop5At = settings.top5_announcement_at || '';
+  const scheduledTop5Ms = scheduledTop5At ? new Date(scheduledTop5At).getTime() : 0;
+  const isTop5ScheduleReached =
+    !scheduledTop5Ms || Number.isNaN(scheduledTop5Ms) || Date.now() >= scheduledTop5Ms;
 
-  const top5Published = settings.preliminary_results_published === 'true';
+  const top5Published =
+    settings.preliminary_results_published === 'true' && isTop5ScheduleReached;
   const winnersPublished = settings.final_results_published === 'true';
+
+  publicSettings.top5_release_unlocked = top5Published ? 'true' : 'false';
+
+  const pengumuman = [...db.PENGUMUMAN]
+    .filter((a) => {
+      if (!a.published) return false;
+      const isTop5Announcement =
+        a.announcement_id === 'ANN-TOP5-2026' ||
+        a.category.toLowerCase().includes('top 5') ||
+        a.title.toLowerCase().includes('top 5');
+      if (isTop5Announcement && !top5Published) {
+        return false;
+      }
+      return true;
+    })
+    .sort((a, b) => a.display_order - b.display_order);
 
   const top5 = top5Published
     ? db.FINALIS_PEMENANG.filter((f) => f.selection_type === 'TOP_5' && f.published).map((f) => {

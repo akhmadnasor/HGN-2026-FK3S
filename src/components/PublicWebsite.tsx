@@ -166,6 +166,75 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
     return () => clearInterval(timer);
   }, [deadlineStr, submissionEnabled]);
 
+  // Scheduled Top 5 Announcement Countdown (e.g. Besok 26 Nov 2026 07:00 WIB)
+  const top5AnnouncementAt = settings.top5_announcement_at || '';
+  const top5Unlocked = data.top5.length > 0;
+  const isTop5ScheduledPending =
+    settings.preliminary_results_published === 'true' &&
+    Boolean(top5AnnouncementAt) &&
+    !top5Unlocked;
+
+  const [top5Countdown, setTop5Countdown] = useState<{
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+    reached: boolean;
+  }>({ days: 0, hours: 0, minutes: 0, seconds: 0, reached: false });
+  const top5AutoRefreshedRef = useRef(false);
+
+  useEffect(() => {
+    if (!top5AnnouncementAt || top5Unlocked) {
+      setTop5Countdown({ days: 0, hours: 0, minutes: 0, seconds: 0, reached: true });
+      return;
+    }
+    const tick = () => {
+      const target = new Date(top5AnnouncementAt).getTime();
+      const diff = target - Date.now();
+      if (Number.isNaN(target) || diff <= 0) {
+        setTop5Countdown({ days: 0, hours: 0, minutes: 0, seconds: 0, reached: true });
+        if (!top5AutoRefreshedRef.current) {
+          top5AutoRefreshedRef.current = true;
+          onRefreshPublicData();
+        }
+        return;
+      }
+      setTop5Countdown({
+        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((diff / (1000 * 60)) % 60),
+        seconds: Math.floor((diff / 1000) % 60),
+        reached: false
+      });
+    };
+    tick();
+    const timer = setInterval(tick, 1000);
+    return () => clearInterval(timer);
+  }, [top5AnnouncementAt, top5Unlocked, onRefreshPublicData]);
+
+  const formatTop5ScheduleWib = (isoStr: string) => {
+    try {
+      const d = new Date(isoStr);
+      if (Number.isNaN(d.getTime())) return 'Kamis, 26 November 2026 · Pukul 07.00 WIB';
+      const datePart = new Intl.DateTimeFormat('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        weekday: 'long',
+        day: 'numeric',
+        month: 'long',
+        year: 'numeric'
+      }).format(d);
+      const timePart = new Intl.DateTimeFormat('id-ID', {
+        timeZone: 'Asia/Jakarta',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      }).format(d);
+      return `${datePart} · Pukul ${timePart.replace(':', '.')} WIB`;
+    } catch {
+      return 'Kamis, 26 November 2026 · Pukul 07.00 WIB';
+    }
+  };
+
   // Internal Submission Form state
   const [formState, setFormState] = useState({
     full_name: '',
@@ -1319,15 +1388,52 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                             Pengumuman Panitia {organizer}
                           </h2>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => setShowTop5AnnouncementA4(true)}
-                          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FFD000] via-[#FFB800] to-[#FF9000] hover:brightness-105 text-slate-950 font-black text-xs inline-flex items-center gap-2 shadow-sm cursor-pointer self-start sm:self-auto whitespace-nowrap shrink-0"
-                        >
-                          <Printer className="w-4 h-4" />
-                          <span>Buka Pengumuman Top 5 (A4)</span>
-                        </button>
+                        {top5Unlocked && (
+                          <button
+                            type="button"
+                            onClick={() => setShowTop5AnnouncementA4(true)}
+                            className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-[#FFD000] via-[#FFB800] to-[#FF9000] hover:brightness-105 text-slate-950 font-black text-xs inline-flex items-center gap-2 shadow-sm cursor-pointer self-start sm:self-auto whitespace-nowrap shrink-0"
+                          >
+                            <Printer className="w-4 h-4" />
+                            <span>Buka Pengumuman Top 5 (A4)</span>
+                          </button>
+                        )}
                       </div>
+
+                      {isTop5ScheduledPending && (
+                        <div className="rounded-2xl bg-gradient-to-r from-[#EFF6FF] via-white to-[#FFFBEB] dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 border-2 border-[#004AAD] dark:border-[#FFB800] p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+                          <div className="space-y-1">
+                            <div className="text-xs font-extrabold text-[#004AAD] dark:text-[#FFB800] flex items-center gap-1.5">
+                              <Clock className="w-4 h-4 shrink-0" />
+                              <span>Jadwal Publikasi Resmi Top 5 Finalis</span>
+                            </div>
+                            <h3 className="font-display font-black text-base sm:text-lg text-slate-950 dark:text-white">
+                              Pengumuman 5 Finalis Terbaik Dibuka {formatTop5ScheduleWib(top5AnnouncementAt)}
+                            </h3>
+                            <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 leading-relaxed">
+                              Hasil penilaian Dewan Juri telah difinalisasi. Daftar nama 5 Finalis lolos Babak Final beserta surat pengumuman resmi ukuran A4 akan terbuka secara otomatis tepat pukul 07.00 WIB.
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2 shrink-0 font-mono tabular-nums">
+                            {[
+                              { label: 'Hari', val: top5Countdown.days },
+                              { label: 'Jam', val: top5Countdown.hours },
+                              { label: 'Menit', val: top5Countdown.minutes },
+                              { label: 'Detik', val: top5Countdown.seconds }
+                            ].map((unit) => (
+                              <div
+                                key={unit.label}
+                                className="min-w-[54px] rounded-xl bg-[#004AAD] text-white dark:bg-[#FFB800] dark:text-slate-950 px-2.5 py-2 text-center"
+                              >
+                                <div className="text-base sm:text-lg font-black leading-none">
+                                  {String(unit.val).padStart(2, '0')}
+                                </div>
+                                <div className="text-[10px] font-bold opacity-85 mt-1">{unit.label}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       {data.pengumuman.length === 0 ? (
                         <div className="flex-1 rounded-2xl bg-[#F8FAFC] dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 p-8 flex items-center justify-center text-slate-800 dark:text-slate-200 font-bold text-sm">
@@ -1507,37 +1613,67 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
                           </div>
                         </div>
                       ) : (
-                        <div className="flex-1 rounded-2xl bg-[#F8FAFC] dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 p-5 flex flex-col justify-between">
+                        <div className="flex-1 rounded-2xl bg-[#F8FAFC] dark:bg-slate-900 border-2 border-slate-300 dark:border-slate-700 p-5 flex flex-col justify-between gap-4">
                           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b-2 border-slate-200 dark:border-slate-800">
                             <div className="flex items-start gap-3.5">
                               <Icon3D type="results" size="md" />
                               <div>
-                                <span className="px-2.5 py-0.5 rounded-md bg-[#FFB800] text-slate-950 font-black text-[11px] uppercase">
-                                  STATUS PUBLIKASI HASIL
-                                </span>
-                                <h3 className="font-display font-black text-lg sm:text-xl text-slate-950 dark:text-white mt-1">
-                                  Menunggu Tahap Penilaian & Pengesahan Dewan Juri
+                                <div className="text-xs font-extrabold text-[#EA580C] dark:text-[#FFB800]">
+                                  {isTop5ScheduledPending
+                                    ? `Jadwal Rilis Otomatis · ${formatTop5ScheduleWib(top5AnnouncementAt)}`
+                                    : 'Status Publikasi Hasil'}
+                                </div>
+                                <h3 className="font-display font-black text-lg sm:text-xl text-slate-950 dark:text-white mt-0.5">
+                                  {isTop5ScheduledPending
+                                    ? 'Pengumuman Resmi Top 5 Dibuka Pukul 07.00 WIB'
+                                    : 'Menunggu Tahap Penilaian & Pengesahan Dewan Juri'}
                                 </h3>
+                                {isTop5ScheduledPending && (
+                                  <p className="text-xs sm:text-sm font-semibold text-slate-700 dark:text-slate-300 mt-1">
+                                    Penilaian Dewan Juri Tahap Penyisihan telah selesai. Daftar 5 Finalis Terbaik dan surat pengumuman resmi A4 akan tampil otomatis sesuai jadwal.
+                                  </p>
+                                )}
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 shrink-0">
-                              <div className="px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border-2 border-[#004AAD]/30 text-center">
-                                <div className="font-mono font-black text-lg text-[#004AAD] dark:text-[#FFB800] leading-none">
-                                  {data.stats?.total_participants || 0}
+                            {isTop5ScheduledPending ? (
+                              <div className="flex items-center gap-2 shrink-0 font-mono tabular-nums">
+                                {[
+                                  { label: 'Hari', val: top5Countdown.days },
+                                  { label: 'Jam', val: top5Countdown.hours },
+                                  { label: 'Menit', val: top5Countdown.minutes },
+                                  { label: 'Detik', val: top5Countdown.seconds }
+                                ].map((unit) => (
+                                  <div
+                                    key={unit.label}
+                                    className="min-w-[54px] rounded-xl bg-[#004AAD] text-white dark:bg-[#FFB800] dark:text-slate-950 px-2.5 py-2 text-center"
+                                  >
+                                    <div className="text-lg font-black leading-none">
+                                      {String(unit.val).padStart(2, '0')}
+                                    </div>
+                                    <div className="text-[10px] font-bold opacity-85 mt-1">{unit.label}</div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="flex items-center gap-2 shrink-0">
+                                <div className="px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border-2 border-[#004AAD]/30 text-center">
+                                  <div className="font-mono font-black text-lg text-[#004AAD] dark:text-[#FFB800] leading-none">
+                                    {data.stats?.total_participants || 0}
+                                  </div>
+                                  <div className="text-[10px] font-extrabold text-slate-700 dark:text-slate-300 mt-0.5">
+                                    KARYA MASUK
+                                  </div>
                                 </div>
-                                <div className="text-[10px] font-extrabold text-slate-700 dark:text-slate-300 mt-0.5">
-                                  KARYA MASUK
+                                <div className="px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border-2 border-[#004AAD]/30 text-center">
+                                  <div className="font-mono font-black text-lg text-[#EA580C] dark:text-[#FFB800] leading-none">
+                                    {data.stats?.total_schools || 0}
+                                  </div>
+                                  <div className="text-[10px] font-extrabold text-slate-700 dark:text-slate-300 mt-0.5">
+                                    SD PARTISIPAN
+                                  </div>
                                 </div>
                               </div>
-                              <div className="px-3 py-2 rounded-xl bg-white dark:bg-slate-950 border-2 border-[#004AAD]/30 text-center">
-                                <div className="font-mono font-black text-lg text-[#EA580C] dark:text-[#FFB800] leading-none">
-                                  {data.stats?.total_schools || 0}
-                                </div>
-                                <div className="text-[10px] font-extrabold text-slate-700 dark:text-slate-300 mt-0.5">
-                                  SD PARTISIPAN
-                                </div>
-                              </div>
-                            </div>
+                            )}
                           </div>
 
                           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-3">
@@ -3250,9 +3386,9 @@ export const PublicWebsite: React.FC<PublicWebsiteProps> = ({
           </div>
         </div>
       )}
-      {/* POP-UP SURAT PENGUMUMAN RESMI TOP 5 FINALIS (UKURAN A4) */}
+      {/* POP-UP SURAT PENGUMUMAN RESMI TOP 5 FINALIS (UKURAN A4 — HANYA TERBUKA SETELAH JADWAL RILIS) */}
       <OfficialTop5AnnouncementModal
-        isOpen={showTop5AnnouncementA4}
+        isOpen={showTop5AnnouncementA4 && top5Unlocked}
         onClose={() => setShowTop5AnnouncementA4(false)}
         fk3sLogo={fk3sLogo}
         mainHgnLogo={mainHgnLogo}

@@ -3478,6 +3478,58 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
                     </button>
                   </div>
                 </div>
+
+                {/* Jadwal Tayang Otomatis Pengumuman Top 5 (WIB) */}
+                <div className="rounded-xl bg-slate-950 border border-slate-800 p-4 flex flex-col lg:flex-row lg:items-center justify-between gap-3">
+                  <div className="space-y-0.5">
+                    <div className="text-xs font-bold text-amber-300">
+                      Jadwal Tayang Otomatis Pengumuman Top 5 (WIB)
+                    </div>
+                    <p className="text-[11px] text-slate-400">
+                      Sebelum waktu ini tercapai, beranda publik menampilkan hitung mundur otomatis dan menyembunyikan nama 5 finalis. Kosongkan untuk menayangkan segera.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2 shrink-0">
+                    <input
+                      type="text"
+                      value={settingsForm.top5_announcement_at || ''}
+                      onChange={(e) =>
+                        setSettingsForm((prev) => ({ ...prev, top5_announcement_at: e.target.value }))
+                      }
+                      placeholder="2026-11-26T07:00:00+07:00"
+                      className="rounded-xl bg-slate-900 border border-slate-700 px-3 py-2 text-xs font-mono text-white w-56"
+                    />
+                    <button
+                      type="button"
+                      onClick={async () => {
+                        const res = await fetch('/api/admin/settings', {
+                          method: 'PUT',
+                          headers: { 'Content-Type': 'application/json' },
+                          body: JSON.stringify({
+                            settings: {
+                              top5_announcement_at: settingsForm.top5_announcement_at || ''
+                            }
+                          })
+                        });
+                        const j = await res.json();
+                        if (res.ok && j.success) {
+                          showNotice(
+                            'success',
+                            settingsForm.top5_announcement_at
+                              ? `Jadwal tayang Top 5 disimpan: ${settingsForm.top5_announcement_at}`
+                              : 'Jadwal tunda dihapus — Pengumuman Top 5 langsung tayang.'
+                          );
+                          onRefreshPublic();
+                        } else {
+                          showNotice('error', j.message || 'Gagal menyimpan jadwal tayang.');
+                        }
+                      }}
+                      className="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-bold cursor-pointer whitespace-nowrap"
+                    >
+                      Simpan Jadwal Tayang
+                    </button>
+                  </div>
+                </div>
               </div>
 
               {/* Part 2: WINNER DETERMINATION (Juara I – Harapan II) */}
